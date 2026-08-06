@@ -1,0 +1,573 @@
+<!--
+  오름 POI(입구/화장실/주차장) 좌표 수집 편집기
+
+  실행 방법:
+    1) 아래 KAKAO_APP_KEY 를 developers.kakao.com 에서 발급받은 본인의
+       JavaScript 앱키로 교체한다.
+    2) 카카오 개발자 콘솔 > 내 애플리케이션 > 앱 설정 > 플랫폼 > Web 플랫폼
+       도메인에 http://localhost:8010 (아래 서버 실행 포트)을 등록한다.
+    3) 프로젝트 루트에서 `python map_editor/app.py` 실행
+    4) 브라우저에서 http://localhost:8010 접속
+-->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<title>오름 POI 좌표 편집기</title>
+<style>
+  html, body { margin: 0; height: 100%; font-family: -apple-system, "Malgun Gothic", sans-serif; }
+  #layout { display: flex; height: 100%; }
+  #sidebar { width: 320px; flex: none; border-right: 1px solid #ddd; padding: 12px; box-sizing: border-box; overflow-y: auto; }
+  #map { flex: 1; }
+  #search { width: 100%; box-sizing: border-box; padding: 6px 8px; font-size: 14px; }
+  #results, #address-results { list-style: none; margin: 8px 0; padding: 0; max-height: 220px; overflow-y: auto; border: 1px solid #eee; }
+  #results li, #address-results li { padding: 6px 8px; cursor: pointer; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+  #results li:hover, #address-results li:hover { background: #f5f5f5; }
+  #address-results li.selected { background: #eef6ff; }
+  #address-results .ar-name { display: block; }
+  #address-results .ar-addr { display: block; font-size: 11px; color: #888; margin-top: 2px; }
+  #current { margin-top: 12px; font-size: 14px; }
+  #current h2 { font-size: 16px; margin: 0 0 4px; }
+  .poi-row { display: flex; gap: 6px; margin: 6px 0; }
+  .mode-btn { flex: 1; padding: 8px; font-size: 14px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: #fff; }
+  .mode-btn:disabled { color: #bbb; background: #f5f5f5; cursor: not-allowed; }
+  .clear-btn { flex: none; padding: 8px 10px; font-size: 12px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: #fff; color: #999; }
+  .clear-btn:hover:not(:disabled) { background: #fdeaea; color: #c0392b; border-color: #e0b4b4; }
+  .clear-btn:disabled { color: #ddd; cursor: not-allowed; }
+  .roadview-btn { flex: none; padding: 8px 10px; font-size: 12px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: #fff; color: #555; }
+  .roadview-btn:hover:not(:disabled) { background: #eef6ff; border-color: #9fc1f0; }
+  .roadview-btn:disabled { color: #ddd; cursor: not-allowed; }
+  #roadview-panel { margin-top: 10px; }
+  #roadview-panel-header { display: flex; justify-content: space-between; align-items: center; margin: 8px 0 4px; }
+  #roadview-title { font-size: 12px; color: #666; }
+  #roadview-close-btn { flex: none; padding: 4px 8px; font-size: 11px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: #fff; }
+  #roadview { width: 100%; height: 220px; background: #eee; border-radius: 4px; }
+  #lat-input, #lng-input { flex: 1; min-width: 0; padding: 6px 8px; font-size: 13px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+  .apply-btn { display: block; width: 100%; padding: 8px; font-size: 14px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: #f0f4ff; }
+  .apply-btn:hover { background: #e2ebff; }
+  .mode-btn.active { color: #fff; }
+  .mode-btn[data-type="entrance"].active { background: #2b6cff; border-color: #2b6cff; }
+  .mode-btn[data-type="restroom"].active { background: #1fa25a; border-color: #1fa25a; }
+  .mode-btn[data-type="parking"].active { background: #e08a1e; border-color: #e08a1e; }
+  #status { margin-top: 10px; font-size: 12px; color: #666; min-height: 32px; white-space: pre-wrap; }
+  .legend { font-size: 12px; margin-top: 10px; line-height: 1.8; }
+  .marked-points { font-size: 12px; margin-top: 10px; padding: 8px; background: #f7f7f7; border-radius: 4px; line-height: 1.9; }
+  .marked-points .mp-row { display: flex; align-items: center; }
+  .marked-points .mp-status { margin-left: auto; color: #888; }
+  .marked-points .mp-status.mp-done { color: #333; font-weight: 500; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+</style>
+</head>
+<body>
+<div id="layout">
+  <div id="sidebar">
+    <input id="search" type="text" placeholder="오름 이름 검색..." />
+    <div id="result-count" style="font-size:11px;color:#888;margin-top:4px;"></div>
+    <ul id="results"></ul>
+
+    <div id="address-search-box" style="margin-top:12px; padding-top:12px; border-top:1px solid #eee;">
+      <div style="font-size:12px;color:#666;margin-bottom:4px;">주소 검색 (임시 마커 표시 → 마커 클릭 시 로드뷰)</div>
+      <div class="poi-row">
+        <input id="address-input" type="text" placeholder="주소를 입력하세요..." style="flex:1; min-width:0; padding:6px 8px; font-size:13px; box-sizing:border-box; border:1px solid #ccc; border-radius:4px;" />
+        <button id="address-search-btn" class="clear-btn" style="color:#2b6cff; border-color:#9fc1f0;">검색</button>
+      </div>
+      <ul id="address-results"></ul>
+    </div>
+
+    <div id="roadview-panel" style="display:none;">
+      <div id="roadview-panel-header">
+        <span id="roadview-title"></span>
+        <button id="roadview-close-btn">닫기</button>
+      </div>
+      <div id="roadview"></div>
+    </div>
+
+    <div id="current" style="display:none;">
+      <h2 id="current-name"></h2>
+      <div class="poi-row">
+        <button class="mode-btn" data-type="entrance">입구 찍기</button>
+        <button class="clear-btn" data-type="entrance" title="입구 좌표 지우기">취소</button>
+        <button class="roadview-btn" data-type="entrance" title="입구 로드뷰 보기">로드뷰</button>
+      </div>
+      <div class="poi-row">
+        <button class="mode-btn" data-type="restroom">화장실 찍기</button>
+        <button class="clear-btn" data-type="restroom" title="화장실 좌표 지우기">취소</button>
+        <button class="roadview-btn" data-type="restroom" title="화장실 로드뷰 보기">로드뷰</button>
+      </div>
+      <div class="poi-row">
+        <button class="mode-btn" data-type="parking">주차장 찍기</button>
+        <button class="clear-btn" data-type="parking" title="주차장 좌표 지우기">취소</button>
+        <button class="roadview-btn" data-type="parking" title="주차장 로드뷰 보기">로드뷰</button>
+      </div>
+      <div id="marked-points" class="marked-points"></div>
+      <div class="coord-input">
+        <div style="font-size:12px;color:#666;margin:8px 0 4px;">좌표 직접 입력 (위/아래 모드 버튼으로 대상 선택 후 입력)</div>
+        <div class="poi-row">
+          <input id="lat-input" type="number" step="any" placeholder="위도 (lat)" />
+          <input id="lng-input" type="number" step="any" placeholder="경도 (lng)" />
+        </div>
+        <button id="coord-apply-btn" class="apply-btn">좌표로 표시</button>
+      </div>
+      <div class="legend">
+        <div><span class="dot" style="background:#d92626"></span>정상(기존 데이터)</div>
+        <div><span class="dot" style="background:#2b6cff"></span>입구</div>
+        <div><span class="dot" style="background:#1fa25a"></span>화장실</div>
+        <div><span class="dot" style="background:#e08a1e"></span>주차장</div>
+      </div>
+    </div>
+
+    <div id="status"></div>
+  </div>
+  <div id="map"></div>
+</div>
+
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=KAKAO_APP_KEY&libraries=services"></script>
+<script>
+const POI_COLORS = { peak: '#d92626', entrance: '#2b6cff', restroom: '#1fa25a', parking: '#e08a1e' };
+const POI_LABELS = { peak: '정상', entrance: '입구', restroom: '화장실', parking: '주차장' };
+
+const map = new kakao.maps.Map(document.getElementById('map'), {
+  center: new kakao.maps.LatLng(33.38, 126.55), // 제주도 전체가 보이는 중심
+  level: 10,
+});
+
+// 일반지도 <-> 스카이뷰(위성) 전환 컨트롤 (지도 우측 상단)
+const mapTypeControl = new kakao.maps.MapTypeControl();
+map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
+
+const overlays = { peak: null, entrance: null, restroom: null, parking: null };
+const polylines = { entrance: null, restroom: null, parking: null };
+let currentOreumId = null;
+let currentOreumData = null; // 선택된 오름의 최신 전체 데이터 (로드뷰 버튼 등에서 재사용)
+let activeMode = null;
+let peakCoord = null; // { lat, lng } of the selected oreum's summit
+let roadview = null;
+let roadviewClient = null;
+
+function haversineMeters(lat1, lng1, lat2, lng2) {
+  const R = 6371000;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function formatDistance(meters) {
+  return meters < 1000 ? `${Math.round(meters)}m` : `${(meters / 1000).toFixed(2)}km`;
+}
+
+function setStatus(msg) {
+  document.getElementById('status').textContent = msg;
+}
+
+function makeOverlayContent(type) {
+  const div = document.createElement('div');
+  div.style.width = '14px';
+  div.style.height = '14px';
+  div.style.borderRadius = '50%';
+  div.style.border = '2px solid #fff';
+  div.style.boxShadow = '0 0 2px rgba(0,0,0,0.6)';
+  div.style.background = POI_COLORS[type];
+  div.title = POI_LABELS[type];
+  return div;
+}
+
+function setOverlay(type, lat, lng) {
+  if (overlays[type]) {
+    overlays[type].setMap(null);
+  }
+  if (lat == null || lng == null) {
+    overlays[type] = null;
+    return;
+  }
+  const overlay = new kakao.maps.CustomOverlay({
+    position: new kakao.maps.LatLng(lat, lng),
+    content: makeOverlayContent(type),
+    yAnchor: 0.5,
+  });
+  overlay.setMap(map);
+  overlays[type] = overlay;
+}
+
+function clearOverlays() {
+  Object.keys(overlays).forEach((type) => setOverlay(type, null, null));
+}
+
+function setPolyline(type, lat, lng) {
+  if (polylines[type]) {
+    polylines[type].setMap(null);
+    polylines[type] = null;
+  }
+  if (lat == null || lng == null || !peakCoord) return;
+  const line = new kakao.maps.Polyline({
+    path: [
+      new kakao.maps.LatLng(peakCoord.lat, peakCoord.lng),
+      new kakao.maps.LatLng(lat, lng),
+    ],
+    strokeWeight: 3,
+    strokeColor: POI_COLORS[type],
+    strokeOpacity: 0.75,
+    strokeStyle: 'shortdash',
+  });
+  line.setMap(map);
+  polylines[type] = line;
+}
+
+function clearPolylines() {
+  Object.keys(polylines).forEach((type) => setPolyline(type, null, null));
+}
+
+// 마커 표시 + 정상까지 연결선 그리기를 함께 처리
+function applyPoiVisual(type, lat, lng) {
+  setOverlay(type, lat, lng);
+  setPolyline(type, lat, lng);
+}
+
+function renderMarkedPoints(o) {
+  const container = document.getElementById('marked-points');
+  const types = ['entrance', 'restroom', 'parking'];
+  container.innerHTML = types
+    .map((type) => {
+      const lat = o[`${type}_lat`];
+      const lng = o[`${type}_lng`];
+      const marked = lat != null && lng != null;
+      let statusText = '미지정';
+      let statusClass = '';
+      if (marked) {
+        statusClass = 'mp-done';
+        statusText = peakCoord
+          ? `찍힘 · 정상서 ${formatDistance(haversineMeters(peakCoord.lat, peakCoord.lng, lat, lng))}`
+          : '찍힘 (정상 좌표 없음)';
+      }
+      return (
+        `<div class="mp-row"><span class="dot" style="background:${POI_COLORS[type]}"></span>` +
+        `${POI_LABELS[type]}<span class="mp-status ${statusClass}">${statusText}</span></div>`
+      );
+    })
+    .join('');
+}
+
+async function searchOreum(q) {
+  const res = await fetch('/api/oreum?q=' + encodeURIComponent(q));
+  return res.json();
+}
+
+function renderResults(items) {
+  document.getElementById('result-count').textContent = `${items.length}건`;
+  const ul = document.getElementById('results');
+  ul.innerHTML = '';
+  items.forEach((item) => {
+    const li = document.createElement('li');
+    li.textContent = `${item.name} (${item.region})`;
+    if (item.restroom === '없음') {
+      const badge = document.createElement('span');
+      badge.textContent = ' 화장실없음';
+      badge.style.color = '#aaa';
+      badge.style.fontSize = '11px';
+      li.appendChild(badge);
+    }
+    if (item.parking === '없음') {
+      const badge = document.createElement('span');
+      badge.textContent = ' 주차없음';
+      badge.style.color = '#aaa';
+      badge.style.fontSize = '11px';
+      li.appendChild(badge);
+    }
+    li.addEventListener('click', () => selectOreum(item.id));
+    ul.appendChild(li);
+  });
+}
+
+async function selectOreum(id) {
+  const res = await fetch(`/api/oreum/${id}`);
+  if (!res.ok) {
+    setStatus('오름 정보를 불러오지 못했습니다.');
+    return;
+  }
+  const o = await res.json();
+  currentOreumId = o.id;
+  currentOreumData = o;
+  activeMode = null;
+  document.querySelectorAll('.mode-btn').forEach((b) => b.classList.remove('active'));
+
+  document.getElementById('current').style.display = 'block';
+  document.getElementById('current-name').textContent = o.name;
+
+  const restroomBtn = document.querySelector('.mode-btn[data-type="restroom"]');
+  if (o.restroom === '없음') {
+    restroomBtn.disabled = true;
+    restroomBtn.textContent = '화장실 없음 (건너뜀)';
+  } else {
+    restroomBtn.disabled = false;
+    restroomBtn.textContent = '화장실 찍기';
+  }
+
+  clearOverlays();
+  clearPolylines();
+  peakCoord = (o.peak_lat != null && o.peak_lng != null) ? { lat: o.peak_lat, lng: o.peak_lng } : null;
+  if (peakCoord) {
+    setOverlay('peak', peakCoord.lat, peakCoord.lng);
+    map.setCenter(new kakao.maps.LatLng(peakCoord.lat, peakCoord.lng));
+    map.setLevel(4);
+  }
+  applyPoiVisual('entrance', o.entrance_lat, o.entrance_lng);
+  applyPoiVisual('restroom', o.restroom_lat, o.restroom_lng);
+  applyPoiVisual('parking', o.parking_lat, o.parking_lng);
+  updateClearButtons(o);
+  renderMarkedPoints(o);
+
+  setStatus(`"${o.name}" 선택됨. 입구/화장실/주차장 버튼을 누른 뒤 지도를 클릭하세요.`);
+}
+
+function updateClearButtons(o) {
+  document.querySelectorAll('.clear-btn, .roadview-btn').forEach((btn) => {
+    const type = btn.dataset.type;
+    const hasCoord = o[`${type}_lat`] != null && o[`${type}_lng`] != null;
+    btn.disabled = !hasCoord;
+  });
+}
+
+document.getElementById('search').addEventListener('input', async (e) => {
+  const items = await searchOreum(e.target.value);
+  renderResults(items);
+});
+
+document.querySelectorAll('.mode-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    if (!currentOreumId) {
+      setStatus('먼저 오름을 검색해서 선택하세요.');
+      return;
+    }
+    const isActive = btn.classList.contains('active');
+    document.querySelectorAll('.mode-btn').forEach((b) => b.classList.remove('active'));
+    if (isActive) {
+      activeMode = null;
+    } else {
+      btn.classList.add('active');
+      activeMode = btn.dataset.type;
+      setStatus(`"${POI_LABELS[activeMode]}" 위치를 지도에서 클릭하세요.`);
+    }
+  });
+});
+
+document.querySelectorAll('.clear-btn').forEach((btn) => {
+  btn.addEventListener('click', async () => {
+    if (!currentOreumId) return;
+    const type = btn.dataset.type;
+    try {
+      const res = await fetch(`/api/oreum/${currentOreumId}/poi/${type}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('delete failed');
+      const updated = await res.json();
+      currentOreumData = updated;
+      setOverlay(type, null, null);
+      setPolyline(type, null, null);
+      updateClearButtons(updated);
+      renderMarkedPoints(updated);
+      setStatus(`${POI_LABELS[type]} 좌표를 취소(삭제)했습니다.`);
+    } catch (err) {
+      setStatus(`취소 실패: ${err.message}`);
+    }
+  });
+});
+
+// 제주도 대략 범위를 크게 벗어나면 경고만 하고 저장은 진행한다 (부속시설은 살짝 벗어날 수 있음)
+const JEJU_BOUNDS = { latMin: 32.5, latMax: 34.5, lngMin: 125.5, lngMax: 127.5 };
+
+async function savePoi(type, lat, lng) {
+  if (!type) {
+    setStatus('먼저 입구/화장실/주차장 버튼을 눌러 대상을 선택하세요.');
+    return;
+  }
+  if (!currentOreumId) {
+    setStatus('먼저 오름을 검색해서 선택하세요.');
+    return;
+  }
+  if (Number.isNaN(lat) || Number.isNaN(lng)) {
+    setStatus('위도/경도를 숫자로 입력하세요.');
+    return;
+  }
+  const outOfBounds =
+    lat < JEJU_BOUNDS.latMin || lat > JEJU_BOUNDS.latMax ||
+    lng < JEJU_BOUNDS.lngMin || lng > JEJU_BOUNDS.lngMax;
+
+  applyPoiVisual(type, lat, lng);
+  map.setCenter(new kakao.maps.LatLng(lat, lng));
+
+  try {
+    const res = await fetch(`/api/oreum/${currentOreumId}/poi`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ poi_type: type, lat, lng }),
+    });
+    if (!res.ok) throw new Error('save failed');
+    const updated = await res.json();
+    currentOreumData = updated;
+    updateClearButtons(updated);
+    renderMarkedPoints(updated);
+    const distText = peakCoord ? ` (정상서 ${formatDistance(haversineMeters(peakCoord.lat, peakCoord.lng, lat, lng))})` : '';
+    const warn = outOfBounds ? ' ⚠ 제주도 범위를 벗어난 좌표입니다. 확인해주세요' : '';
+    setStatus(`${POI_LABELS[type]} 좌표 저장 완료: ${lat.toFixed(6)}, ${lng.toFixed(6)}${distText}${warn}`);
+  } catch (err) {
+    setStatus(`저장 실패: ${err.message}`);
+  }
+}
+
+kakao.maps.event.addListener(map, 'click', (mouseEvent) => {
+  if (!activeMode || !currentOreumId) return;
+  const latlng = mouseEvent.latLng;
+  savePoi(activeMode, latlng.getLat(), latlng.getLng());
+});
+
+document.getElementById('coord-apply-btn').addEventListener('click', () => {
+  const lat = parseFloat(document.getElementById('lat-input').value);
+  const lng = parseFloat(document.getElementById('lng-input').value);
+  savePoi(activeMode, lat, lng);
+});
+
+const ROADVIEW_SEARCH_RADIUS_M = 300;
+
+// lat/lng 위치의 로드뷰를 사이드바 패널에 표시 (POI 로드뷰 버튼, 주소 검색 마커 클릭 등에서 공용으로 사용)
+function showRoadviewAt(lat, lng, label) {
+  if (lat == null || lng == null) return;
+
+  const panel = document.getElementById('roadview-panel');
+  const title = document.getElementById('roadview-title');
+  panel.style.display = 'block';
+  title.textContent = `${label} 로드뷰 찾는 중...`;
+
+  if (!roadview) {
+    roadview = new kakao.maps.Roadview(document.getElementById('roadview'));
+    roadviewClient = new kakao.maps.RoadviewClient();
+  } else {
+    roadview.relayout();
+  }
+
+  const pos = new kakao.maps.LatLng(lat, lng);
+  roadviewClient.getNearestPanoId(pos, ROADVIEW_SEARCH_RADIUS_M, (panoId) => {
+    if (!panoId) {
+      title.textContent = `${label} 근처 ${ROADVIEW_SEARCH_RADIUS_M}m 이내에는 로드뷰가 없습니다.`;
+      return;
+    }
+    roadview.setPanoId(panoId, pos);
+    title.textContent = `${label} 로드뷰`;
+  });
+}
+
+function showRoadview(type) {
+  if (!currentOreumData) return;
+  showRoadviewAt(currentOreumData[`${type}_lat`], currentOreumData[`${type}_lng`], POI_LABELS[type]);
+}
+
+document.querySelectorAll('.roadview-btn').forEach((btn) => {
+  btn.addEventListener('click', () => showRoadview(btn.dataset.type));
+});
+
+document.getElementById('roadview-close-btn').addEventListener('click', () => {
+  document.getElementById('roadview-panel').style.display = 'none';
+});
+
+// 주소/장소 검색 -> 후보 목록 표시 -> 선택 시 일시적 마커 표시. 마커를 클릭하면 해당 위치의 로드뷰를 연다.
+// Places.keywordSearch는 카카오맵 검색창과 동일하게 주소·상호명·건물명을 모두 매칭한다.
+// 다만 순수 지번 주소 중 일부는 키워드 검색에 안 걸릴 수 있어, 결과가 없을 때 Geocoder로 한 번 더 폴백한다.
+const places = new kakao.maps.services.Places();
+const geocoder = new kakao.maps.services.Geocoder();
+let addressMarker = null;
+
+function clearAddressMarker() {
+  if (addressMarker) {
+    addressMarker.setMap(null);
+    addressMarker = null;
+  }
+}
+
+function placeAddressMarker(lat, lng, label) {
+  const pos = new kakao.maps.LatLng(lat, lng);
+  clearAddressMarker();
+  addressMarker = new kakao.maps.Marker({ position: pos, map });
+  kakao.maps.event.addListener(addressMarker, 'click', () => {
+    showRoadviewAt(lat, lng, label);
+  });
+  map.setCenter(pos);
+  map.setLevel(4);
+  setStatus(`"${label}" 위치에 마커를 표시했습니다. 마커를 클릭하면 로드뷰를 볼 수 있습니다.`);
+}
+
+function renderAddressResults(items) {
+  const ul = document.getElementById('address-results');
+  ul.innerHTML = '';
+  items.forEach((item) => {
+    const li = document.createElement('li');
+    const nameEl = document.createElement('span');
+    nameEl.className = 'ar-name';
+    nameEl.textContent = item.name;
+    li.appendChild(nameEl);
+    if (item.addr) {
+      const addrEl = document.createElement('span');
+      addrEl.className = 'ar-addr';
+      addrEl.textContent = item.addr;
+      li.appendChild(addrEl);
+    }
+    li.addEventListener('click', () => {
+      ul.querySelectorAll('li').forEach((el) => el.classList.remove('selected'));
+      li.classList.add('selected');
+      placeAddressMarker(item.lat, item.lng, item.name);
+    });
+    ul.appendChild(li);
+  });
+}
+
+function geocodeFallback(query) {
+  geocoder.addressSearch(query, (result, status) => {
+    if (status !== kakao.maps.services.Status.OK || !result.length) {
+      renderAddressResults([]);
+      setStatus(`"${query}" 검색 결과가 없습니다.`);
+      return;
+    }
+    const items = result.map((r) => ({
+      name: r.address_name,
+      addr: null,
+      lat: parseFloat(r.y),
+      lng: parseFloat(r.x),
+    }));
+    renderAddressResults(items);
+    setStatus(`"${query}" 주소 검색 결과 ${items.length}건. 목록에서 선택하세요.`);
+  });
+}
+
+function searchAddress(query) {
+  query = query.trim();
+  if (!query) {
+    setStatus('주소 또는 장소명을 입력하세요.');
+    return;
+  }
+  places.keywordSearch(query, (result, status) => {
+    if (status !== kakao.maps.services.Status.OK || !result.length) {
+      geocodeFallback(query);
+      return;
+    }
+    const items = result.map((r) => ({
+      name: r.place_name,
+      addr: r.road_address_name || r.address_name || null,
+      lat: parseFloat(r.y),
+      lng: parseFloat(r.x),
+    }));
+    renderAddressResults(items);
+    setStatus(`"${query}" 검색 결과 ${items.length}건. 목록에서 선택하세요.`);
+  });
+}
+
+document.getElementById('address-search-btn').addEventListener('click', () => {
+  searchAddress(document.getElementById('address-input').value);
+});
+document.getElementById('address-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') searchAddress(e.target.value);
+});
+
+// 초기 목록 로드
+searchOreum('').then(renderResults);
+</script>
+</body>
+</html>
