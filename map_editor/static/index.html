@@ -1,5 +1,5 @@
 <!--
-  오름 POI(입구/화장실/주차장) 좌표 수집 편집기
+  오름 POI(입구/화장실/주차장) 좌표 + 등산로 수집 편집기
 
   실행 방법:
     1) 아래 KAKAO_APP_KEY 를 developers.kakao.com 에서 발급받은 본인의
@@ -28,7 +28,8 @@
   #address-results .ar-addr { display: block; font-size: 11px; color: #888; margin-top: 2px; }
   #current { margin-top: 12px; font-size: 14px; }
   #current h2 { font-size: 16px; margin: 0 0 4px; }
-  .poi-row { display: flex; gap: 6px; margin: 6px 0; }
+  .section-label { font-size: 12px; color: #666; margin: 10px 0 4px; }
+  .poi-row { display: flex; gap: 6px; margin: 6px 0; align-items: center; }
   .mode-btn { flex: 1; padding: 8px; font-size: 14px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: #fff; }
   .mode-btn:disabled { color: #bbb; background: #f5f5f5; cursor: not-allowed; }
   .clear-btn { flex: none; padding: 8px 10px; font-size: 12px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: #fff; color: #999; }
@@ -42,9 +43,15 @@
   #roadview-title { font-size: 12px; color: #666; }
   #roadview-close-btn { flex: none; padding: 4px 8px; font-size: 11px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: #fff; }
   #roadview { width: 100%; height: 220px; background: #eee; border-radius: 4px; }
-  #lat-input, #lng-input { flex: 1; min-width: 0; padding: 6px 8px; font-size: 13px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+  #lat-input, #lng-input, .addr-input { flex: 1; min-width: 0; padding: 6px 8px; font-size: 13px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
   .apply-btn { display: block; width: 100%; padding: 8px; font-size: 14px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: #f0f4ff; }
   .apply-btn:hover { background: #e2ebff; }
+  .addr-save-btn { flex: none; padding: 8px 10px; font-size: 12px; cursor: pointer; border: 1px solid #9fc1f0; border-radius: 4px; background: #fff; color: #2b6cff; }
+  .addr-save-btn:hover { background: #eef6ff; }
+  .trail-btn { flex: 1; padding: 8px; font-size: 12px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: #fff; color: #555; }
+  .trail-btn:hover { background: #f5f5f5; }
+  .trail-btn.active { color: #fff; background: #8a2be2; border-color: #8a2be2; }
+  .trail-radio-label { font-size: 12px; display: flex; align-items: center; gap: 4px; }
   .mode-btn.active { color: #fff; }
   .mode-btn[data-type="entrance"].active { background: #2b6cff; border-color: #2b6cff; }
   .mode-btn[data-type="restroom"].active { background: #1fa25a; border-color: #1fa25a; }
@@ -84,10 +91,16 @@
 
     <div id="current" style="display:none;">
       <h2 id="current-name"></h2>
+
+      <div class="section-label">입구 / 화장실 / 주차장 좌표 (클릭 즉시 저장)</div>
       <div class="poi-row">
         <button class="mode-btn" data-type="entrance">입구 찍기</button>
         <button class="clear-btn" data-type="entrance" title="입구 좌표 지우기">취소</button>
         <button class="roadview-btn" data-type="entrance" title="입구 로드뷰 보기">로드뷰</button>
+      </div>
+      <div class="poi-row">
+        <input class="addr-input" data-addr-type="entrance" type="text" placeholder="입구 주소 (좌표 저장 시 자동 입력, 수정 가능)" />
+        <button class="addr-save-btn" data-addr-type="entrance">주소 저장</button>
       </div>
       <div class="poi-row">
         <button class="mode-btn" data-type="restroom">화장실 찍기</button>
@@ -99,20 +112,48 @@
         <button class="clear-btn" data-type="parking" title="주차장 좌표 지우기">취소</button>
         <button class="roadview-btn" data-type="parking" title="주차장 로드뷰 보기">로드뷰</button>
       </div>
+      <div class="poi-row">
+        <input class="addr-input" data-addr-type="parking" type="text" placeholder="주차장 주소 (좌표 저장 시 자동 입력, 수정 가능)" />
+        <button class="addr-save-btn" data-addr-type="parking">주소 저장</button>
+      </div>
       <div id="marked-points" class="marked-points"></div>
+
       <div class="coord-input">
-        <div style="font-size:12px;color:#666;margin:8px 0 4px;">좌표 직접 입력 (위/아래 모드 버튼으로 대상 선택 후 입력)</div>
+        <div class="section-label">좌표 직접 입력 (위/아래 모드 버튼으로 대상 선택 후 입력)</div>
         <div class="poi-row">
           <input id="lat-input" type="number" step="any" placeholder="위도 (lat)" />
           <input id="lng-input" type="number" step="any" placeholder="경도 (lng)" />
         </div>
         <button id="coord-apply-btn" class="apply-btn">좌표로 표시</button>
       </div>
+
+      <div id="trail-section">
+        <div class="section-label">등산로 (시작점 → 정상 순서로 지도를 클릭해 점을 찍음)</div>
+        <div class="poi-row">
+          <label class="trail-radio-label"><input type="radio" name="trail-start" id="trail-start-entrance" value="entrance"> 입구에서 시작</label>
+          <label class="trail-radio-label"><input type="radio" name="trail-start" id="trail-start-parking" value="parking"> 주차장에서 시작</label>
+        </div>
+        <div class="poi-row">
+          <button id="trail-draw-btn" class="trail-btn">등산로 그리기 시작</button>
+        </div>
+        <div class="poi-row">
+          <button id="trail-undo-btn" class="trail-btn">마지막 점 취소</button>
+          <button id="trail-clear-btn" class="trail-btn">전체 초기화</button>
+        </div>
+        <div class="section-label">노면상태 (관리자용 등급구분표 기준)</div>
+        <div class="poi-row">
+          <select id="trail-surface-select" class="addr-input" style="flex:1;"></select>
+        </div>
+        <button id="trail-save-btn" class="apply-btn">등산로 저장</button>
+        <div id="trail-status" style="font-size:12px;color:#666;margin-top:6px;"></div>
+      </div>
+
       <div class="legend">
         <div><span class="dot" style="background:#d92626"></span>정상(기존 데이터)</div>
         <div><span class="dot" style="background:#2b6cff"></span>입구</div>
         <div><span class="dot" style="background:#1fa25a"></span>화장실</div>
         <div><span class="dot" style="background:#e08a1e"></span>주차장</div>
+        <div><span class="dot" style="background:#8a2be2"></span>등산로</div>
       </div>
     </div>
 
@@ -121,10 +162,21 @@
   <div id="map"></div>
 </div>
 
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=KAKAO_APP_KEY&libraries=services"></script>
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=6df8501cdf4922b2d68fbd2a8d5e68a9&libraries=services"></script>
 <script>
 const POI_COLORS = { peak: '#d92626', entrance: '#2b6cff', restroom: '#1fa25a', parking: '#e08a1e' };
 const POI_LABELS = { peak: '정상', entrance: '입구', restroom: '화장실', parking: '주차장' };
+const ADDRESSABLE_TYPES = ['entrance', 'parking'];
+const TRAIL_COLOR = '#8a2be2';
+const TRAIL_START_DISTANCE_THRESHOLD_M = 150;
+// 관리자용 등급구분표 "노면상태" 행 (1~5점). 서버 값과 어긋나지 않도록 로드 시 /api/trail-surface-types 로 덮어씀
+let TRAIL_SURFACE_LABELS = {
+  1: '단단·매끈한 포장 (목재데크, 콘크리트 등)',
+  2: '거의 대부분 흙으로 이루어진 길',
+  3: '비교적 흙으로 이루어진 길 (50~80%)',
+  4: '비교적 돌로 이루어진 길 (50~80%)',
+  5: '거의 대부분 돌로 이루어진 길',
+};
 
 const map = new kakao.maps.Map(document.getElementById('map'), {
   center: new kakao.maps.LatLng(33.38, 126.55), // 제주도 전체가 보이는 중심
@@ -143,6 +195,12 @@ let activeMode = null;
 let peakCoord = null; // { lat, lng } of the selected oreum's summit
 let roadview = null;
 let roadviewClient = null;
+
+// 등산로 그리기 상태 (저장 버튼을 눌러야만 서버에 반영됨)
+let trailDrawing = false;
+let draftTrail = { start: null, points: [], surfaceType: null }; // points: [{lat,lng}, ...]
+const trailPointOverlays = [];
+let trailPolylineObj = null;
 
 function haversineMeters(lat1, lng1, lat2, lng2) {
   const R = 6371000;
@@ -163,15 +221,15 @@ function setStatus(msg) {
   document.getElementById('status').textContent = msg;
 }
 
-function makeOverlayContent(type) {
+function makeOverlayContent(type, color, title) {
   const div = document.createElement('div');
   div.style.width = '14px';
   div.style.height = '14px';
   div.style.borderRadius = '50%';
   div.style.border = '2px solid #fff';
   div.style.boxShadow = '0 0 2px rgba(0,0,0,0.6)';
-  div.style.background = POI_COLORS[type];
-  div.title = POI_LABELS[type];
+  div.style.background = color;
+  div.title = title;
   return div;
 }
 
@@ -185,7 +243,7 @@ function setOverlay(type, lat, lng) {
   }
   const overlay = new kakao.maps.CustomOverlay({
     position: new kakao.maps.LatLng(lat, lng),
-    content: makeOverlayContent(type),
+    content: makeOverlayContent(type, POI_COLORS[type], POI_LABELS[type]),
     yAnchor: 0.5,
   });
   overlay.setMap(map);
@@ -231,15 +289,14 @@ function renderMarkedPoints(o) {
   const types = ['entrance', 'restroom', 'parking'];
   container.innerHTML = types
     .map((type) => {
-      const lat = o[`${type}_lat`];
-      const lng = o[`${type}_lng`];
-      const marked = lat != null && lng != null;
+      const c = o.coordinates[type];
+      const marked = c.lat != null && c.lng != null;
       let statusText = '미지정';
       let statusClass = '';
       if (marked) {
         statusClass = 'mp-done';
         statusText = peakCoord
-          ? `찍힘 · 정상서 ${formatDistance(haversineMeters(peakCoord.lat, peakCoord.lng, lat, lng))}`
+          ? `찍힘 · 정상서 ${formatDistance(haversineMeters(peakCoord.lat, peakCoord.lng, c.lat, c.lng))}`
           : '찍힘 (정상 좌표 없음)';
       }
       return (
@@ -262,14 +319,14 @@ function renderResults(items) {
   items.forEach((item) => {
     const li = document.createElement('li');
     li.textContent = `${item.name} (${item.region})`;
-    if (item.restroom === '없음') {
+    if (item.facilities.restroom === '없음') {
       const badge = document.createElement('span');
       badge.textContent = ' 화장실없음';
       badge.style.color = '#aaa';
       badge.style.fontSize = '11px';
       li.appendChild(badge);
     }
-    if (item.parking === '없음') {
+    if (item.facilities.parking === '없음') {
       const badge = document.createElement('span');
       badge.textContent = ' 주차없음';
       badge.style.color = '#aaa';
@@ -279,6 +336,86 @@ function renderResults(items) {
     li.addEventListener('click', () => selectOreum(item.id));
     ul.appendChild(li);
   });
+}
+
+// 입구/주차장 중 어디부터 등산로를 시작할지 추천. 두 좌표가 다 있으면 거리 기준,
+// 하나만 있으면 있는 쪽, 아무것도 없으면 입구를 기본값으로 둔다.
+function recommendTrailStart(o) {
+  const en = o.coordinates.entrance;
+  const pk = o.coordinates.parking;
+  const enOk = en.lat != null && en.lng != null;
+  const pkOk = pk.lat != null && pk.lng != null;
+  if (enOk && pkOk) {
+    const d = haversineMeters(en.lat, en.lng, pk.lat, pk.lng);
+    return d > TRAIL_START_DISTANCE_THRESHOLD_M ? 'parking' : 'entrance';
+  }
+  if (pkOk && !enOk) return 'parking';
+  return 'entrance';
+}
+
+function updateTrailStartAvailability(o) {
+  document.getElementById('trail-start-entrance').disabled = o.coordinates.entrance.lat == null;
+  document.getElementById('trail-start-parking').disabled = o.coordinates.parking.lat == null;
+}
+
+function populateTrailSurfaceSelect() {
+  const select = document.getElementById('trail-surface-select');
+  select.innerHTML = '<option value="">노면상태 미지정</option>' +
+    Object.entries(TRAIL_SURFACE_LABELS)
+      .map(([value, label]) => `<option value="${value}">${value}점 · ${label}</option>`)
+      .join('');
+}
+
+function trailLengthMeters(points) {
+  let total = 0;
+  for (let i = 1; i < points.length; i++) {
+    total += haversineMeters(points[i - 1].lat, points[i - 1].lng, points[i].lat, points[i].lng);
+  }
+  return total;
+}
+
+function clearTrailVisuals() {
+  trailPointOverlays.forEach((ov) => ov.setMap(null));
+  trailPointOverlays.length = 0;
+  if (trailPolylineObj) {
+    trailPolylineObj.setMap(null);
+    trailPolylineObj = null;
+  }
+}
+
+function renderTrailVisuals() {
+  clearTrailVisuals();
+  draftTrail.points.forEach((p, idx) => {
+    const overlay = new kakao.maps.CustomOverlay({
+      position: new kakao.maps.LatLng(p.lat, p.lng),
+      content: makeOverlayContent('trail', TRAIL_COLOR, `등산로 점 ${idx + 1}`),
+      yAnchor: 0.5,
+    });
+    overlay.setMap(map);
+    trailPointOverlays.push(overlay);
+  });
+  if (draftTrail.points.length >= 2) {
+    trailPolylineObj = new kakao.maps.Polyline({
+      path: draftTrail.points.map((p) => new kakao.maps.LatLng(p.lat, p.lng)),
+      strokeWeight: 4,
+      strokeColor: TRAIL_COLOR,
+      strokeOpacity: 0.85,
+      strokeStyle: 'solid',
+    });
+    trailPolylineObj.setMap(map);
+  }
+  const startLabel = draftTrail.start ? POI_LABELS[draftTrail.start] : '미지정';
+  const lengthText = draftTrail.points.length >= 2 ? ` · ${formatDistance(trailLengthMeters(draftTrail.points))}` : '';
+  document.getElementById('trail-status').textContent =
+    `점 ${draftTrail.points.length}개 · ${startLabel}에서 시작${lengthText}` +
+    (draftTrail.points.length < 2 ? ' (저장하려면 2개 이상 필요)' : '');
+}
+
+function resetTrailDrawUi() {
+  trailDrawing = false;
+  const btn = document.getElementById('trail-draw-btn');
+  btn.textContent = '등산로 그리기 시작';
+  btn.classList.remove('active');
 }
 
 async function selectOreum(id) {
@@ -297,7 +434,7 @@ async function selectOreum(id) {
   document.getElementById('current-name').textContent = o.name;
 
   const restroomBtn = document.querySelector('.mode-btn[data-type="restroom"]');
-  if (o.restroom === '없음') {
+  if (o.facilities.restroom === '없음') {
     restroomBtn.disabled = true;
     restroomBtn.textContent = '화장실 없음 (건너뜀)';
   } else {
@@ -307,25 +444,44 @@ async function selectOreum(id) {
 
   clearOverlays();
   clearPolylines();
-  peakCoord = (o.peak_lat != null && o.peak_lng != null) ? { lat: o.peak_lat, lng: o.peak_lng } : null;
+  peakCoord = (o.coordinates.peak.lat != null && o.coordinates.peak.lng != null)
+    ? { lat: o.coordinates.peak.lat, lng: o.coordinates.peak.lng }
+    : null;
   if (peakCoord) {
     setOverlay('peak', peakCoord.lat, peakCoord.lng);
     map.setCenter(new kakao.maps.LatLng(peakCoord.lat, peakCoord.lng));
     map.setLevel(4);
   }
-  applyPoiVisual('entrance', o.entrance_lat, o.entrance_lng);
-  applyPoiVisual('restroom', o.restroom_lat, o.restroom_lng);
-  applyPoiVisual('parking', o.parking_lat, o.parking_lng);
+  applyPoiVisual('entrance', o.coordinates.entrance.lat, o.coordinates.entrance.lng);
+  applyPoiVisual('restroom', o.coordinates.restroom.lat, o.coordinates.restroom.lng);
+  applyPoiVisual('parking', o.coordinates.parking.lat, o.coordinates.parking.lng);
   updateClearButtons(o);
   renderMarkedPoints(o);
+
+  document.querySelector('.addr-input[data-addr-type="entrance"]').value = o.coordinates.entrance.address || '';
+  document.querySelector('.addr-input[data-addr-type="parking"]').value = o.coordinates.parking.address || '';
+
+  resetTrailDrawUi();
+  const savedTrail = o.trail || { start: null, path: null, surface_type: null };
+  const start = savedTrail.start || recommendTrailStart(o);
+  draftTrail = {
+    start,
+    points: (savedTrail.path || []).map((p) => ({ lat: p.lat, lng: p.lng })),
+    surfaceType: savedTrail.surface_type || null,
+  };
+  updateTrailStartAvailability(o);
+  const startRadio = document.getElementById(`trail-start-${start}`);
+  if (startRadio) startRadio.checked = true;
+  document.getElementById('trail-surface-select').value = draftTrail.surfaceType || '';
+  renderTrailVisuals();
 
   setStatus(`"${o.name}" 선택됨. 입구/화장실/주차장 버튼을 누른 뒤 지도를 클릭하세요.`);
 }
 
 function updateClearButtons(o) {
-  document.querySelectorAll('.clear-btn, .roadview-btn').forEach((btn) => {
+  document.querySelectorAll('.clear-btn[data-type], .roadview-btn[data-type]').forEach((btn) => {
     const type = btn.dataset.type;
-    const hasCoord = o[`${type}_lat`] != null && o[`${type}_lng`] != null;
+    const hasCoord = o.coordinates[type].lat != null && o.coordinates[type].lng != null;
     btn.disabled = !hasCoord;
   });
 }
@@ -335,12 +491,13 @@ document.getElementById('search').addEventListener('input', async (e) => {
   renderResults(items);
 });
 
-document.querySelectorAll('.mode-btn').forEach((btn) => {
+document.querySelectorAll('.mode-btn[data-type]').forEach((btn) => {
   btn.addEventListener('click', () => {
     if (!currentOreumId) {
       setStatus('먼저 오름을 검색해서 선택하세요.');
       return;
     }
+    if (trailDrawing) resetTrailDrawUi();
     const isActive = btn.classList.contains('active');
     document.querySelectorAll('.mode-btn').forEach((b) => b.classList.remove('active'));
     if (isActive) {
@@ -353,7 +510,7 @@ document.querySelectorAll('.mode-btn').forEach((btn) => {
   });
 });
 
-document.querySelectorAll('.clear-btn').forEach((btn) => {
+document.querySelectorAll('.clear-btn[data-type]').forEach((btn) => {
   btn.addEventListener('click', async () => {
     if (!currentOreumId) return;
     const type = btn.dataset.type;
@@ -366,6 +523,11 @@ document.querySelectorAll('.clear-btn').forEach((btn) => {
       setPolyline(type, null, null);
       updateClearButtons(updated);
       renderMarkedPoints(updated);
+      if (ADDRESSABLE_TYPES.includes(type)) {
+        const input = document.querySelector(`.addr-input[data-addr-type="${type}"]`);
+        if (input) input.value = '';
+      }
+      updateTrailStartAvailability(updated);
       setStatus(`${POI_LABELS[type]} 좌표를 취소(삭제)했습니다.`);
     } catch (err) {
       setStatus(`취소 실패: ${err.message}`);
@@ -375,6 +537,20 @@ document.querySelectorAll('.clear-btn').forEach((btn) => {
 
 // 제주도 대략 범위를 크게 벗어나면 경고만 하고 저장은 진행한다 (부속시설은 살짝 벗어날 수 있음)
 const JEJU_BOUNDS = { latMin: 32.5, latMax: 34.5, lngMin: 125.5, lngMax: 127.5 };
+
+function reverseGeocodeAddress(lat, lng) {
+  return new Promise((resolve) => {
+    geocoder.coord2Address(lng, lat, (result, status) => {
+      if (status === kakao.maps.services.Status.OK && result.length) {
+        const road = result[0].road_address;
+        const jibun = result[0].address;
+        resolve((road && road.address_name) || (jibun && jibun.address_name) || '');
+      } else {
+        resolve('');
+      }
+    });
+  });
+}
 
 async function savePoi(type, lat, lng) {
   if (!type) {
@@ -396,17 +572,25 @@ async function savePoi(type, lat, lng) {
   applyPoiVisual(type, lat, lng);
   map.setCenter(new kakao.maps.LatLng(lat, lng));
 
+  let address = null;
+  if (ADDRESSABLE_TYPES.includes(type)) {
+    address = (await reverseGeocodeAddress(lat, lng)) || null;
+    const input = document.querySelector(`.addr-input[data-addr-type="${type}"]`);
+    if (input) input.value = address || '';
+  }
+
   try {
     const res = await fetch(`/api/oreum/${currentOreumId}/poi`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ poi_type: type, lat, lng }),
+      body: JSON.stringify({ poi_type: type, lat, lng, address }),
     });
     if (!res.ok) throw new Error('save failed');
     const updated = await res.json();
     currentOreumData = updated;
     updateClearButtons(updated);
     renderMarkedPoints(updated);
+    updateTrailStartAvailability(updated);
     const distText = peakCoord ? ` (정상서 ${formatDistance(haversineMeters(peakCoord.lat, peakCoord.lng, lat, lng))})` : '';
     const warn = outOfBounds ? ' ⚠ 제주도 범위를 벗어난 좌표입니다. 확인해주세요' : '';
     setStatus(`${POI_LABELS[type]} 좌표 저장 완료: ${lat.toFixed(6)}, ${lng.toFixed(6)}${distText}${warn}`);
@@ -415,9 +599,116 @@ async function savePoi(type, lat, lng) {
   }
 }
 
+document.querySelectorAll('.addr-save-btn').forEach((btn) => {
+  btn.addEventListener('click', async () => {
+    if (!currentOreumId || !currentOreumData) {
+      setStatus('먼저 오름을 검색해서 선택하세요.');
+      return;
+    }
+    const type = btn.dataset.addrType;
+    const coord = currentOreumData.coordinates[type];
+    if (coord.lat == null || coord.lng == null) {
+      setStatus(`먼저 ${POI_LABELS[type]} 좌표를 찍으세요.`);
+      return;
+    }
+    const input = document.querySelector(`.addr-input[data-addr-type="${type}"]`);
+    try {
+      const res = await fetch(`/api/oreum/${currentOreumId}/poi`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ poi_type: type, lat: coord.lat, lng: coord.lng, address: input.value || null }),
+      });
+      if (!res.ok) throw new Error('save failed');
+      currentOreumData = await res.json();
+      setStatus(`${POI_LABELS[type]} 주소 저장 완료.`);
+    } catch (err) {
+      setStatus(`주소 저장 실패: ${err.message}`);
+    }
+  });
+});
+
+document.querySelectorAll('input[name="trail-start"]').forEach((radio) => {
+  radio.addEventListener('change', (e) => {
+    draftTrail.start = e.target.value;
+    renderTrailVisuals();
+  });
+});
+
+document.getElementById('trail-surface-select').addEventListener('change', (e) => {
+  draftTrail.surfaceType = e.target.value ? parseInt(e.target.value, 10) : null;
+});
+
+document.getElementById('trail-draw-btn').addEventListener('click', () => {
+  if (!currentOreumId) {
+    setStatus('먼저 오름을 검색해서 선택하세요.');
+    return;
+  }
+  activeMode = null;
+  document.querySelectorAll('.mode-btn').forEach((b) => b.classList.remove('active'));
+
+  trailDrawing = !trailDrawing;
+  const btn = document.getElementById('trail-draw-btn');
+  if (trailDrawing) {
+    btn.textContent = '등산로 그리기 중지';
+    btn.classList.add('active');
+    if (draftTrail.points.length === 0) {
+      const startCoord = currentOreumData.coordinates[draftTrail.start];
+      if (startCoord && startCoord.lat != null) {
+        draftTrail.points.push({ lat: startCoord.lat, lng: startCoord.lng });
+        renderTrailVisuals();
+      }
+    }
+    setStatus('지도를 클릭해 등산로 점을 순서대로 찍으세요. 다 그리면 "등산로 저장"을 누르세요.');
+  } else {
+    btn.textContent = '등산로 그리기 시작';
+    btn.classList.remove('active');
+  }
+});
+
+document.getElementById('trail-undo-btn').addEventListener('click', () => {
+  draftTrail.points.pop();
+  renderTrailVisuals();
+});
+
+document.getElementById('trail-clear-btn').addEventListener('click', () => {
+  draftTrail.points = [];
+  renderTrailVisuals();
+});
+
+document.getElementById('trail-save-btn').addEventListener('click', async () => {
+  if (!currentOreumId) {
+    setStatus('먼저 오름을 검색해서 선택하세요.');
+    return;
+  }
+  if (draftTrail.points.length < 2) {
+    setStatus('등산로는 점을 2개 이상 찍어야 저장할 수 있습니다.');
+    return;
+  }
+  try {
+    const res = await fetch(`/api/oreum/${currentOreumId}/trail`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ start: draftTrail.start, points: draftTrail.points, surface_type: draftTrail.surfaceType }),
+    });
+    if (!res.ok) throw new Error('save failed');
+    currentOreumData = await res.json();
+    const savedLength = currentOreumData.trail && currentOreumData.trail.length_m != null
+      ? ` · 길이 ${formatDistance(currentOreumData.trail.length_m)}`
+      : '';
+    setStatus(`등산로 저장 완료 (${draftTrail.points.length}개 점, ${POI_LABELS[draftTrail.start]}에서 시작${savedLength}).`);
+  } catch (err) {
+    setStatus(`등산로 저장 실패: ${err.message}`);
+  }
+});
+
 kakao.maps.event.addListener(map, 'click', (mouseEvent) => {
-  if (!activeMode || !currentOreumId) return;
   const latlng = mouseEvent.latLng;
+  if (trailDrawing && currentOreumId) {
+    draftTrail.points.push({ lat: latlng.getLat(), lng: latlng.getLng() });
+    renderTrailVisuals();
+    return;
+  }
+  if (!activeMode || !currentOreumId) return;
   savePoi(activeMode, latlng.getLat(), latlng.getLng());
 });
 
@@ -458,10 +749,11 @@ function showRoadviewAt(lat, lng, label) {
 
 function showRoadview(type) {
   if (!currentOreumData) return;
-  showRoadviewAt(currentOreumData[`${type}_lat`], currentOreumData[`${type}_lng`], POI_LABELS[type]);
+  const c = currentOreumData.coordinates[type];
+  showRoadviewAt(c.lat, c.lng, POI_LABELS[type]);
 }
 
-document.querySelectorAll('.roadview-btn').forEach((btn) => {
+document.querySelectorAll('.roadview-btn[data-type]').forEach((btn) => {
   btn.addEventListener('click', () => showRoadview(btn.dataset.type));
 });
 
@@ -567,6 +859,17 @@ document.getElementById('address-input').addEventListener('keydown', (e) => {
 });
 
 // 초기 목록 로드
+populateTrailSurfaceSelect();
+fetch('/api/trail-surface-types')
+  .then((res) => res.json())
+  .then((labels) => {
+    TRAIL_SURFACE_LABELS = labels;
+    populateTrailSurfaceSelect();
+    if (draftTrail.surfaceType) {
+      document.getElementById('trail-surface-select').value = draftTrail.surfaceType;
+    }
+  })
+  .catch(() => {});
 searchOreum('').then(renderResults);
 </script>
 </body>
