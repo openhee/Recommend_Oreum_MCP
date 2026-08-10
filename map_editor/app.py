@@ -18,14 +18,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 JSON_PATH = BASE_DIR / "data" / "oreum.json"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
-# 주소를 함께 관리하는 POI 타입 (입구/주차장은 네비게이션용 주소가 있음, 화장실은 없음)
-ADDRESSABLE_POI_TYPES = ("entrance", "parking")
+# 주소를 함께 관리하는 POI 타입 (주차장은 네비게이션용 주소가 있음, 화장실은 없음).
+# 입구는 여러 개일 수 있어 이 엔드포인트가 아니라 /entrances 컬렉션 엔드포인트로 관리한다.
+ADDRESSABLE_POI_TYPES = ("parking",)
 
 app = FastAPI(title="Oreum Map Editor")
 
 
 class PoiUpdate(BaseModel):
-    poi_type: Literal["entrance", "restroom", "parking"]
+    poi_type: Literal["restroom", "parking"]
+    lat: float
+    lng: float
+    address: str | None = None
+
+
+class EntranceUpdate(BaseModel):
     lat: float
     lng: float
     address: str | None = None
@@ -48,7 +55,6 @@ SURFACE_TYPE_LABELS = {
 
 
 class TrailUpdate(BaseModel):
-    start: Literal["entrance", "parking"]
     points: list[TrailPoint]
     surface_type: Literal[1, 2, 3, 4, 5] | None = None
 
@@ -88,7 +94,42 @@ def find_record(records: list[dict], oreum_id: int) -> dict:
     raise HTTPException(status_code=404, detail="oreum not found")
 
 
+def find_trail(row: dict, trail_id: int) -> dict:
+    for t in row.setdefault("trails", []):
+        if t.get("id") == trail_id:
+            return t
+    raise HTTPException(status_code=404, detail="trail not found")
+
+
+def find_entrance(row: dict, entrance_id: int) -> dict:
+    for e in row["coordinates"].setdefault("entrances", []):
+        if e.get("id") == entrance_id:
+            return e
+    raise HTTPException(status_code=404, detail="entrance not found")
+
+
 SEARCH_FIELDS = ("id", "name", "region")
+
+# 지도 편집기가 실제로 수집하는 4개 항목만 진행률에 반영한다. CSV 원본 필드(basic_info 등)는
+# 이미 대부분 채워져 있어 진행률로서 의미가 없어 제외.
+PROGRESS_FIELD_LABELS = {
+    "entrance": "입구",
+    "parking": "주차장",
+    "restroom": "화장실",
+    "trail": "등산로",
+}
+
+
+def compute_progress(row: dict) -> dict[str, bool]:
+    coords = row.get("coordinates", {})
+    parking = coords.get("parking", {})
+    restroom = coords.get("restroom", {})
+    return {
+        "entrance": bool(coords.get("entrances")),
+        "parking": parking.get("lat") is not None and parking.get("lng") is not None,
+        "restroom": restroom.get("lat") is not None and restroom.get("lng") is not None,
+        "trail": bool(row.get("trails")),
+    }
 
 
 @app.get("/api/oreum")
@@ -104,9 +145,23 @@ def search_oreum(q: str = ""):
                 "restroom": r.get("facilities", {}).get("restroom"),
                 "parking": r.get("facilities", {}).get("parking"),
             },
+            "collected": sum(compute_progress(r).values()),
+            "total": len(PROGRESS_FIELD_LABELS),
         }
         for r in records
     ]
+
+
+@app.get("/api/oreum/progress")
+def get_progress():
+    records = load_records()
+    fields = {key: {"label": label, "count": 0} for key, label in PROGRESS_FIELD_LABELS.items()}
+    for r in records:
+        progress = compute_progress(r)
+        for key, done in progress.items():
+            if done:
+                fields[key]["count"] += 1
+    return {"total": len(records), "fields": fields}
 
 
 @app.get("/api/oreum/{oreum_id}")
@@ -128,7 +183,7 @@ def update_poi(oreum_id: int, body: PoiUpdate):
 
 
 @app.delete("/api/oreum/{oreum_id}/poi/{poi_type}")
-def clear_poi(oreum_id: int, poi_type: Literal["entrance", "restroom", "parking"]):
+def clear_poi(oreum_id: int, poi_type: Literal["restroom", "parking"]):
     records = load_records()
     row = find_record(records, oreum_id)
     coord = row["coordinates"][poi_type]
@@ -140,31 +195,81 @@ def clear_poi(oreum_id: int, poi_type: Literal["entrance", "restroom", "parking"
     return row
 
 
+@app.post("/api/oreum/{oreum_id}/entrances")
+def create_entrance(oreum_id: int, body: EntranceUpdate):
+    records = load_records()
+    row = find_record(records, oreum_id)
+    entrances = row["coordinates"].setdefault("entrances", [])
+    new_id = max((e["id"] for e in entrances), default=0) + 1
+    entrances.append({"id": new_id, "lat": body.lat, "lng": body.lng, "address": body.address})
+    save_records(records)
+    return row
+
+
+@app.patch("/api/oreum/{oreum_id}/entrances/{entrance_id}")
+def update_entrance(oreum_id: int, entrance_id: int, body: EntranceUpdate):
+    records = load_records()
+    row = find_record(records, oreum_id)
+    entrance = find_entrance(row, entrance_id)
+    entrance["lat"] = body.lat
+    entrance["lng"] = body.lng
+    if body.address is not None:
+        entrance["address"] = body.address
+    save_records(records)
+    return row
+
+
+@app.delete("/api/oreum/{oreum_id}/entrances/{entrance_id}")
+def delete_entrance(oreum_id: int, entrance_id: int):
+    records = load_records()
+    row = find_record(records, oreum_id)
+    entrance = find_entrance(row, entrance_id)
+    row["coordinates"]["entrances"].remove(entrance)
+    save_records(records)
+    return row
+
+
 @app.get("/api/trail-surface-types")
 def get_trail_surface_types():
     return SURFACE_TYPE_LABELS
 
 
-@app.patch("/api/oreum/{oreum_id}/trail")
-def update_trail(oreum_id: int, body: TrailUpdate):
+@app.post("/api/oreum/{oreum_id}/trails")
+def create_trail(oreum_id: int, body: TrailUpdate):
     records = load_records()
     row = find_record(records, oreum_id)
-    row["trail"]["start"] = body.start
-    row["trail"]["path"] = [{"lat": p.lat, "lng": p.lng} for p in body.points]
-    row["trail"]["surface_type"] = body.surface_type
-    row["trail"]["length_m"] = round(trail_length_meters(body.points), 1)
+    trails = row.setdefault("trails", [])
+    new_id = max((t["id"] for t in trails), default=0) + 1
+    trails.append(
+        {
+            "id": new_id,
+            "path": [{"lat": p.lat, "lng": p.lng} for p in body.points],
+            "surface_type": body.surface_type,
+            "length_m": round(trail_length_meters(body.points), 1),
+        }
+    )
     save_records(records)
     return row
 
 
-@app.delete("/api/oreum/{oreum_id}/trail")
-def clear_trail(oreum_id: int):
+@app.patch("/api/oreum/{oreum_id}/trails/{trail_id}")
+def update_trail(oreum_id: int, trail_id: int, body: TrailUpdate):
     records = load_records()
     row = find_record(records, oreum_id)
-    row["trail"]["start"] = None
-    row["trail"]["path"] = None
-    row["trail"]["surface_type"] = None
-    row["trail"]["length_m"] = None
+    trail = find_trail(row, trail_id)
+    trail["path"] = [{"lat": p.lat, "lng": p.lng} for p in body.points]
+    trail["surface_type"] = body.surface_type
+    trail["length_m"] = round(trail_length_meters(body.points), 1)
+    save_records(records)
+    return row
+
+
+@app.delete("/api/oreum/{oreum_id}/trails/{trail_id}")
+def delete_trail(oreum_id: int, trail_id: int):
+    records = load_records()
+    row = find_record(records, oreum_id)
+    trail = find_trail(row, trail_id)
+    row["trails"].remove(trail)
     save_records(records)
     return row
 

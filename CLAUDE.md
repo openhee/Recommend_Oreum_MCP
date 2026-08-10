@@ -19,7 +19,7 @@ data/oreum.json (pretty-printed JSON array, one grouped object per oreum)
         └── map_editor writes POI/address/trail edits straight into this file
 ```
 
-- `python scripts/build_oreum_json.py` — **destructive**: regenerates `data/oreum.json` from the CSV only, imports the CSV-parsing helpers (`load_rows`, `fix_coord_swap`, `parse_climb_time`, etc.) from `scripts/build_oreum_db.py`. All map_editor-collected fields (`coordinates.entrance/parking/restroom`, `coordinates.entrance.address`, `coordinates.parking.address`, `trail.start`, `trail.path`) are reset to `null`/empty — it does not merge in anything from the existing `data/oreum.json`, `data/oreum.db`, or `data/no_oreum.json`. Only run this when you intend to start POI/trail collection over from scratch (e.g. the raw CSV changed).
+- `python scripts/build_oreum_json.py` — **destructive**: regenerates `data/oreum.json` from the CSV only, imports the CSV-parsing helpers (`load_rows`, `fix_coord_swap`, `parse_climb_time`, etc.) from `scripts/build_oreum_db.py`. All map_editor-collected fields (`coordinates.entrances`, `coordinates.parking/restroom`, `coordinates.parking.address`, `trails`) are reset to empty (`coordinates.entrances`/`trails` become `[]`) — it does not merge in anything from the existing `data/oreum.json`, `data/oreum.db`, or `data/no_oreum.json`. The one exception: `coordinates.entrances` is seeded from the CSV's original entrance lat/lng as a single-item array (`address: null`) when present, since that's the raw source data rather than a map_editor collection. Only run this when you intend to start POI/trail collection over from scratch (e.g. the raw CSV changed).
 - `map_editor/app.py` reads and writes `data/oreum.json` directly on every POI/address/trail save — there is no separate export/sync step.
 - The legacy SQLite path (`build_oreum_db.py` → `data/oreum.db` → `export_oreum_json.py`/`sync_json_to_db.py`) still works standalone if you need it, but it is decoupled from `data/oreum.json` and from map_editor.
 
@@ -31,17 +31,17 @@ Each record is grouped into sections rather than one flat object:
 
 ```
 {
-  "id", "source_seq", "name", "region", "address",   // 기본 식별 정보 (CSV 원본)
+  "id", "name", "region", "address",   // 기본 식별 정보 (CSV 원본)
   "basic_info": { relative_height_m, elevation_m, area_sqm, shape_type, shape_direction,
                    difficulty, distance_km, climb_time_min, recommended_season },
   "coordinates": {
-    "peak":     { lat, lng },
-    "entrance": { lat, lng, address },   // address: 카카오 역지오코딩 자동 채움 + 수동 수정
-    "parking":  { lat, lng, address },
-    "restroom": { lat, lng }
+    "peak":      { lat, lng },
+    "entrances": [ { "id": number, lat, lng, address }, ... ],  // 0..N per oreum (an oreum can have multiple entrances)
+    "parking":   { lat, lng, address },   // address: 카카오 역지오코딩 자동 채움 + 수동 수정
+    "restroom":  { lat, lng }
   },
-  "trail": { "start": "entrance" | "parking" | null, "path": [{lat, lng}, ...] | null,
-              "surface_type": 1|2|3|4|5|null, "length_m": number|null },  // surface_type/length_m only present after a trail save (see below)
+  "trails": [ { "id": number, "path": [{lat, lng}, ...] | null,
+                "surface_type": 1|2|3|4|5|null, "length_m": number|null }, ... ],  // 0..N per oreum, see below
   "facilities": { surface, parking, restroom, trail_info, hours_fee },  // CSV 자유서술 텍스트
   "kakao_map_url", "notes", "created_at"
 }
@@ -59,10 +59,12 @@ Serves on `http://0.0.0.0:8010`: the static UI (`map_editor/static/index.html`, 
 
 Key behavior to preserve when touching this code:
 - All endpoints read/write `data/oreum.json` directly via `load_records()`/`save_records()` — no SQLite involved. Keep it that way.
-- `PATCH /api/oreum/{id}/poi` (`entrance`/`restroom`/`parking`) sets `coordinates.<type>.lat/lng`, and `coordinates.<type>.address` when `address` is provided and the type is in `ADDRESSABLE_POI_TYPES` (`entrance`, `parking`). `DELETE /api/oreum/{id}/poi/{type}` clears the same fields.
-- `PATCH /api/oreum/{id}/trail` sets `trail.start`/`trail.path`/`trail.surface_type` from a `{start, points: [{lat, lng}, ...], surface_type}` body, and server-computes `trail.length_m` (haversine sum over `points`, see `trail_length_meters`) — the client never sends a length. `DELETE /api/oreum/{id}/trail` clears all four fields. The frontend only calls PATCH on an explicit "등산로 저장" click — trail points are **not** saved per-click the way POI pins are, since a path is built from many clicks that shouldn't each persist a half-drawn route.
+- `PATCH /api/oreum/{id}/poi` (`restroom`/`parking` only — see below for entrances) sets `coordinates.<type>.lat/lng`, and `coordinates.<type>.address` when `address` is provided and the type is in `ADDRESSABLE_POI_TYPES` (`parking`). `DELETE /api/oreum/{id}/poi/{type}` clears the same fields.
+- An oreum can have zero or more entrances (`coordinates.entrances: []` array — some oreums genuinely have multiple physical entrances). Each entrance is addressed by its own `id` (unique within the oreum, assigned server-side as `max(existing ids) + 1`, stable across other entrances' edits/deletes). `POST /api/oreum/{id}/entrances` creates a new entrance from a `{lat, lng, address}` body. `PATCH /api/oreum/{id}/entrances/{entrance_id}` updates an existing entrance's `lat`/`lng`/`address`. `DELETE /api/oreum/{id}/entrances/{entrance_id}` removes that entrance from the array. Frontend: clicking "입구 찍기" activates entrance-adding mode and every subsequent map click while active POSTs a new entrance (not an overwrite, unlike the single-point `restroom`/`parking` POI flow) — each entrance gets its own row in the sidebar `#entrance-list` with its own address input/save/roadview/delete controls, rendered by `renderEntranceList`.
+- An oreum can have zero or more trails (`trails: []` array, e.g. a summit route and a loop trail). Each trail is addressed by its own `id` (unique within the oreum, assigned server-side as `max(existing ids) + 1`, stable across other trails' edits/deletes — never reused as an array index). `POST /api/oreum/{id}/trails` creates a new trail from a `{points: [{lat, lng}, ...], surface_type}` body. `PATCH /api/oreum/{id}/trails/{trail_id}` updates an existing trail's `path`/`surface_type` the same way. Both server-compute `length_m` (haversine sum over `points`, see `trail_length_meters`) — the client never sends a length. `DELETE /api/oreum/{id}/trails/{trail_id}` removes that trail entirely from the array (not a field-clearing operation like the POI `DELETE` endpoints). Trails have no `start`/label field — where a trail begins is just the first point of `path`, drawn wherever the user first clicks on the map (not auto-seeded from any POI coordinate), which is what makes multiple entrances actually usable (a trail can start at any of them, or nowhere near one). The frontend only calls POST/PATCH on an explicit "등산로 저장" click for the active trail tab — trail points are **not** saved per-click the way POI pins are, since a path is built from many clicks that shouldn't each persist a half-drawn route.
+- Frontend state mirrors this as `draftTrails` (an array, one entry per trail tab) plus `activeTrailIndex` (which tab is being edited). All trails in `draftTrails` are drawn on the map simultaneously, each in a distinct color from a fixed `TRAIL_COLORS` palette (cycled by array index); only the active tab's trail shows per-point number overlays and receives new points from map clicks. A trail with `id: null` in `draftTrails` hasn't been saved yet — the save button POSTs to create it and back-fills the returned `id`; a trail with an `id` already assigned PATCHes in place.
 - `surface_type` is an int 1–5 matching the "노면상태" row of the manager grading table (관리자용 등급구분표): 1=단단·매끈한 포장(목재데크/콘크리트), 2=거의 흙길, 3=비교적 흙길(50~80%), 4=비교적 돌길(50~80%), 5=거의 돌길. Labels live server-side in `SURFACE_TYPE_LABELS` (`map_editor/app.py`) and are exposed via `GET /api/trail-surface-types`; the frontend fetches them at load instead of hardcoding, though it keeps a matching hardcoded copy as a pre-fetch fallback. These fields (plus geometry-derived slope/distance) feed the grading table's weighted difficulty formula — 경사도 0.286 / 거리 0.196 / 암릉·암반 0.193 / 노면상태 0.169 / 소요시간 0.154 — which is not yet implemented anywhere in this repo.
-- Frontend: entrance/parking pins trigger a Kakao `Geocoder.coord2Address` reverse-geocode (see `reverseGeocodeAddress`) that fills the address input and is sent along with the coordinate save; the user can still hand-edit the text and save it separately via the "주소 저장" button without moving the pin. Trail-start (`입구`/`주차장`) defaults to whichever is farther-from-the-other by more than 150m (`recommendTrailStart`/`TRAIL_START_DISTANCE_THRESHOLD_M`), always overridable via the radio toggle.
+- Frontend: entrance/parking pins trigger a Kakao `Geocoder.coord2Address` reverse-geocode (see `reverseGeocodeAddress`) that fills the address input and is sent along with the coordinate save; the user can still hand-edit the text and save it separately via each item's "주소 저장" button without moving the pin.
 
 ## Schema notes (legacy `db/schema.sql` / SQLite path)
 

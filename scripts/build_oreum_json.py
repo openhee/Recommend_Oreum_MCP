@@ -17,7 +17,6 @@ JSON_PATH = BASE_DIR / "data" / "oreum.json"
 def build_record(csv_rec: dict, oreum_id: int, now: str) -> dict:
     return {
         "id": oreum_id,
-        "source_seq": csv_rec["source_seq"],
         "name": csv_rec["name"],
         "region": csv_rec["region"],
         "address": csv_rec["address"],
@@ -34,14 +33,15 @@ def build_record(csv_rec: dict, oreum_id: int, now: str) -> dict:
         },
         "coordinates": {
             "peak": {"lat": csv_rec["peak_lat"], "lng": csv_rec["peak_lng"]},
-            "entrance": {"lat": csv_rec["entrance_lat"], "lng": csv_rec["entrance_lng"], "address": None},
+            "entrances": (
+                [{"id": 1, "lat": csv_rec["entrance_lat"], "lng": csv_rec["entrance_lng"], "address": None}]
+                if csv_rec["entrance_lat"] is not None
+                else []
+            ),
             "parking": {"lat": None, "lng": None, "address": None},
             "restroom": {"lat": None, "lng": None},
         },
-        "trail": {
-            "start": None,  # "entrance" | "parking"
-            "path": None,  # [{"lat":.., "lng":..}, ...] 시작점 -> 정상 순서
-        },
+        "trails": [],  # [{"id":.., "path":.., "surface_type":.., "length_m":..}, ...]
         "facilities": {
             "surface": csv_rec["surface"],
             "parking": csv_rec["parking"],
