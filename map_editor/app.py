@@ -9,6 +9,7 @@ import math
 from pathlib import Path
 from typing import Literal
 
+import requests
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -18,24 +19,36 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 JSON_PATH = BASE_DIR / "data" / "oreum.json"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
-# 주소를 함께 관리하는 POI 타입 (주차장은 네비게이션용 주소가 있음, 화장실은 없음).
-# 입구는 여러 개일 수 있어 이 엔드포인트가 아니라 /entrances 컬렉션 엔드포인트로 관리한다.
-ADDRESSABLE_POI_TYPES = ("parking",)
+# 카카오맵에 등산로가 초록선으로 표시되지만 API로는 그 지오메트리를 얻을 수 없어,
+# OpenStreetMap Overpass API에서 등산로류 way를 대신 조회해 초안 후보로 제시한다
+# (사람이 지도에서 검수·수정 후 저장). 328건 전수 자동화는 아니고 오름별 버튼 트리거.
+OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+OSM_TRAIL_HIGHWAY_TAGS = "path|footway|track|bridleway"
+OSM_TRAIL_SEARCH_RADIUS_M = 1200
+OSM_TRAIL_CANDIDATE_LIMIT = 8
 
 app = FastAPI(title="Oreum Map Editor")
 
 
 class PoiUpdate(BaseModel):
-    poi_type: Literal["restroom", "parking"]
+    poi_type: Literal["restroom"]
     lat: float
     lng: float
-    address: str | None = None
+    note: str | None = None
 
 
 class EntranceUpdate(BaseModel):
     lat: float
     lng: float
     address: str | None = None
+    note: str | None = None
+
+
+class ParkingUpdate(BaseModel):
+    lat: float
+    lng: float
+    address: str | None = None
+    note: str | None = None
 
 
 class TrailPoint(BaseModel):
@@ -57,6 +70,7 @@ SURFACE_TYPE_LABELS = {
 class TrailUpdate(BaseModel):
     points: list[TrailPoint]
     surface_type: Literal[1, 2, 3, 4, 5] | None = None
+    note: str | None = None
 
 
 def haversine_meters(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
@@ -73,6 +87,46 @@ def trail_length_meters(points: list[TrailPoint]) -> float:
     for a, b in zip(points, points[1:]):
         total += haversine_meters(a.lat, a.lng, b.lat, b.lng)
     return total
+
+
+def fetch_osm_trail_candidates(lat: float, lng: float) -> list[dict]:
+    query = (
+        f"[out:json][timeout:30];"
+        f'(way["highway"~"^({OSM_TRAIL_HIGHWAY_TAGS})$"]'
+        f"(around:{OSM_TRAIL_SEARCH_RADIUS_M},{lat},{lng}););"
+        f"out geom;"
+    )
+    try:
+        resp = requests.post(
+            OVERPASS_URL,
+            data={"data": query},
+            headers={"User-Agent": "oreum-map-editor/1.0"},
+            timeout=40,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+    except requests.RequestException as e:
+        raise HTTPException(status_code=502, detail=f"OSM 조회 실패: {e}")
+
+    candidates = []
+    for el in data.get("elements", []):
+        geom = el.get("geometry") or []
+        if len(geom) < 2:
+            continue
+        points = [{"lat": g["lat"], "lng": g["lon"]} for g in geom]
+        length = trail_length_meters([TrailPoint(**p) for p in points])
+        tags = el.get("tags", {})
+        candidates.append(
+            {
+                "osm_id": el["id"],
+                "name": tags.get("name"),
+                "highway": tags.get("highway"),
+                "length_m": round(length, 1),
+                "points": points,
+            }
+        )
+    candidates.sort(key=lambda c: c["length_m"], reverse=True)
+    return candidates[:OSM_TRAIL_CANDIDATE_LIMIT]
 
 
 def load_records() -> list[dict]:
@@ -108,6 +162,13 @@ def find_entrance(row: dict, entrance_id: int) -> dict:
     raise HTTPException(status_code=404, detail="entrance not found")
 
 
+def find_parking(row: dict, parking_id: int) -> dict:
+    for p in row["coordinates"].setdefault("parking", []):
+        if p.get("id") == parking_id:
+            return p
+    raise HTTPException(status_code=404, detail="parking not found")
+
+
 SEARCH_FIELDS = ("id", "name", "region")
 
 # 지도 편집기가 실제로 수집하는 4개 항목만 진행률에 반영한다. CSV 원본 필드(basic_info 등)는
@@ -122,11 +183,10 @@ PROGRESS_FIELD_LABELS = {
 
 def compute_progress(row: dict) -> dict[str, bool]:
     coords = row.get("coordinates", {})
-    parking = coords.get("parking", {})
     restroom = coords.get("restroom", {})
     return {
         "entrance": bool(coords.get("entrances")),
-        "parking": parking.get("lat") is not None and parking.get("lng") is not None,
+        "parking": bool(coords.get("parking")),
         "restroom": restroom.get("lat") is not None and restroom.get("lng") is not None,
         "trail": bool(row.get("trails")),
     }
@@ -176,21 +236,19 @@ def update_poi(oreum_id: int, body: PoiUpdate):
     coord = row["coordinates"][body.poi_type]
     coord["lat"] = body.lat
     coord["lng"] = body.lng
-    if body.poi_type in ADDRESSABLE_POI_TYPES and body.address is not None:
-        coord["address"] = body.address
+    if body.note is not None:
+        coord["note"] = body.note
     save_records(records)
     return row
 
 
 @app.delete("/api/oreum/{oreum_id}/poi/{poi_type}")
-def clear_poi(oreum_id: int, poi_type: Literal["restroom", "parking"]):
+def clear_poi(oreum_id: int, poi_type: Literal["restroom"]):
     records = load_records()
     row = find_record(records, oreum_id)
     coord = row["coordinates"][poi_type]
     coord["lat"] = None
     coord["lng"] = None
-    if poi_type in ADDRESSABLE_POI_TYPES:
-        coord["address"] = None
     save_records(records)
     return row
 
@@ -201,7 +259,9 @@ def create_entrance(oreum_id: int, body: EntranceUpdate):
     row = find_record(records, oreum_id)
     entrances = row["coordinates"].setdefault("entrances", [])
     new_id = max((e["id"] for e in entrances), default=0) + 1
-    entrances.append({"id": new_id, "lat": body.lat, "lng": body.lng, "address": body.address})
+    entrances.append(
+        {"id": new_id, "lat": body.lat, "lng": body.lng, "address": body.address, "note": body.note}
+    )
     save_records(records)
     return row
 
@@ -215,6 +275,8 @@ def update_entrance(oreum_id: int, entrance_id: int, body: EntranceUpdate):
     entrance["lng"] = body.lng
     if body.address is not None:
         entrance["address"] = body.address
+    if body.note is not None:
+        entrance["note"] = body.note
     save_records(records)
     return row
 
@@ -229,9 +291,68 @@ def delete_entrance(oreum_id: int, entrance_id: int):
     return row
 
 
+@app.post("/api/oreum/{oreum_id}/parking")
+def create_parking(oreum_id: int, body: ParkingUpdate):
+    records = load_records()
+    row = find_record(records, oreum_id)
+    parking = row["coordinates"].setdefault("parking", [])
+    new_id = max((p["id"] for p in parking), default=0) + 1
+    parking.append(
+        {"id": new_id, "lat": body.lat, "lng": body.lng, "address": body.address, "note": body.note}
+    )
+    save_records(records)
+    return row
+
+
+@app.patch("/api/oreum/{oreum_id}/parking/{parking_id}")
+def update_parking(oreum_id: int, parking_id: int, body: ParkingUpdate):
+    records = load_records()
+    row = find_record(records, oreum_id)
+    parking = find_parking(row, parking_id)
+    parking["lat"] = body.lat
+    parking["lng"] = body.lng
+    if body.address is not None:
+        parking["address"] = body.address
+    if body.note is not None:
+        parking["note"] = body.note
+    save_records(records)
+    return row
+
+
+@app.delete("/api/oreum/{oreum_id}/parking/{parking_id}")
+def delete_parking(oreum_id: int, parking_id: int):
+    records = load_records()
+    row = find_record(records, oreum_id)
+    parking = find_parking(row, parking_id)
+    row["coordinates"]["parking"].remove(parking)
+    save_records(records)
+    return row
+
+
 @app.get("/api/trail-surface-types")
 def get_trail_surface_types():
     return SURFACE_TYPE_LABELS
+
+
+@app.get("/api/oreum/{oreum_id}/trail-candidates")
+def get_trail_candidates(oreum_id: int):
+    records = load_records()
+    row = find_record(records, oreum_id)
+    peak = row["coordinates"].get("peak", {})
+    center = None
+    source = None
+    if peak.get("lat") is not None and peak.get("lng") is not None:
+        center = (peak["lat"], peak["lng"])
+        source = "peak"
+    else:
+        entrances = row["coordinates"].get("entrances") or []
+        if entrances:
+            center = (entrances[0]["lat"], entrances[0]["lng"])
+            source = "entrance"
+    if center is None:
+        raise HTTPException(status_code=400, detail="정상/입구 좌표가 없어 검색 기준점을 정할 수 없습니다.")
+    candidates = fetch_osm_trail_candidates(*center)
+    return {"center": {"lat": center[0], "lng": center[1], "source": source}, "candidates": candidates}
 
 
 @app.post("/api/oreum/{oreum_id}/trails")
@@ -246,6 +367,7 @@ def create_trail(oreum_id: int, body: TrailUpdate):
             "path": [{"lat": p.lat, "lng": p.lng} for p in body.points],
             "surface_type": body.surface_type,
             "length_m": round(trail_length_meters(body.points), 1),
+            "note": body.note,
         }
     )
     save_records(records)
@@ -260,6 +382,7 @@ def update_trail(oreum_id: int, trail_id: int, body: TrailUpdate):
     trail["path"] = [{"lat": p.lat, "lng": p.lng} for p in body.points]
     trail["surface_type"] = body.surface_type
     trail["length_m"] = round(trail_length_meters(body.points), 1)
+    trail["note"] = body.note
     save_records(records)
     return row
 

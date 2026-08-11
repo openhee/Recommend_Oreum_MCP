@@ -74,12 +74,16 @@
   .entrance-item { padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
   .entrance-item .mp-row { display: flex; align-items: center; margin-bottom: 4px; }
   .entrance-item .mp-status { margin-left: auto; color: #888; font-size: 11px; }
+  #trail-candidate-list { margin: 4px 0 10px; }
+  .trail-candidate-item { padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
+  .trail-candidate-item .mp-row { display: flex; align-items: center; margin-bottom: 4px; }
+  .trail-candidate-item .mp-status { margin-left: auto; color: #888; font-size: 11px; }
   #progress-summary { margin-bottom: 10px; padding: 8px 10px; background: #f7f7f7; border-radius: 6px; }
   #progress-summary .ps-title { font-size: 11px; color: #888; margin-bottom: 6px; }
   #progress-summary .ps-row { display: flex; align-items: center; gap: 6px; font-size: 12px; margin: 4px 0; }
   #progress-summary .ps-label { flex: none; width: 42px; color: #444; }
   #progress-summary .ps-bar-track { flex: 1; height: 6px; background: #e5e5e5; border-radius: 3px; overflow: hidden; }
-  #progress-summary .ps-bar-fill { height: 100%; background: #2b6cff; border-radius: 3px; }
+  #progress-summary .ps-bar-fill { display: block; height: 100%; background: #2b6cff; border-radius: 3px; }
   #progress-summary .ps-count { flex: none; width: 92px; text-align: right; color: #666; font-variant-numeric: tabular-nums; }
   .result-name { font-size: 15px; font-weight: 600; }
   .result-region { font-size: 12px; color: #888; margin-left: 4px; }
@@ -127,14 +131,13 @@
         <button class="roadview-btn" data-type="restroom" title="화장실 로드뷰 보기">로드뷰</button>
       </div>
       <div class="poi-row">
-        <button class="mode-btn" data-type="parking">주차장 찍기</button>
-        <button class="clear-btn" data-type="parking" title="주차장 좌표 지우기">취소</button>
-        <button class="roadview-btn" data-type="parking" title="주차장 로드뷰 보기">로드뷰</button>
+        <input id="restroom-note-input" class="addr-input" type="text" placeholder="화장실 설명 (선택)" />
+        <button id="restroom-note-save-btn" class="addr-save-btn">설명 저장</button>
       </div>
       <div class="poi-row">
-        <input class="addr-input" data-addr-type="parking" type="text" placeholder="주차장 주소 (좌표 저장 시 자동 입력, 수정 가능)" />
-        <button class="addr-save-btn" data-addr-type="parking">주소 저장</button>
+        <button class="mode-btn" data-type="parking">주차장 찍기 (누른 뒤 지도를 클릭할 때마다 새 주차장 추가)</button>
       </div>
+      <div id="parking-list"></div>
       <div id="marked-points" class="marked-points"></div>
 
       <div class="coord-input">
@@ -148,6 +151,12 @@
 
       <div id="trail-section">
         <div class="section-label">등산로 (오름 하나에 여러 등산로 등록 가능, 지도에는 전부 동시 표시됨)</div>
+        <div class="section-label">OSM 등산로 후보 (카카오맵 초록선과 비교해서 검수 후 가져오기)</div>
+        <div class="poi-row">
+          <button id="trail-osm-fetch-btn" class="trail-btn">OSM 등산로 후보 가져오기</button>
+          <button id="trail-osm-clear-btn" class="trail-btn">후보 미리보기 지우기</button>
+        </div>
+        <div id="trail-candidate-list"></div>
         <div id="trail-tabs" class="trail-tabs"></div>
         <div class="section-label">선택된 등산로: 지도를 클릭한 순서대로 점이 찍힘 (입구/주차장 좌표와 무관하게 원하는 곳부터 시작 가능)</div>
         <div class="poi-row">
@@ -160,6 +169,10 @@
         <div class="section-label">노면상태 (관리자용 등급구분표 기준)</div>
         <div class="poi-row">
           <select id="trail-surface-select" class="addr-input" style="flex:1;"></select>
+        </div>
+        <div class="section-label">설명 (선택)</div>
+        <div class="poi-row">
+          <input id="trail-note-input" class="addr-input" style="flex:1;" type="text" placeholder="등산로 설명" />
         </div>
         <button id="trail-save-btn" class="apply-btn">등산로 저장</button>
         <div id="trail-status" style="font-size:12px;color:#666;margin-top:6px;"></div>
@@ -183,7 +196,6 @@
 <script>
 const POI_COLORS = { peak: '#d92626', entrance: '#2b6cff', restroom: '#1fa25a', parking: '#e08a1e' };
 const POI_LABELS = { peak: '정상', entrance: '입구', restroom: '화장실', parking: '주차장' };
-const ADDRESSABLE_TYPES = ['parking'];
 const TRAIL_COLORS = ['#8a2be2', '#e67e22', '#16a085', '#e74c3c', '#2980b9', '#c0392b', '#27ae60', '#8e44ad'];
 function trailColor(idx) { return TRAIL_COLORS[idx % TRAIL_COLORS.length]; }
 // 관리자용 등급구분표 "노면상태" 행 (1~5점). 서버 값과 어긋나지 않도록 로드 시 /api/trail-surface-types 로 덮어씀
@@ -204,8 +216,9 @@ const map = new kakao.maps.Map(document.getElementById('map'), {
 const mapTypeControl = new kakao.maps.MapTypeControl();
 map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
 
-const overlays = { peak: null, restroom: null, parking: null };
+const overlays = { peak: null, restroom: null };
 const entranceOverlays = {}; // entrance id -> CustomOverlay (입구는 여러 개일 수 있어 배열/맵으로 관리)
+const parkingOverlays = {}; // parking id -> CustomOverlay (주차장도 여러 개일 수 있어 배열/맵으로 관리)
 let currentOreumId = null;
 let currentOreumData = null; // 선택된 오름의 최신 전체 데이터 (로드뷰 버튼 등에서 재사용)
 let activeMode = null;
@@ -216,10 +229,14 @@ let roadviewClient = null;
 // 등산로 그리기 상태 (저장 버튼을 눌러야만 서버에 반영됨). 오름 하나에 등산로 여러 개를
 // 동시에 유지하며, activeTrailIndex가 가리키는 등산로만 편집(점 추가/undo/저장) 대상이 된다.
 let trailDrawing = false;
-let draftTrails = []; // [{id: number|null, start, points: [{lat,lng},...], surfaceType}, ...]
+let draftTrails = []; // [{id: number|null, points: [{lat,lng},...], surfaceType, note}, ...]
 let activeTrailIndex = -1;
 const trailPointOverlays = []; // 활성 등산로의 점 오버레이만 표시
 const trailPolylineObjs = []; // draftTrails와 동일한 인덱스로 정렬된 Polyline (모든 등산로 동시 표시)
+
+// OSM에서 가져온 등산로 후보 미리보기 상태 (저장 전 참고용, draftTrails와 별개)
+let trailCandidates = [];
+const trailCandidateOverlays = [];
 
 function haversineMeters(lat1, lng1, lat2, lng2) {
   const R = 6371000;
@@ -297,9 +314,29 @@ function renderEntranceOverlays(entrances) {
   });
 }
 
+function clearParkingOverlays() {
+  Object.keys(parkingOverlays).forEach((id) => {
+    parkingOverlays[id].setMap(null);
+    delete parkingOverlays[id];
+  });
+}
+
+function renderParkingOverlays(parkingList) {
+  clearParkingOverlays();
+  parkingList.forEach((p, idx) => {
+    const overlay = new kakao.maps.CustomOverlay({
+      position: new kakao.maps.LatLng(p.lat, p.lng),
+      content: makeOverlayContent('parking', POI_COLORS.parking, `주차장 ${idx + 1}`),
+      yAnchor: 0.5,
+    });
+    overlay.setMap(map);
+    parkingOverlays[p.id] = overlay;
+  });
+}
+
 function renderMarkedPoints(o) {
   const container = document.getElementById('marked-points');
-  const types = ['restroom', 'parking'];
+  const types = ['restroom'];
   container.innerHTML = types
     .map((type) => {
       const c = o.coordinates[type];
@@ -359,6 +396,21 @@ function renderEntranceList(o) {
     addrRow.appendChild(addrSaveBtn);
     item.appendChild(addrRow);
 
+    const noteRow = document.createElement('div');
+    noteRow.className = 'poi-row';
+    const noteInput = document.createElement('input');
+    noteInput.className = 'addr-input';
+    noteInput.type = 'text';
+    noteInput.value = en.note || '';
+    noteInput.placeholder = '입구 설명';
+    noteRow.appendChild(noteInput);
+    const noteSaveBtn = document.createElement('button');
+    noteSaveBtn.className = 'addr-save-btn';
+    noteSaveBtn.textContent = '설명 저장';
+    noteSaveBtn.addEventListener('click', () => saveEntranceNote(en.id, noteInput.value));
+    noteRow.appendChild(noteSaveBtn);
+    item.appendChild(noteRow);
+
     const actionRow = document.createElement('div');
     actionRow.className = 'poi-row';
     const roadviewBtn = document.createElement('button');
@@ -370,6 +422,78 @@ function renderEntranceList(o) {
     deleteBtn.className = 'clear-btn';
     deleteBtn.textContent = '삭제';
     deleteBtn.addEventListener('click', () => deleteEntrance(en.id));
+    actionRow.appendChild(deleteBtn);
+    item.appendChild(actionRow);
+
+    container.appendChild(item);
+  });
+}
+
+// 주차장도 여러 개일 수 있어 입구와 동일하게 항목별 주소/설명 입력·저장, 로드뷰, 삭제 버튼을 갖는 목록으로 렌더링한다.
+function renderParkingList(o) {
+  const container = document.getElementById('parking-list');
+  container.innerHTML = '';
+  const parkingList = o.coordinates.parking || [];
+  parkingList.forEach((p, idx) => {
+    const item = document.createElement('div');
+    item.className = 'entrance-item';
+
+    const row = document.createElement('div');
+    row.className = 'mp-row';
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    dot.style.background = POI_COLORS.parking;
+    row.appendChild(dot);
+    row.appendChild(document.createTextNode(`주차장 ${idx + 1}`));
+    const status = document.createElement('span');
+    status.className = 'mp-status';
+    status.textContent = peakCoord
+      ? `정상서 ${formatDistance(haversineMeters(peakCoord.lat, peakCoord.lng, p.lat, p.lng))}`
+      : '';
+    row.appendChild(status);
+    item.appendChild(row);
+
+    const addrRow = document.createElement('div');
+    addrRow.className = 'poi-row';
+    const addrInput = document.createElement('input');
+    addrInput.className = 'addr-input';
+    addrInput.type = 'text';
+    addrInput.value = p.address || '';
+    addrInput.placeholder = '주차장 주소';
+    addrRow.appendChild(addrInput);
+    const addrSaveBtn = document.createElement('button');
+    addrSaveBtn.className = 'addr-save-btn';
+    addrSaveBtn.textContent = '주소 저장';
+    addrSaveBtn.addEventListener('click', () => saveParkingAddress(p.id, addrInput.value));
+    addrRow.appendChild(addrSaveBtn);
+    item.appendChild(addrRow);
+
+    const noteRow = document.createElement('div');
+    noteRow.className = 'poi-row';
+    const noteInput = document.createElement('input');
+    noteInput.className = 'addr-input';
+    noteInput.type = 'text';
+    noteInput.value = p.note || '';
+    noteInput.placeholder = '주차장 설명';
+    noteRow.appendChild(noteInput);
+    const noteSaveBtn = document.createElement('button');
+    noteSaveBtn.className = 'addr-save-btn';
+    noteSaveBtn.textContent = '설명 저장';
+    noteSaveBtn.addEventListener('click', () => saveParkingNote(p.id, noteInput.value));
+    noteRow.appendChild(noteSaveBtn);
+    item.appendChild(noteRow);
+
+    const actionRow = document.createElement('div');
+    actionRow.className = 'poi-row';
+    const roadviewBtn = document.createElement('button');
+    roadviewBtn.className = 'roadview-btn';
+    roadviewBtn.textContent = '로드뷰';
+    roadviewBtn.addEventListener('click', () => showRoadviewAt(p.lat, p.lng, `주차장 ${idx + 1}`));
+    actionRow.appendChild(roadviewBtn);
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'clear-btn';
+    deleteBtn.textContent = '삭제';
+    deleteBtn.addEventListener('click', () => deleteParking(p.id));
     actionRow.appendChild(deleteBtn);
     item.appendChild(actionRow);
 
@@ -401,7 +525,31 @@ async function addEntrance(lat, lng) {
   }
 }
 
-// 서버가 재시작되었거나 다른 탭/네트워크 오류로 로컬 상태가 서버와 어긋났을 때(트레일/입구
+async function addParking(lat, lng) {
+  if (!currentOreumId) {
+    setStatus('먼저 오름을 검색해서 선택하세요.');
+    return;
+  }
+  const address = (await reverseGeocodeAddress(lat, lng)) || null;
+  try {
+    const res = await fetch(`/api/oreum/${currentOreumId}/parking`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lat, lng, address }),
+    });
+    if (!res.ok) throw new Error('save failed');
+    currentOreumData = await res.json();
+    renderParkingOverlays(currentOreumData.coordinates.parking || []);
+    renderParkingList(currentOreumData);
+    map.setCenter(new kakao.maps.LatLng(lat, lng));
+    setStatus(`주차장 좌표 저장 완료: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+    refreshProgress();
+  } catch (err) {
+    setStatus(`저장 실패: ${err.message}`);
+  }
+}
+
+// 서버가 재시작되었거나 다른 탭/네트워크 오류로 로컬 상태가 서버와 어긋났을 때(트레일/입구/주차장
 // id가 더 이상 존재하지 않아 404가 나는 경우) 서버 최신 상태로 다시 동기화한다.
 async function resyncCurrentOreum() {
   if (!currentOreumId) return null;
@@ -410,6 +558,8 @@ async function resyncCurrentOreum() {
   currentOreumData = await res.json();
   renderEntranceOverlays(currentOreumData.coordinates.entrances || []);
   renderEntranceList(currentOreumData);
+  renderParkingOverlays(currentOreumData.coordinates.parking || []);
+  renderParkingList(currentOreumData);
   return currentOreumData;
 }
 
@@ -437,6 +587,30 @@ async function saveEntranceAddress(entranceId, address) {
   }
 }
 
+async function saveEntranceNote(entranceId, note) {
+  if (!currentOreumId || !currentOreumData) return;
+  const entrance = (currentOreumData.coordinates.entrances || []).find((e) => e.id === entranceId);
+  if (!entrance) return;
+  try {
+    const res = await fetch(`/api/oreum/${currentOreumId}/entrances/${entranceId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lat: entrance.lat, lng: entrance.lng, note: note || null }),
+    });
+    if (res.status === 404) {
+      await resyncCurrentOreum();
+      setStatus('이 입구는 이미 삭제되어 있었습니다. 목록을 최신 상태로 갱신했습니다.');
+      return;
+    }
+    if (!res.ok) throw new Error('save failed');
+    currentOreumData = await res.json();
+    renderEntranceList(currentOreumData);
+    setStatus('입구 설명 저장 완료.');
+  } catch (err) {
+    setStatus(`설명 저장 실패: ${err.message}`);
+  }
+}
+
 async function deleteEntrance(entranceId) {
   if (!currentOreumId) return;
   try {
@@ -454,6 +628,95 @@ async function deleteEntrance(entranceId) {
     refreshProgress();
   } catch (err) {
     setStatus(`삭제 실패: ${err.message}`);
+  }
+}
+
+async function saveParkingAddress(parkingId, address) {
+  if (!currentOreumId || !currentOreumData) return;
+  const parking = (currentOreumData.coordinates.parking || []).find((p) => p.id === parkingId);
+  if (!parking) return;
+  try {
+    const res = await fetch(`/api/oreum/${currentOreumId}/parking/${parkingId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lat: parking.lat, lng: parking.lng, address: address || null }),
+    });
+    if (res.status === 404) {
+      await resyncCurrentOreum();
+      setStatus('이 주차장은 이미 삭제되어 있었습니다. 목록을 최신 상태로 갱신했습니다.');
+      return;
+    }
+    if (!res.ok) throw new Error('save failed');
+    currentOreumData = await res.json();
+    renderParkingList(currentOreumData);
+    setStatus('주차장 주소 저장 완료.');
+  } catch (err) {
+    setStatus(`주소 저장 실패: ${err.message}`);
+  }
+}
+
+async function saveParkingNote(parkingId, note) {
+  if (!currentOreumId || !currentOreumData) return;
+  const parking = (currentOreumData.coordinates.parking || []).find((p) => p.id === parkingId);
+  if (!parking) return;
+  try {
+    const res = await fetch(`/api/oreum/${currentOreumId}/parking/${parkingId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lat: parking.lat, lng: parking.lng, note: note || null }),
+    });
+    if (res.status === 404) {
+      await resyncCurrentOreum();
+      setStatus('이 주차장은 이미 삭제되어 있었습니다. 목록을 최신 상태로 갱신했습니다.');
+      return;
+    }
+    if (!res.ok) throw new Error('save failed');
+    currentOreumData = await res.json();
+    renderParkingList(currentOreumData);
+    setStatus('주차장 설명 저장 완료.');
+  } catch (err) {
+    setStatus(`설명 저장 실패: ${err.message}`);
+  }
+}
+
+async function deleteParking(parkingId) {
+  if (!currentOreumId) return;
+  try {
+    const res = await fetch(`/api/oreum/${currentOreumId}/parking/${parkingId}`, { method: 'DELETE' });
+    if (res.status === 404) {
+      await resyncCurrentOreum();
+      setStatus('이 주차장은 이미 삭제되어 있었습니다.');
+      return;
+    }
+    if (!res.ok) throw new Error('delete failed');
+    currentOreumData = await res.json();
+    renderParkingOverlays(currentOreumData.coordinates.parking || []);
+    renderParkingList(currentOreumData);
+    setStatus('주차장 좌표를 삭제했습니다.');
+    refreshProgress();
+  } catch (err) {
+    setStatus(`삭제 실패: ${err.message}`);
+  }
+}
+
+async function saveRestroomNote(note) {
+  if (!currentOreumId || !currentOreumData) return;
+  const restroom = currentOreumData.coordinates.restroom;
+  if (restroom.lat == null || restroom.lng == null) {
+    setStatus('먼저 화장실 좌표를 찍으세요.');
+    return;
+  }
+  try {
+    const res = await fetch(`/api/oreum/${currentOreumId}/poi`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ poi_type: 'restroom', lat: restroom.lat, lng: restroom.lng, note: note || null }),
+    });
+    if (!res.ok) throw new Error('save failed');
+    currentOreumData = await res.json();
+    setStatus('화장실 설명 저장 완료.');
+  } catch (err) {
+    setStatus(`설명 저장 실패: ${err.message}`);
   }
 }
 
@@ -644,6 +907,7 @@ function renderTrailTabs() {
 function updateTrailControlsForActive() {
   const trail = draftTrails[activeTrailIndex];
   document.getElementById('trail-surface-select').value = trail ? trail.surfaceType || '' : '';
+  document.getElementById('trail-note-input').value = trail ? trail.note || '' : '';
 }
 
 function activateTrail(idx) {
@@ -659,10 +923,108 @@ function addTrail() {
     return;
   }
   if (trailDrawing) resetTrailDrawUi();
-  draftTrails.push({ id: null, points: [], surfaceType: null });
+  draftTrails.push({ id: null, points: [], surfaceType: null, note: null });
   activeTrailIndex = draftTrails.length - 1;
   updateTrailControlsForActive();
   renderTrailVisuals();
+}
+
+function clearTrailCandidateOverlays() {
+  trailCandidateOverlays.forEach((line) => line.setMap(null));
+  trailCandidateOverlays.length = 0;
+}
+
+// OSM 후보는 카카오맵의 초록 등산로선과 비교해볼 수 있도록 옅은 점선으로 미리보기만 하고,
+// draftTrails에는 사용자가 "가져오기"를 눌러야만 편입된다.
+function renderTrailCandidateOverlays(candidates) {
+  clearTrailCandidateOverlays();
+  candidates.forEach((c) => {
+    const line = new kakao.maps.Polyline({
+      path: c.points.map((p) => new kakao.maps.LatLng(p.lat, p.lng)),
+      strokeWeight: 5,
+      strokeColor: '#00b894',
+      strokeOpacity: 0.6,
+      strokeStyle: 'shortdash',
+    });
+    line.setMap(map);
+    trailCandidateOverlays.push(line);
+  });
+}
+
+function renderTrailCandidateList(candidates) {
+  const container = document.getElementById('trail-candidate-list');
+  container.innerHTML = '';
+  if (!candidates.length) {
+    container.textContent = 'OSM에서 등산로 후보를 찾지 못했습니다. 지도를 클릭해 직접 그리세요.';
+    return;
+  }
+  candidates.forEach((c, idx) => {
+    const item = document.createElement('div');
+    item.className = 'trail-candidate-item';
+
+    const row = document.createElement('div');
+    row.className = 'mp-row';
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    dot.style.background = '#00b894';
+    row.appendChild(dot);
+    row.appendChild(document.createTextNode(`후보 ${idx + 1} (${c.highway || 'path'}, ${c.points.length}점)`));
+    const status = document.createElement('span');
+    status.className = 'mp-status';
+    status.textContent = formatDistance(c.length_m);
+    row.appendChild(status);
+    item.appendChild(row);
+
+    const actionRow = document.createElement('div');
+    actionRow.className = 'poi-row';
+    const importBtn = document.createElement('button');
+    importBtn.className = 'addr-save-btn';
+    importBtn.textContent = '이 후보를 새 등산로로 가져오기';
+    importBtn.addEventListener('click', () => importTrailCandidate(c));
+    actionRow.appendChild(importBtn);
+    item.appendChild(actionRow);
+
+    container.appendChild(item);
+  });
+}
+
+async function fetchTrailCandidates() {
+  if (!currentOreumId) {
+    setStatus('먼저 오름을 검색해서 선택하세요.');
+    return;
+  }
+  setStatus('OSM에서 등산로 후보를 검색 중...');
+  try {
+    const res = await fetch(`/api/oreum/${currentOreumId}/trail-candidates`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || 'OSM 조회 실패');
+    }
+    const data = await res.json();
+    trailCandidates = data.candidates || [];
+    renderTrailCandidateOverlays(trailCandidates);
+    renderTrailCandidateList(trailCandidates);
+    setStatus(`OSM 등산로 후보 ${trailCandidates.length}건을 찾았습니다. 지도의 초록 점선을 카카오맵 등산로와 비교해보고 가져올 후보를 선택하세요.`);
+  } catch (err) {
+    setStatus(`OSM 후보 검색 실패: ${err.message}`);
+  }
+}
+
+// 가져온 후보는 새 draftTrail 초안이 되어 기존 등산로 편집 흐름(점 추가/undo/저장)을 그대로 탄다 —
+// 자동 생성 결과를 그대로 믿지 않고 사람이 검수·수정한 뒤 "등산로 저장"을 눌러야 서버에 반영된다.
+function importTrailCandidate(candidate) {
+  if (!currentOreumId) return;
+  if (trailDrawing) resetTrailDrawUi();
+  draftTrails.push({
+    id: null,
+    points: candidate.points.map((p) => ({ lat: p.lat, lng: p.lng })),
+    surfaceType: null,
+    note: null,
+  });
+  activeTrailIndex = draftTrails.length - 1;
+  updateTrailControlsForActive();
+  renderTrailVisuals();
+  setStatus('OSM 후보를 새 등산로 초안으로 가져왔습니다. 점을 검수/수정한 뒤 "등산로 저장"을 누르세요.');
 }
 
 // id가 있으면(=이미 서버에 저장됨) 서버에서도 삭제, 없으면 로컬 초안만 제거.
@@ -735,18 +1097,24 @@ async function selectOreum(id) {
   }
   renderEntranceOverlays(o.coordinates.entrances || []);
   renderEntranceList(o);
+  renderParkingOverlays(o.coordinates.parking || []);
+  renderParkingList(o);
   applyPoiVisual('restroom', o.coordinates.restroom.lat, o.coordinates.restroom.lng);
-  applyPoiVisual('parking', o.coordinates.parking.lat, o.coordinates.parking.lng);
   updateClearButtons(o);
   renderMarkedPoints(o);
 
-  document.querySelector('.addr-input[data-addr-type="parking"]').value = o.coordinates.parking.address || '';
+  document.getElementById('restroom-note-input').value = o.coordinates.restroom.note || '';
+
+  clearTrailCandidateOverlays();
+  trailCandidates = [];
+  document.getElementById('trail-candidate-list').innerHTML = '';
 
   resetTrailDrawUi();
   draftTrails = (o.trails || []).map((t) => ({
     id: t.id,
     points: (t.path || []).map((p) => ({ lat: p.lat, lng: p.lng })),
     surfaceType: t.surface_type || null,
+    note: t.note || null,
   }));
   activeTrailIndex = draftTrails.length > 0 ? 0 : -1;
   updateTrailControlsForActive();
@@ -799,10 +1167,6 @@ document.querySelectorAll('.clear-btn[data-type]').forEach((btn) => {
       setOverlay(type, null, null);
       updateClearButtons(updated);
       renderMarkedPoints(updated);
-      if (ADDRESSABLE_TYPES.includes(type)) {
-        const input = document.querySelector(`.addr-input[data-addr-type="${type}"]`);
-        if (input) input.value = '';
-      }
       setStatus(`${POI_LABELS[type]} 좌표를 취소(삭제)했습니다.`);
       refreshProgress();
     } catch (err) {
@@ -848,18 +1212,11 @@ async function savePoi(type, lat, lng) {
   applyPoiVisual(type, lat, lng);
   map.setCenter(new kakao.maps.LatLng(lat, lng));
 
-  let address = null;
-  if (ADDRESSABLE_TYPES.includes(type)) {
-    address = (await reverseGeocodeAddress(lat, lng)) || null;
-    const input = document.querySelector(`.addr-input[data-addr-type="${type}"]`);
-    if (input) input.value = address || '';
-  }
-
   try {
     const res = await fetch(`/api/oreum/${currentOreumId}/poi`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ poi_type: type, lat, lng, address }),
+      body: JSON.stringify({ poi_type: type, lat, lng }),
     });
     if (!res.ok) throw new Error('save failed');
     const updated = await res.json();
@@ -875,32 +1232,8 @@ async function savePoi(type, lat, lng) {
   }
 }
 
-document.querySelectorAll('.addr-save-btn').forEach((btn) => {
-  btn.addEventListener('click', async () => {
-    if (!currentOreumId || !currentOreumData) {
-      setStatus('먼저 오름을 검색해서 선택하세요.');
-      return;
-    }
-    const type = btn.dataset.addrType;
-    const coord = currentOreumData.coordinates[type];
-    if (coord.lat == null || coord.lng == null) {
-      setStatus(`먼저 ${POI_LABELS[type]} 좌표를 찍으세요.`);
-      return;
-    }
-    const input = document.querySelector(`.addr-input[data-addr-type="${type}"]`);
-    try {
-      const res = await fetch(`/api/oreum/${currentOreumId}/poi`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ poi_type: type, lat: coord.lat, lng: coord.lng, address: input.value || null }),
-      });
-      if (!res.ok) throw new Error('save failed');
-      currentOreumData = await res.json();
-      setStatus(`${POI_LABELS[type]} 주소 저장 완료.`);
-    } catch (err) {
-      setStatus(`주소 저장 실패: ${err.message}`);
-    }
-  });
+document.getElementById('restroom-note-save-btn').addEventListener('click', () => {
+  saveRestroomNote(document.getElementById('restroom-note-input').value);
 });
 
 document.getElementById('trail-surface-select').addEventListener('change', (e) => {
@@ -933,6 +1266,14 @@ document.getElementById('trail-draw-btn').addEventListener('click', () => {
   }
 });
 
+document.getElementById('trail-osm-fetch-btn').addEventListener('click', fetchTrailCandidates);
+
+document.getElementById('trail-osm-clear-btn').addEventListener('click', () => {
+  clearTrailCandidateOverlays();
+  trailCandidates = [];
+  document.getElementById('trail-candidate-list').innerHTML = '';
+});
+
 document.getElementById('trail-undo-btn').addEventListener('click', () => {
   const trail = draftTrails[activeTrailIndex];
   if (!trail) return;
@@ -961,7 +1302,8 @@ document.getElementById('trail-save-btn').addEventListener('click', async () => 
     setStatus('등산로는 점을 2개 이상 찍어야 저장할 수 있습니다.');
     return;
   }
-  const body = JSON.stringify({ points: trail.points, surface_type: trail.surfaceType });
+  trail.note = document.getElementById('trail-note-input').value || null;
+  const body = JSON.stringify({ points: trail.points, surface_type: trail.surfaceType, note: trail.note });
   let isNew = trail.id == null;
   let url = isNew ? `/api/oreum/${currentOreumId}/trails` : `/api/oreum/${currentOreumId}/trails/${trail.id}`;
   try {
@@ -1009,6 +1351,10 @@ kakao.maps.event.addListener(map, 'click', (mouseEvent) => {
     addEntrance(latlng.getLat(), latlng.getLng());
     return;
   }
+  if (activeMode === 'parking') {
+    addParking(latlng.getLat(), latlng.getLng());
+    return;
+  }
   savePoi(activeMode, latlng.getLat(), latlng.getLng());
 });
 
@@ -1017,6 +1363,10 @@ document.getElementById('coord-apply-btn').addEventListener('click', () => {
   const lng = parseFloat(document.getElementById('lng-input').value);
   if (activeMode === 'entrance') {
     addEntrance(lat, lng);
+    return;
+  }
+  if (activeMode === 'parking') {
+    addParking(lat, lng);
     return;
   }
   savePoi(activeMode, lat, lng);
