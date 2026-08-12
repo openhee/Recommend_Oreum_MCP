@@ -192,11 +192,19 @@ def compute_progress(row: dict) -> dict[str, bool]:
     }
 
 
+# CSV 원본상 등산로 정보가 "있음"이라고 적혀 있는데도 아직 map_editor로 등산로를 하나도
+# 수집하지 못한 오름 — 수집 우선순위를 표시하기 위한 파생 플래그 (별도 저장 필드 아님).
+def needs_trail(row: dict) -> bool:
+    return row.get("facilities", {}).get("trail_info") == "있음" and not row.get("trails")
+
+
 @app.get("/api/oreum")
-def search_oreum(q: str = ""):
+def search_oreum(q: str = "", needs_trail_only: bool = False):
     records = load_records()
     if q:
         records = [r for r in records if q in (r.get("name") or "")]
+    if needs_trail_only:
+        records = [r for r in records if needs_trail(r)]
     records = sorted(records, key=lambda r: r.get("name") or "")
     return [
         {
@@ -205,6 +213,7 @@ def search_oreum(q: str = ""):
                 "restroom": r.get("facilities", {}).get("restroom"),
                 "parking": r.get("facilities", {}).get("parking"),
             },
+            "needs_trail": needs_trail(r),
             "collected": sum(compute_progress(r).values()),
             "total": len(PROGRESS_FIELD_LABELS),
         }

@@ -90,6 +90,8 @@
   .result-progress { flex: none; margin-left: auto; padding: 1px 6px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #eee; color: #777; }
   .result-progress.rp-done { background: #e3f6e9; color: #1fa25a; }
   #results li { display: flex; align-items: center; }
+  .badge-needs-trail { padding: 1px 6px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #fdecea; color: #c0392b; margin-left: 6px; }
+  #needs-trail-filter { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #555; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -97,6 +99,10 @@
   <div id="sidebar">
     <div id="progress-summary"></div>
     <input id="search" type="text" placeholder="오름 이름 검색..." />
+    <label id="needs-trail-filter">
+      <input id="needs-trail-checkbox" type="checkbox" />
+      등산로 정보 "있음"인데 미수집인 오름만 보기
+    </label>
     <div id="result-count" style="font-size:11px;color:#888;margin-top:4px;"></div>
     <ul id="results"></ul>
 
@@ -721,7 +727,10 @@ async function saveRestroomNote(note) {
 }
 
 async function searchOreum(q) {
-  const res = await fetch('/api/oreum?q=' + encodeURIComponent(q));
+  const needsTrailOnly = document.getElementById('needs-trail-checkbox').checked;
+  const params = new URLSearchParams({ q });
+  if (needsTrailOnly) params.set('needs_trail_only', '1');
+  const res = await fetch('/api/oreum?' + params.toString());
   return res.json();
 }
 
@@ -754,6 +763,12 @@ function renderResults(items) {
       badge.textContent = ' 주차없음';
       badge.style.color = '#aaa';
       badge.style.fontSize = '11px';
+      li.appendChild(badge);
+    }
+    if (item.needs_trail) {
+      const badge = document.createElement('span');
+      badge.className = 'badge-needs-trail';
+      badge.textContent = '등산로 필요';
       li.appendChild(badge);
     }
 
@@ -1133,6 +1148,11 @@ function updateClearButtons(o) {
 
 document.getElementById('search').addEventListener('input', async (e) => {
   const items = await searchOreum(e.target.value);
+  renderResults(items);
+});
+
+document.getElementById('needs-trail-checkbox').addEventListener('change', async () => {
+  const items = await searchOreum(document.getElementById('search').value);
   renderResults(items);
 });
 

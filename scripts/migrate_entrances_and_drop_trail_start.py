@@ -5,7 +5,9 @@
 2) trails[].start 필드 제거 (등산로는 더 이상 입구/주차장 라벨을 갖지 않음. 등산로가
    어디서 시작하는지는 path의 첫 점으로만 표현됨).
 
-표준 파이프라인에는 편입되지 않는 1회성 스크립트.
+표준 파이프라인에는 편입되지 않는 1회성 스크립트. 이미 마이그레이션된 파일(coordinates에 구형
+"entrance" 단수 키가 없는 경우)에 재실행해도 안전하다(멱등) — "entrance" 키가 없으면 entrances를
+건드리지 않고 그대로 둔다. 다시 실행할 필요는 없다.
 """
 import json
 from pathlib import Path
@@ -15,13 +17,15 @@ JSON_PATH = BASE_DIR / "data" / "oreum.json"
 
 
 def migrate_record(rec: dict) -> None:
-    entrance = rec["coordinates"].pop("entrance", None)
-    if entrance is not None and entrance.get("lat") is not None:
-        rec["coordinates"]["entrances"] = [
-            {"id": 1, "lat": entrance["lat"], "lng": entrance["lng"], "address": entrance.get("address")}
-        ]
-    else:
-        rec["coordinates"]["entrances"] = []
+    coords = rec["coordinates"]
+    if "entrance" in coords:
+        entrance = coords.pop("entrance")
+        if entrance is not None and entrance.get("lat") is not None:
+            coords["entrances"] = [
+                {"id": 1, "lat": entrance["lat"], "lng": entrance["lng"], "address": entrance.get("address")}
+            ]
+        else:
+            coords.setdefault("entrances", [])
 
     for trail in rec.get("trails", []):
         trail.pop("start", None)
