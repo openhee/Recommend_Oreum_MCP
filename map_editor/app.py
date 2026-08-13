@@ -9,7 +9,6 @@ import math
 from pathlib import Path
 from typing import Literal
 
-import requests
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -18,14 +17,6 @@ from pydantic import BaseModel
 BASE_DIR = Path(__file__).resolve().parent.parent
 JSON_PATH = BASE_DIR / "data" / "oreum.json"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
-
-# 카카오맵에 등산로가 초록선으로 표시되지만 API로는 그 지오메트리를 얻을 수 없어,
-# OpenStreetMap Overpass API에서 등산로류 way를 대신 조회해 초안 후보로 제시한다
-# (사람이 지도에서 검수·수정 후 저장). 328건 전수 자동화는 아니고 오름별 버튼 트리거.
-OVERPASS_URL = "https://overpass-api.de/api/interpreter"
-OSM_TRAIL_HIGHWAY_TAGS = "path|footway|track|bridleway"
-OSM_TRAIL_SEARCH_RADIUS_M = 1200
-OSM_TRAIL_CANDIDATE_LIMIT = 8
 
 app = FastAPI(title="Oreum Map Editor")
 
@@ -87,46 +78,6 @@ def trail_length_meters(points: list[TrailPoint]) -> float:
     for a, b in zip(points, points[1:]):
         total += haversine_meters(a.lat, a.lng, b.lat, b.lng)
     return total
-
-
-def fetch_osm_trail_candidates(lat: float, lng: float) -> list[dict]:
-    query = (
-        f"[out:json][timeout:30];"
-        f'(way["highway"~"^({OSM_TRAIL_HIGHWAY_TAGS})$"]'
-        f"(around:{OSM_TRAIL_SEARCH_RADIUS_M},{lat},{lng}););"
-        f"out geom;"
-    )
-    try:
-        resp = requests.post(
-            OVERPASS_URL,
-            data={"data": query},
-            headers={"User-Agent": "oreum-map-editor/1.0"},
-            timeout=40,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-    except requests.RequestException as e:
-        raise HTTPException(status_code=502, detail=f"OSM 조회 실패: {e}")
-
-    candidates = []
-    for el in data.get("elements", []):
-        geom = el.get("geometry") or []
-        if len(geom) < 2:
-            continue
-        points = [{"lat": g["lat"], "lng": g["lon"]} for g in geom]
-        length = trail_length_meters([TrailPoint(**p) for p in points])
-        tags = el.get("tags", {})
-        candidates.append(
-            {
-                "osm_id": el["id"],
-                "name": tags.get("name"),
-                "highway": tags.get("highway"),
-                "length_m": round(length, 1),
-                "points": points,
-            }
-        )
-    candidates.sort(key=lambda c: c["length_m"], reverse=True)
-    return candidates[:OSM_TRAIL_CANDIDATE_LIMIT]
 
 
 def load_records() -> list[dict]:
@@ -341,27 +292,6 @@ def delete_parking(oreum_id: int, parking_id: int):
 @app.get("/api/trail-surface-types")
 def get_trail_surface_types():
     return SURFACE_TYPE_LABELS
-
-
-@app.get("/api/oreum/{oreum_id}/trail-candidates")
-def get_trail_candidates(oreum_id: int):
-    records = load_records()
-    row = find_record(records, oreum_id)
-    peak = row["coordinates"].get("peak", {})
-    center = None
-    source = None
-    if peak.get("lat") is not None and peak.get("lng") is not None:
-        center = (peak["lat"], peak["lng"])
-        source = "peak"
-    else:
-        entrances = row["coordinates"].get("entrances") or []
-        if entrances:
-            center = (entrances[0]["lat"], entrances[0]["lng"])
-            source = "entrance"
-    if center is None:
-        raise HTTPException(status_code=400, detail="정상/입구 좌표가 없어 검색 기준점을 정할 수 없습니다.")
-    candidates = fetch_osm_trail_candidates(*center)
-    return {"center": {"lat": center[0], "lng": center[1], "source": source}, "candidates": candidates}
 
 
 @app.post("/api/oreum/{oreum_id}/trails")

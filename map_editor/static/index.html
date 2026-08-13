@@ -14,6 +14,7 @@
 <head>
 <meta charset="utf-8" />
 <title>오름 POI 좌표 편집기</title>
+<link rel="icon" type="image/jpeg" href="/favicon.jpg" />
 <style>
   html, body { margin: 0; height: 100%; font-family: -apple-system, "Malgun Gothic", sans-serif; }
   #layout { display: flex; height: 100%; }
@@ -74,10 +75,6 @@
   .entrance-item { padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
   .entrance-item .mp-row { display: flex; align-items: center; margin-bottom: 4px; }
   .entrance-item .mp-status { margin-left: auto; color: #888; font-size: 11px; }
-  #trail-candidate-list { margin: 4px 0 10px; }
-  .trail-candidate-item { padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
-  .trail-candidate-item .mp-row { display: flex; align-items: center; margin-bottom: 4px; }
-  .trail-candidate-item .mp-status { margin-left: auto; color: #888; font-size: 11px; }
   #progress-summary { margin-bottom: 10px; padding: 8px 10px; background: #f7f7f7; border-radius: 6px; }
   #progress-summary .ps-title { font-size: 11px; color: #888; margin-bottom: 6px; }
   #progress-summary .ps-row { display: flex; align-items: center; gap: 6px; font-size: 12px; margin: 4px 0; }
@@ -157,12 +154,6 @@
 
       <div id="trail-section">
         <div class="section-label">등산로 (오름 하나에 여러 등산로 등록 가능, 지도에는 전부 동시 표시됨)</div>
-        <div class="section-label">OSM 등산로 후보 (카카오맵 초록선과 비교해서 검수 후 가져오기)</div>
-        <div class="poi-row">
-          <button id="trail-osm-fetch-btn" class="trail-btn">OSM 등산로 후보 가져오기</button>
-          <button id="trail-osm-clear-btn" class="trail-btn">후보 미리보기 지우기</button>
-        </div>
-        <div id="trail-candidate-list"></div>
         <div id="trail-tabs" class="trail-tabs"></div>
         <div class="section-label">선택된 등산로: 지도를 클릭한 순서대로 점이 찍힘 (입구/주차장 좌표와 무관하게 원하는 곳부터 시작 가능)</div>
         <div class="poi-row">
@@ -239,10 +230,6 @@ let draftTrails = []; // [{id: number|null, points: [{lat,lng},...], surfaceType
 let activeTrailIndex = -1;
 const trailPointOverlays = []; // 활성 등산로의 점 오버레이만 표시
 const trailPolylineObjs = []; // draftTrails와 동일한 인덱스로 정렬된 Polyline (모든 등산로 동시 표시)
-
-// OSM에서 가져온 등산로 후보 미리보기 상태 (저장 전 참고용, draftTrails와 별개)
-let trailCandidates = [];
-const trailCandidateOverlays = [];
 
 function haversineMeters(lat1, lng1, lat2, lng2) {
   const R = 6371000;
@@ -944,104 +931,6 @@ function addTrail() {
   renderTrailVisuals();
 }
 
-function clearTrailCandidateOverlays() {
-  trailCandidateOverlays.forEach((line) => line.setMap(null));
-  trailCandidateOverlays.length = 0;
-}
-
-// OSM 후보는 카카오맵의 초록 등산로선과 비교해볼 수 있도록 옅은 점선으로 미리보기만 하고,
-// draftTrails에는 사용자가 "가져오기"를 눌러야만 편입된다.
-function renderTrailCandidateOverlays(candidates) {
-  clearTrailCandidateOverlays();
-  candidates.forEach((c) => {
-    const line = new kakao.maps.Polyline({
-      path: c.points.map((p) => new kakao.maps.LatLng(p.lat, p.lng)),
-      strokeWeight: 5,
-      strokeColor: '#00b894',
-      strokeOpacity: 0.6,
-      strokeStyle: 'shortdash',
-    });
-    line.setMap(map);
-    trailCandidateOverlays.push(line);
-  });
-}
-
-function renderTrailCandidateList(candidates) {
-  const container = document.getElementById('trail-candidate-list');
-  container.innerHTML = '';
-  if (!candidates.length) {
-    container.textContent = 'OSM에서 등산로 후보를 찾지 못했습니다. 지도를 클릭해 직접 그리세요.';
-    return;
-  }
-  candidates.forEach((c, idx) => {
-    const item = document.createElement('div');
-    item.className = 'trail-candidate-item';
-
-    const row = document.createElement('div');
-    row.className = 'mp-row';
-    const dot = document.createElement('span');
-    dot.className = 'dot';
-    dot.style.background = '#00b894';
-    row.appendChild(dot);
-    row.appendChild(document.createTextNode(`후보 ${idx + 1} (${c.highway || 'path'}, ${c.points.length}점)`));
-    const status = document.createElement('span');
-    status.className = 'mp-status';
-    status.textContent = formatDistance(c.length_m);
-    row.appendChild(status);
-    item.appendChild(row);
-
-    const actionRow = document.createElement('div');
-    actionRow.className = 'poi-row';
-    const importBtn = document.createElement('button');
-    importBtn.className = 'addr-save-btn';
-    importBtn.textContent = '이 후보를 새 등산로로 가져오기';
-    importBtn.addEventListener('click', () => importTrailCandidate(c));
-    actionRow.appendChild(importBtn);
-    item.appendChild(actionRow);
-
-    container.appendChild(item);
-  });
-}
-
-async function fetchTrailCandidates() {
-  if (!currentOreumId) {
-    setStatus('먼저 오름을 검색해서 선택하세요.');
-    return;
-  }
-  setStatus('OSM에서 등산로 후보를 검색 중...');
-  try {
-    const res = await fetch(`/api/oreum/${currentOreumId}/trail-candidates`);
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.detail || 'OSM 조회 실패');
-    }
-    const data = await res.json();
-    trailCandidates = data.candidates || [];
-    renderTrailCandidateOverlays(trailCandidates);
-    renderTrailCandidateList(trailCandidates);
-    setStatus(`OSM 등산로 후보 ${trailCandidates.length}건을 찾았습니다. 지도의 초록 점선을 카카오맵 등산로와 비교해보고 가져올 후보를 선택하세요.`);
-  } catch (err) {
-    setStatus(`OSM 후보 검색 실패: ${err.message}`);
-  }
-}
-
-// 가져온 후보는 새 draftTrail 초안이 되어 기존 등산로 편집 흐름(점 추가/undo/저장)을 그대로 탄다 —
-// 자동 생성 결과를 그대로 믿지 않고 사람이 검수·수정한 뒤 "등산로 저장"을 눌러야 서버에 반영된다.
-function importTrailCandidate(candidate) {
-  if (!currentOreumId) return;
-  if (trailDrawing) resetTrailDrawUi();
-  draftTrails.push({
-    id: null,
-    points: candidate.points.map((p) => ({ lat: p.lat, lng: p.lng })),
-    surfaceType: null,
-    note: null,
-  });
-  activeTrailIndex = draftTrails.length - 1;
-  updateTrailControlsForActive();
-  renderTrailVisuals();
-  setStatus('OSM 후보를 새 등산로 초안으로 가져왔습니다. 점을 검수/수정한 뒤 "등산로 저장"을 누르세요.');
-}
-
 // id가 있으면(=이미 서버에 저장됨) 서버에서도 삭제, 없으면 로컬 초안만 제거.
 async function deleteTrail(idx) {
   const trail = draftTrails[idx];
@@ -1119,10 +1008,6 @@ async function selectOreum(id) {
   renderMarkedPoints(o);
 
   document.getElementById('restroom-note-input').value = o.coordinates.restroom.note || '';
-
-  clearTrailCandidateOverlays();
-  trailCandidates = [];
-  document.getElementById('trail-candidate-list').innerHTML = '';
 
   resetTrailDrawUi();
   draftTrails = (o.trails || []).map((t) => ({
@@ -1284,14 +1169,6 @@ document.getElementById('trail-draw-btn').addEventListener('click', () => {
     btn.textContent = '등산로 그리기 시작';
     btn.classList.remove('active');
   }
-});
-
-document.getElementById('trail-osm-fetch-btn').addEventListener('click', fetchTrailCandidates);
-
-document.getElementById('trail-osm-clear-btn').addEventListener('click', () => {
-  clearTrailCandidateOverlays();
-  trailCandidates = [];
-  document.getElementById('trail-candidate-list').innerHTML = '';
 });
 
 document.getElementById('trail-undo-btn').addEventListener('click', () => {
