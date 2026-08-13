@@ -57,7 +57,30 @@ Each record is grouped into sections rather than one flat object:
 
 `facilities.parking`/`facilities.restroom` are free-text CSV descriptions (e.g. `"길가 주차"`, `"없음"`) — distinct from the collected `coordinates.parking`/`coordinates.restroom` points; don't conflate them.
 
-Each of `coordinates.entrances[]`, `coordinates.parking[]`, `coordinates.restroom`, and `trails[]` carries its own `note` field — a short free-text description collected in the map editor (e.g. "우천시 진입 불가", "비포장, 4륜 권장"). This is a distinct field from the top-level per-record `notes` (a general remark about the oreum as a whole, e.g. `"결혼사진 스팟으로 유명함"`, seeded from elsewhere and not editable in the map editor) — don't conflate the two.
+Each of `coordinates.entrances[]`, `coordinates.parking[]`, `coordinates.restroom`, and `trails[]` carries its own `note` field — a short free-text description collected in the map editor (e.g. "우천시 진입 불가", "비포장, 4륜 권장"). This is a distinct field from the top-level per-record `notes` — don't conflate the two.
+
+`notes` is either `null` (no remark) or a structured object (migrated 2026-08-13 from a single free-text string, since the original blob mixed access rules, trail condition, safety cautions, marketing highlights, directions, trivia, and cross-oreum recommendations in one unstructured sentence — unusable for filtering). Shape:
+
+```
+"notes": {
+  "raw_note": string,        // original free-text, preserved verbatim for reference/re-classification
+  "access": {
+    "status": "open" | "reservation_required" | "restricted" | "prohibited" | null,
+    "detail": string | null, // why access is limited (사유지/군사기지/자연휴식년제 등)
+    "fee": string | null,    // entrance fee text, e.g. "어른 1,000원 / 청소년 600원 / 어린이 300원"
+    "hours": string | null   // operating hours text, e.g. "매일 09:00~17:00"
+  },
+  "trail_condition": "well_maintained" | "poor" | "unclear" | "none" | null,
+  "caution": [string],       // safety warnings (경사/미끄러움/계절 등)
+  "recommend_for": string | null,  // who it suits or doesn't (초보자 적합, 관광객 비추천 등)
+  "highlights": [string],    // scenic/marketing draws (전망, 포토존, 웨딩촬영지 등)
+  "directions": string | null,     // parking/access-route guidance distinct from coordinates
+  "trivia": string | null,   // historical/name-origin trivia, not actionable for filtering
+  "linked_oreums": [string]  // names of other oreums this one is commonly recommended to pair with
+}
+```
+
+This was a one-off manual classification (`scripts/build_oreum_json.py` does **not** reproduce it — CSV rebuilds reset `notes` to `null` per its documented destructive behavior, so this structure would need re-deriving from `raw_note`-equivalent source text if the CSV pipeline is ever re-run). Not read/written by `map_editor` (confirmed no `notes` references in `app.py`/`index.html`) — it exists purely for downstream recommendation-engine consumption.
 
 ## Running the map editor
 

@@ -740,7 +740,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/11269510",
-    "notes": "입산통제 (산불조심 기간내)\n표지판있음\n등산로는 제한 없음\n등산로 아닌 길로 진입금지",
+    "notes": {
+      "raw_note": "입산통제 (산불조심 기간내)\n표지판있음\n등산로는 제한 없음\n등산로 아닌 길로 진입금지",
+      "access": {
+        "status": "open",
+        "detail": "산불조심 기간 내 입산통제",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "well_maintained",
+      "caution": [
+        "지정 등산로 외 진입금지"
+      ],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -1228,7 +1245,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8674728",
-    "notes": "충혼묘지와 연계방문 추천",
+    "notes": {
+      "raw_note": "충혼묘지와 연계방문 추천",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "충혼묘지 연계 방문"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -2212,7 +2246,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8650849",
-    "notes": "탐방로 정비되어있지 않음\n등산로 찾기 어려움\n식생이 올라오기전 초봄 탐방이 비교적 수월함",
+    "notes": {
+      "raw_note": "탐방로 정비되어있지 않음\n등산로 찾기 어려움\n식생이 올라오기전 초봄 탐방이 비교적 수월함",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "poor",
+      "caution": [
+        "식생이 우거지면 탐방 어려움"
+      ],
+      "recommend_for": "초봄 탐방 추천",
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -2590,7 +2641,25 @@
       "hours_fee": "예약 사이트 : https://www.jeju.go.kr/wnhcenter/black/reserve.html\n예약 정보 : ? 홈페이지 상단의 로그인 후 예약 가능 날짜, 시간대 클릭하여 예약 신청합니다.\n\n※ 예약 취소 시 동일한 날짜에 재예약이 불가합니다.\n※ 예약 인원/날짜 변경을 원하시는 경우에는 전화(☎064-710-8980~1) 문의 바랍니다. \n? 전화예약 및 인터넷 예약은 탐방 전 달 1일 오전 9:00 부터 탐방 전 일 17:00 까지 가능합니다.\n ※ (예: 5월 10일 예약을 원하실 경우, 4월 1일 오전 9:00 부터 예약 가능)\n? 예약 가능 시간일 경우 [예약] 버튼을 클릭하여 예약을 신청합니다. \n ※ 예약완료시 카톡 또는 문자발송 됩니다. (제주특별자치도청으로 발송)\n? 20명 이상 단체 예약의 경우는 전화(☎064-710-8980~1) 예약 신청만 가능합니다.\n? 예약 취소는 [예약확인] 선택 후, 예약일자 클릭하여 [예약취소]를 선택하면 됩니다.\n? 매주 화요일(자연휴식의 날)은 거문오름 휴식일로 탐방 불가합니다.\n\n※ 탐방 13:30,14:00는 전체코스(3코스)와 자율탐방 안됩니다. ※"
     },
     "kakao_map_url": "http://place.map.kakao.com/18489468",
-    "notes": "세계자연유산 제주 용암동굴군의 모체.\n사전예약 필수. 숲이 울창하고 다양한 화산지형 관찰 가능.",
+    "notes": {
+      "raw_note": "세계자연유산 제주 용암동굴군의 모체.\n사전예약 필수. 숲이 울창하고 다양한 화산지형 관찰 가능.",
+      "access": {
+        "status": "reservation_required",
+        "detail": "사전예약 필수",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "울창한 숲",
+        "화산지형 관찰"
+      ],
+      "directions": null,
+      "trivia": "세계자연유산 제주 용암동굴군의 모체",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -2932,7 +3001,27 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25214418",
-    "notes": "주차장 진입시 골목길 좁음. 차량 통행 주의. 길정비는 잘 안되어있는편 가파름. 뷰 좋음 강추오름 꼭 올라간 길로 내려오기",
+    "notes": {
+      "raw_note": "주차장 진입시 골목길 좁음. 차량 통행 주의. 길정비는 잘 안되어있는편 가파름. 뷰 좋음 강추오름 꼭 올라간 길로 내려오기",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "poor",
+      "caution": [
+        "가파름",
+        "올라간 길로 하산 권장"
+      ],
+      "recommend_for": "강추오름",
+      "highlights": [
+        "뷰 좋음"
+      ],
+      "directions": "주차장 진입 골목길 좁음, 차량 통행 주의",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -3066,7 +3155,28 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8174706",
-    "notes": "한적함, 억새, 말굽형 분화구, 목장길, 가을 명소",
+    "notes": {
+      "raw_note": "한적함, 억새, 말굽형 분화구, 목장길, 가을 명소",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "한적함",
+        "억새",
+        "말굽형 분화구",
+        "목장길",
+        "가을 명소"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -3300,7 +3410,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25173826",
-    "notes": "거칠고 험한 오름. 해발 354m",
+    "notes": {
+      "raw_note": "거칠고 험한 오름. 해발 354m",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "거칠고 험함"
+      ],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "해발 354m",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -3357,7 +3484,25 @@
       "hours_fee": "동절기 (11월 ~ 2월) 09 ~ 17 (매표마감 16:00)\n하절기 (3월 ~ 10월) 09 ~ 18 (매표마감 17:00)\n입장료 성인 : 1,000원 청소년 : 600원"
     },
     "kakao_map_url": "http://place.map.kakao.com/10129920",
-    "notes": "노루먹이주기 체험가능 (별도), 놀이터 있음",
+    "notes": {
+      "raw_note": "노루먹이주기 체험가능 (별도), 놀이터 있음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "노루 먹이주기 체험(별도)",
+        "놀이터"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -4209,7 +4354,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/11039987",
-    "notes": "레미콘 공장 안으로 진입\n(들어가도 된다고 하셨으나 문의후 진입하세요)\n끝까지 들어가면 주차공간 있음",
+    "notes": {
+      "raw_note": "레미콘 공장 안으로 진입\n(들어가도 된다고 하셨으나 문의후 진입하세요)\n끝까지 들어가면 주차공간 있음",
+      "access": {
+        "status": null,
+        "detail": "사유지(레미콘 공장) 통과, 문의 후 진입 권장",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": "레미콘 공장 안으로 진입, 문의 후 진입 권장, 끝까지 들어가면 주차공간 있음",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -5263,7 +5423,26 @@
       "hours_fee": null
     },
     "kakao_map_url": null,
-    "notes": "제주시내 전망, 야경, 산책, 접근성, 초보자",
+    "notes": {
+      "raw_note": "제주시내 전망, 야경, 산책, 접근성, 초보자",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": "초보자 적합, 접근성 좋음",
+      "highlights": [
+        "제주시내 전망",
+        "야경",
+        "산책"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -5645,7 +5824,27 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8649358",
-    "notes": "보광사 급경사 구간 전 공터 소규모 주차 가능\n* 차량 진입 가능하고 주차장 있으나 초보운전자 주의\n* 고내봉 등산진입로 여러곳 있으나 보광사 방향 추천\n(다른 코스는 계단이 많고 길어 비교적 힘듦)\n일출, 일몰 추천명소",
+    "notes": {
+      "raw_note": "보광사 급경사 구간 전 공터 소규모 주차 가능\n* 차량 진입 가능하고 주차장 있으나 초보운전자 주의\n* 고내봉 등산진입로 여러곳 있으나 보광사 방향 추천\n(다른 코스는 계단이 많고 길어 비교적 힘듦)\n일출, 일몰 추천명소",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "다른 코스는 계단 많고 힘듦"
+      ],
+      "recommend_for": null,
+      "highlights": [
+        "일출 명소",
+        "일몰 명소"
+      ],
+      "directions": "보광사 방향 진입로 추천, 급경사 구간 전 공터에 소규모 주차 가능(초보운전자 주의)",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -6110,7 +6309,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25179216",
-    "notes": "출입제한",
+    "notes": {
+      "raw_note": "출입제한",
+      "access": {
+        "status": "restricted",
+        "detail": "출입제한",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -6167,7 +6381,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8188069",
-    "notes": "벚꽃축제 장소",
+    "notes": {
+      "raw_note": "벚꽃축제 장소",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "벚꽃축제 장소"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -7735,7 +7966,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25186462",
-    "notes": "주차장 가는길 협소.\n차량 교행 쉽지 않은편. 차량 주의\n제주도 최대규모 오름",
+    "notes": {
+      "raw_note": "주차장 가는길 협소.\n차량 교행 쉽지 않은편. 차량 주의\n제주도 최대규모 오름",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": "주차장 가는 길 협소, 차량 교행 어려움, 차량 주의",
+      "trivia": "제주도 최대 규모 오름",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -7886,7 +8132,25 @@
       "hours_fee": "입장료 무료"
     },
     "kakao_map_url": "http://place.map.kakao.com/8212572",
-    "notes": "산책로 잘 되어있다.\n동물들 관찰 가능\n반달곰, 독수리, 노루\n노루 먹이주기체험 가능",
+    "notes": {
+      "raw_note": "산책로 잘 되어있다.\n동물들 관찰 가능\n반달곰, 독수리, 노루\n노루 먹이주기체험 가능",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "well_maintained",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "동물 관찰(반달곰·독수리·노루)",
+        "노루 먹이주기 체험"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -8118,7 +8382,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8676017",
-    "notes": "제주대학교 내에 위치.\n산책로 잘 되어있음. 관광객들에게 부적합",
+    "notes": {
+      "raw_note": "제주대학교 내에 위치.\n산책로 잘 되어있음. 관광객들에게 부적합",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "well_maintained",
+      "caution": [],
+      "recommend_for": "관광객에게 부적합(제주대 내 위치)",
+      "highlights": [],
+      "directions": "제주대학교 내 위치",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -8176,7 +8455,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/11267601",
-    "notes": "주변 오름 중 가장 큼",
+    "notes": {
+      "raw_note": "주변 오름 중 가장 큼",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "주변 오름 중 가장 큼",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -8233,7 +8527,25 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8217224",
-    "notes": "궷물오름 + 큰 꼬노메 + 작은 노꼬메 연계 방문 추천",
+    "notes": {
+      "raw_note": "궷물오름 + 큰 꼬노메 + 작은 노꼬메 연계 방문 추천",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": "연계 방문 추천",
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": [
+        "큰노꼬메",
+        "작은노꼬메"
+      ]
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -8733,7 +9045,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8222952",
-    "notes": "예전에는 등산로가 있었다함(마을주민)\n현재 입구 찾을 수 없음\n정상부근 사람 지나다닌 흔적있고 길 찾을수 있으나 진입로 찾을 수 없음",
+    "notes": {
+      "raw_note": "예전에는 등산로가 있었다함(마을주민)\n현재 입구 찾을 수 없음\n정상부근 사람 지나다닌 흔적있고 길 찾을수 있으나 진입로 찾을 수 없음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [
+        "현재 입구/진입로 찾을 수 없음"
+      ],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "예전에는 등산로가 있었다고 함(마을주민 증언)",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -8790,7 +9119,31 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25189061",
-    "notes": "비온뒤 특히 미끄러움주의\n강풍시 체감 온도 낮음\n분화구 호수, 억새, 유채꽃, 사계절, 둘레길, 정상전망",
+    "notes": {
+      "raw_note": "비온뒤 특히 미끄러움주의\n강풍시 체감 온도 낮음\n분화구 호수, 억새, 유채꽃, 사계절, 둘레길, 정상전망",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "비 온 뒤 미끄러움 주의",
+        "강풍 시 체감온도 낮음"
+      ],
+      "recommend_for": null,
+      "highlights": [
+        "분화구 호수",
+        "억새",
+        "유채꽃",
+        "둘레길",
+        "정상전망"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -8996,7 +9349,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25190845",
-    "notes": "네비 안내 멈춘곳에서 추차 추천",
+    "notes": {
+      "raw_note": "네비 안내 멈춘곳에서 추차 추천",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": "네비 안내 종료 지점에서 주차 추천",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -9270,7 +9638,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8241683",
-    "notes": "경사있음\n등산로 뚜렷하지 않음\n흔적따라 이동",
+    "notes": {
+      "raw_note": "경사있음\n등산로 뚜렷하지 않음\n흔적따라 이동",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [
+        "경사 있음"
+      ],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -9327,7 +9712,25 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25192315",
-    "notes": "숲이 울창함. 자연 그대로의 모습",
+    "notes": {
+      "raw_note": "숲이 울창함. 자연 그대로의 모습",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "울창한 숲",
+        "자연 그대로의 모습"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -9517,7 +9920,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/11300413",
-    "notes": "마을 남쪽의 산봉우리. 마을 전경 조망",
+    "notes": {
+      "raw_note": "마을 남쪽의 산봉우리. 마을 전경 조망",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "마을 전경 조망"
+      ],
+      "directions": null,
+      "trivia": "마을 남쪽의 산봉우리",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -9835,7 +10255,25 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8231118",
-    "notes": "왼쪽 등산로 추천\n넓고 부드러운 분화구 (완만한 형태의 분화구)\n탁 트인 동부전망 (구좌, 송당 들판과 주변 오름 군락 조망가능)",
+    "notes": {
+      "raw_note": "왼쪽 등산로 추천\n넓고 부드러운 분화구 (완만한 형태의 분화구)\n탁 트인 동부전망 (구좌, 송당 들판과 주변 오름 군락 조망가능)",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": "왼쪽 등산로 추천",
+      "highlights": [
+        "완만한 분화구",
+        "동부 전망(구좌·송당 들판, 주변 오름군락)"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -10358,7 +10796,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25192869",
-    "notes": "억새군락지",
+    "notes": {
+      "raw_note": "억새군락지",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "억새 군락지"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -10881,7 +11336,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8226028",
-    "notes": "남원읍 넙거리오름 입구(한남시험림 주차장 : 남원읍 서성로651번길 235)까지는 여러 갈래의 길이 있음. 한남시험림 내에 위치하고 있어 인터넷(전화 예약 받지 않음)으로 산림청 홈-제주한남시험림 예약(매년 05. 16.∼10. 31. / 매주 월∼화 휴무 / 신청일 기준 3일 이후부터 2개월 이전) 후 산행. 예전에 이 오름의 들-날머리였던 남쪽 기슭 쪽 오름목장(한남리 산 66) 입구 한남시험림 곁은 입산통제하고 있어 주의를 요함. 탐방센터에서 정상에는 선택한 코스에 따라 20∼30분 정도 소요됨.",
+    "notes": {
+      "raw_note": "남원읍 넙거리오름 입구(한남시험림 주차장 : 남원읍 서성로651번길 235)까지는 여러 갈래의 길이 있음. 한남시험림 내에 위치하고 있어 인터넷(전화 예약 받지 않음)으로 산림청 홈-제주한남시험림 예약(매년 05. 16.∼10. 31. / 매주 월∼화 휴무 / 신청일 기준 3일 이후부터 2개월 이전) 후 산행. 예전에 이 오름의 들-날머리였던 남쪽 기슭 쪽 오름목장(한남리 산 66) 입구 한남시험림 곁은 입산통제하고 있어 주의를 요함. 탐방센터에서 정상에는 선택한 코스에 따라 20∼30분 정도 소요됨.",
+      "access": {
+        "status": "reservation_required",
+        "detail": "한남시험림 내 위치, 산림청 홈페이지 사전예약 필요(매년 5/16~10/31, 월화 휴무, 신청일 기준 3일~2개월 전)",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "남쪽 기슭 옛 진입로(오름목장 인근)는 입산통제 중"
+      ],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": "한남시험림 주차장(남원읍 서성로651번길 235)에서 진입, 탐방센터 이용",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -10922,7 +11394,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10186346",
-    "notes": "성판악 휴게소 북동쪽의 수림지대에 위치해 있으며, 3개의 화산체로 이루어진 궤펜이오름과 마주보고 있다. 5.16도로 성판교 북쪽 주변의 도로상에 ‘해발 730m’ 라는 표시돌이 서있는 곳으로 들어가면 표고 버섯 재배장이 나오며 그, 뒤편으로 쉽게 오를 수 있다. 2009년 글이라서 참고만. 이외의 정보가 없음",
+    "notes": {
+      "raw_note": "성판악 휴게소 북동쪽의 수림지대에 위치해 있으며, 3개의 화산체로 이루어진 궤펜이오름과 마주보고 있다. 5.16도로 성판교 북쪽 주변의 도로상에 ‘해발 730m’ 라는 표시돌이 서있는 곳으로 들어가면 표고 버섯 재배장이 나오며 그, 뒤편으로 쉽게 오를 수 있다. 2009년 글이라서 참고만. 이외의 정보가 없음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": "5.16도로 성판교 북쪽 '해발 730m' 표시돌 지점으로 진입 → 표고버섯 재배장 뒤편으로 등반",
+      "trivia": "성판악 휴게소 북동쪽 수림지대, 궤펜이오름과 마주봄 (2009년 작성 정보, 최신성 낮음)",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -10978,7 +11465,25 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8244203",
-    "notes": "폭싹 속았수다 촬영지, 사진을 찍고 싶다면 넙개물을 검색해서 가시오. 마을 저수지로 바로 앞쪽에 나무가 위치해 있음.",
+    "notes": {
+      "raw_note": "폭싹 속았수다 촬영지, 사진을 찍고 싶다면 넙개물을 검색해서 가시오. 마을 저수지로 바로 앞쪽에 나무가 위치해 있음.",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "'폭싹 속았수다' 촬영지",
+        "포토스팟(넙개물 검색)"
+      ],
+      "directions": "마을 저수지 앞쪽 나무 위치 참고",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -11327,7 +11832,28 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8214370",
-    "notes": "형제 오름(큰노꼬메, 궷물오름) 연계 추천, 숲길 트레킹, 화산지형",
+    "notes": {
+      "raw_note": "형제 오름(큰노꼬메, 궷물오름) 연계 추천, 숲길 트레킹, 화산지형",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "숲길 트레킹",
+        "화산지형"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": [
+        "큰노꼬메",
+        "궷물오름"
+      ]
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -12507,7 +13033,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25197040",
-    "notes": "숲길이 아름다움",
+    "notes": {
+      "raw_note": "숲길이 아름다움",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "아름다운 숲길"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -14437,7 +14980,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25197241",
-    "notes": "노루서식지. 야생 노루 관찰 가능성",
+    "notes": {
+      "raw_note": "노루서식지. 야생 노루 관찰 가능성",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "노루 서식지, 야생 노루 관찰 가능"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -15136,7 +15696,26 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8228030",
-    "notes": "사려니 숲길, 삼나무, 힐링",
+    "notes": {
+      "raw_note": "사려니 숲길, 삼나무, 힐링",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "사려니숲길",
+        "삼나무",
+        "힐링"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -15259,7 +15838,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25198519",
-    "notes": "정상 지붕있는 쉼터 있음\n논오름 펜션 영업안함",
+    "notes": {
+      "raw_note": "정상 지붕있는 쉼터 있음\n논오름 펜션 영업안함",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "정상 지붕 쉼터"
+      ],
+      "directions": null,
+      "trivia": "인근 논오름 펜션은 영업 안 함",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -15413,7 +16009,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8191971",
-    "notes": "등산로 찾기 어려움, 사유지",
+    "notes": {
+      "raw_note": "등산로 찾기 어려움, 사유지",
+      "access": {
+        "status": "restricted",
+        "detail": "사유지",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -15470,7 +16081,25 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25199090",
-    "notes": "주변에서 가장 높은 오름.\n한라산, 바다 조망가능(360도 개방형 조망)\n사방이 트여 있는 전망형 오름",
+    "notes": {
+      "raw_note": "주변에서 가장 높은 오름.\n한라산, 바다 조망가능(360도 개방형 조망)\n사방이 트여 있는 전망형 오름",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "한라산·바다 360도 조망",
+        "전망형 오름"
+      ],
+      "directions": null,
+      "trivia": "주변에서 가장 높은 오름",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -15684,7 +16313,27 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/11017083",
-    "notes": "오름입구 초원 사진찍기 좋음\n봉우리 2개처럼 보임\n다음 봉우리까지 길 보이면 등산 추천\n360도 뷰 볼 수 있음\n등산로 정비 거의없음\n뚜렷한 탐방로 없음\n가시덩굴, 억새 많아 길 찾기 어려움\n식생이 올라오기전 초봄 탐방이 비교적 수월",
+    "notes": {
+      "raw_note": "오름입구 초원 사진찍기 좋음\n봉우리 2개처럼 보임\n다음 봉우리까지 길 보이면 등산 추천\n360도 뷰 볼 수 있음\n등산로 정비 거의없음\n뚜렷한 탐방로 없음\n가시덩굴, 억새 많아 길 찾기 어려움\n식생이 올라오기전 초봄 탐방이 비교적 수월",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "poor",
+      "caution": [
+        "가시덩굴·억새로 길 찾기 어려움"
+      ],
+      "recommend_for": "초봄 탐방 추천",
+      "highlights": [
+        "입구 초원 포토존",
+        "360도 뷰"
+      ],
+      "directions": null,
+      "trivia": "봉우리 2개처럼 보임",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -16090,7 +16739,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8221826",
-    "notes": "'눈오름교' 주변에 공간이 있으니 주차하고 길따라 조금 걸으면 밭 주변에 입구가 있음. 별거 없어서 비추천",
+    "notes": {
+      "raw_note": "'눈오름교' 주변에 공간이 있으니 주차하고 길따라 조금 걸으면 밭 주변에 입구가 있음. 별거 없어서 비추천",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": "비추천(별거 없음)",
+      "highlights": [],
+      "directions": "'눈오름교' 주변 공터 주차 후 밭 주변 입구로 진입",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -16131,7 +16795,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8220369",
-    "notes": "등산로 찾기 어려움\n눈의 제주 방언으로 작은 산봉우리",
+    "notes": {
+      "raw_note": "등산로 찾기 어려움\n눈의 제주 방언으로 작은 산봉우리",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "'눈'은 제주 방언으로 작은 산봉우리를 뜻함",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -16172,7 +16851,26 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8297242",
-    "notes": "제주시내와 가까워 접근성이 좋으며, 올라가는 수고에 비해 제주시 해안가부터 한라산까지 펼쳐지는 풍경이 매우 탁월한 '가성비 조망'의 숨은 오름",
+    "notes": {
+      "raw_note": "제주시내와 가까워 접근성이 좋으며, 올라가는 수고에 비해 제주시 해안가부터 한라산까지 펼쳐지는 풍경이 매우 탁월한 '가성비 조망'의 숨은 오름",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "제주시내 접근성",
+        "가성비 조망(해안가~한라산)",
+        "숨은 명소"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -16378,7 +17076,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7862701",
-    "notes": "산책로가 잘 되어있어 오르기 쉬움",
+    "notes": {
+      "raw_note": "산책로가 잘 되어있어 오르기 쉬움",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "well_maintained",
+      "caution": [],
+      "recommend_for": "오르기 쉬움",
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -16794,7 +17507,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10276903",
-    "notes": "출입제한, 탐방불가",
+    "notes": {
+      "raw_note": "출입제한, 탐방불가",
+      "access": {
+        "status": "prohibited",
+        "detail": "출입제한, 탐방불가",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -16851,7 +17579,27 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25200772",
-    "notes": "오름의 여왕. 둥근 분화구가 달처럼 아름다움.\n초반부터 경사있음 (짧지만 숨 차는 코스)\n360도 조망 볼 수 있음\n일몰, 일출시간 추천",
+    "notes": {
+      "raw_note": "오름의 여왕. 둥근 분화구가 달처럼 아름다움.\n초반부터 경사있음 (짧지만 숨 차는 코스)\n360도 조망 볼 수 있음\n일몰, 일출시간 추천",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "초반부터 경사 있음(짧지만 숨 차는 코스)"
+      ],
+      "recommend_for": null,
+      "highlights": [
+        "360도 조망",
+        "일출·일몰 명소"
+      ],
+      "directions": null,
+      "trivia": "'오름의 여왕'으로 불림, 둥근 분화구가 달처럼 아름다움",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -18201,7 +18949,26 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8306005",
-    "notes": "초보자는 1탐방로 이용(계단)\n대나무숲 포토존\n대나무숲 이후 무조건 원점회귀 추천\n길 찾기 어려움 등반 수준",
+    "notes": {
+      "raw_note": "초보자는 1탐방로 이용(계단)\n대나무숲 포토존\n대나무숲 이후 무조건 원점회귀 추천\n길 찾기 어려움 등반 수준",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "대나무숲 이후 원점회귀 권장, 길찾기 어려운 등반 수준"
+      ],
+      "recommend_for": "초보자는 1탐방로(계단) 이용 권장",
+      "highlights": [
+        "대나무숲 포토존"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -18501,7 +19268,26 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7814429",
-    "notes": "정상 바다뷰\n전망대 있음\n차귀도 일몰 포인트",
+    "notes": {
+      "raw_note": "정상 바다뷰\n전망대 있음\n차귀도 일몰 포인트",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "정상 바다뷰",
+        "전망대",
+        "차귀도 일몰 포인트"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -18959,7 +19745,22 @@
       "hours_fee": null
     },
     "kakao_map_url": null,
-    "notes": "길정비 잘 되어있음\n정상뷰는 없음\n완만한 산책로",
+    "notes": {
+      "raw_note": "길정비 잘 되어있음\n정상뷰는 없음\n완만한 산책로",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "well_maintained",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "정상뷰는 없음, 완만한 산책로",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -19016,7 +19817,26 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7814463",
-    "notes": "탐방로 경사 심함\n둘레길 산책로 잘 되어있음\n사유지(입구표지판에 번호 있음)",
+    "notes": {
+      "raw_note": "탐방로 경사 심함\n둘레길 산책로 잘 되어있음\n사유지(입구표지판에 번호 있음)",
+      "access": {
+        "status": null,
+        "detail": "사유지 통과(입구 표지판에 번호 있음)",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "탐방로 경사 심함"
+      ],
+      "recommend_for": null,
+      "highlights": [
+        "둘레길 산책로"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -19400,7 +20220,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7814464",
-    "notes": "등산로 찾기 어려움",
+    "notes": {
+      "raw_note": "등산로 찾기 어려움",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -19457,7 +20292,26 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25204904",
-    "notes": "억새명소\n분화구 둘레길\n유채꽃/ 벚꽃, 녹산로, 한국의 아름다운 길 100선",
+    "notes": {
+      "raw_note": "억새명소\n분화구 둘레길\n유채꽃/ 벚꽃, 녹산로, 한국의 아름다운 길 100선",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "억새 명소",
+        "분화구 둘레길",
+        "유채꽃·벚꽃(녹산로, 한국의 아름다운 길 100선)"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -20215,7 +21069,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7823928",
-    "notes": "등산로 찾기 어려움",
+    "notes": {
+      "raw_note": "등산로 찾기 어려움",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -20272,7 +21141,27 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10255199",
-    "notes": "소병악과 쌍둥이, 말 방목, 분화구",
+    "notes": {
+      "raw_note": "소병악과 쌍둥이, 말 방목, 분화구",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "말 방목",
+        "분화구"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": [
+        "소병악"
+      ]
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -20370,7 +21259,26 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25206111",
-    "notes": "해안 비경, 성산일출봉/우도 조망, 일출 명소, 봉수대 역사, 초보자 적합",
+    "notes": {
+      "raw_note": "해안 비경, 성산일출봉/우도 조망, 일출 명소, 봉수대 역사, 초보자 적합",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": "초보자 적합",
+      "highlights": [
+        "해안 비경",
+        "성산일출봉·우도 조망",
+        "일출 명소"
+      ],
+      "directions": null,
+      "trivia": "봉수대 역사",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -20892,7 +21800,26 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25206398",
-    "notes": "성산일출봉 조망, 해송/삼나무, 반월형 정상",
+    "notes": {
+      "raw_note": "성산일출봉 조망, 해송/삼나무, 반월형 정상",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "성산일출봉 조망",
+        "해송·삼나무",
+        "반월형 정상"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -21134,7 +22061,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25206936",
-    "notes": "탐방로 정비 안되어 있음, 입구찾기 어려움, 관광객들에게 비추",
+    "notes": {
+      "raw_note": "탐방로 정비 안되어 있음, 입구찾기 어려움, 관광객들에게 비추",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "poor",
+      "caution": [],
+      "recommend_for": "관광객 비추(입구 찾기 어려움)",
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -21341,7 +22283,22 @@
       "hours_fee": null
     },
     "kakao_map_url": null,
-    "notes": "둔덕 형태의 완만한 오름\n쉬운 등반",
+    "notes": {
+      "raw_note": "둔덕 형태의 완만한 오름\n쉬운 등반",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": "쉬운 등반",
+      "highlights": [],
+      "directions": null,
+      "trivia": "둔덕 형태의 완만한 오름",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -21390,7 +22347,25 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7834621",
-    "notes": "경사완만, 데크/계단 조성 잘 되어있어 접근성 좋음\n제주공항 활주로, 한라산, 바다 전경",
+    "notes": {
+      "raw_note": "경사완만, 데크/계단 조성 잘 되어있어 접근성 좋음\n제주공항 활주로, 한라산, 바다 전경",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "well_maintained",
+      "caution": [],
+      "recommend_for": "접근성 좋음(경사 완만)",
+      "highlights": [
+        "제주공항 활주로 전경",
+        "한라산·바다 전경"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -21836,7 +22811,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10307727",
-    "notes": "도청 인근 접근성 좋음. 점심시간 산책",
+    "notes": {
+      "raw_note": "도청 인근 접근성 좋음. 점심시간 산책",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": "접근성 좋음, 점심시간 산책 적합",
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -21926,7 +22916,25 @@
       "hours_fee": null
     },
     "kakao_map_url": null,
-    "notes": "올레길 3-A 코스, 정상전망대있음",
+    "notes": {
+      "raw_note": "올레길 3-A 코스, 정상전망대있음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "올레길 3-A 코스",
+        "정상 전망대"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -22392,7 +23400,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7832617",
-    "notes": "등산로 뚜렷하지 않음. 오름 대부분이 밭, 묘지 여행자 비추천",
+    "notes": {
+      "raw_note": "등산로 뚜렷하지 않음. 오름 대부분이 밭, 묘지 여행자 비추천",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": "여행자 비추천(대부분 밭·묘지)",
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -22916,7 +23939,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7834108",
-    "notes": "등산로 찾기 어려움",
+    "notes": {
+      "raw_note": "등산로 찾기 어려움",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -23038,7 +24076,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7840524",
-    "notes": "현재 출입 제한",
+    "notes": {
+      "raw_note": "현재 출입 제한",
+      "access": {
+        "status": "restricted",
+        "detail": "현재 출입 제한",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -23102,7 +24155,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7849255",
-    "notes": "등산로 찾기 어려움",
+    "notes": {
+      "raw_note": "등산로 찾기 어려움",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -23407,7 +24475,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "https://place.map.kakao.com/7860733",
-    "notes": "둔덕형태.\n완만하여 가족산책 추천",
+    "notes": {
+      "raw_note": "둔덕형태.\n완만하여 가족산책 추천",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": "완만하여 가족 산책 추천",
+      "highlights": [],
+      "directions": null,
+      "trivia": "둔덕 형태",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -23685,7 +24768,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7860041",
-    "notes": "뒷면이 굽은 독특한 형태.",
+    "notes": {
+      "raw_note": "뒷면이 굽은 독특한 형태.",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "뒷면이 굽은 독특한 형태",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -23819,7 +24917,24 @@
       "hours_fee": "ㅐ"
     },
     "kakao_map_url": "http://place.map.kakao.com/25222743",
-    "notes": "동백나무 많음, 길정비 잘 되어있음",
+    "notes": {
+      "raw_note": "동백나무 많음, 길정비 잘 되어있음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "well_maintained",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "동백나무 군락"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -24130,7 +25245,27 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25036598",
-    "notes": "쌍분화구, 억새, 전설(사랑이야기), 가을 명소, 한적함",
+    "notes": {
+      "raw_note": "쌍분화구, 억새, 전설(사랑이야기), 가을 명소, 한적함",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "쌍분화구",
+        "억새",
+        "가을 명소",
+        "한적함"
+      ],
+      "directions": null,
+      "trivia": "전설(사랑이야기)",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -24784,7 +25919,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7865729",
-    "notes": "갓길주차 금지",
+    "notes": {
+      "raw_note": "갓길주차 금지",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": "갓길 주차 금지",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -25258,7 +26408,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10356367",
-    "notes": "등산로 찾기 어려움",
+    "notes": {
+      "raw_note": "등산로 찾기 어려움",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -25315,7 +26480,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7864566",
-    "notes": "마음처럼 편안한 오름. 마을 안의 오름",
+    "notes": {
+      "raw_note": "마음처럼 편안한 오름. 마을 안의 오름",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "'마음처럼 편안한 오름'이라는 뜻, 마을 안에 위치",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -25469,7 +26649,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10337128",
-    "notes": "손님 마중 장소였던 곳. 역사적 의미",
+    "notes": {
+      "raw_note": "손님 마중 장소였던 곳. 역사적 의미",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "손님을 마중하던 장소, 역사적 의미",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -25643,7 +26838,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7870117",
-    "notes": "출입 제한 탐방 불가",
+    "notes": {
+      "raw_note": "출입 제한 탐방 불가",
+      "access": {
+        "status": "prohibited",
+        "detail": "출입 제한 탐방 불가",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -25989,7 +27199,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10349145",
-    "notes": "봉수대가 있었던 곳. 넓은 들판",
+    "notes": {
+      "raw_note": "봉수대가 있었던 곳. 넓은 들판",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "넓은 들판"
+      ],
+      "directions": null,
+      "trivia": "봉수대가 있었던 곳",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -26203,7 +27430,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25229887",
-    "notes": "매의 제주 방언으로 작은 산봉우리",
+    "notes": {
+      "raw_note": "매의 제주 방언으로 작은 산봉우리",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "'매'는 제주 방언으로 작은 산봉우리를 뜻함",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -26341,7 +27583,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8360323",
-    "notes": "출입제한 : 탐방불가 (산림연구시험림 운영)",
+    "notes": {
+      "raw_note": "출입제한 : 탐방불가 (산림연구시험림 운영)",
+      "access": {
+        "status": "prohibited",
+        "detail": "출입제한 : 탐방불가 (산림연구시험림 운영)",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -26398,7 +27655,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10339539",
-    "notes": "매우 짧음\n풍경은 좋음\n묘지 많음",
+    "notes": {
+      "raw_note": "매우 짧음\n풍경은 좋음\n묘지 많음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "풍경 좋음"
+      ],
+      "directions": null,
+      "trivia": "코스 매우 짧음, 묘지 많음",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -26508,7 +27782,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7866881",
-    "notes": "탐방불가(사유지, 진입로 없음)",
+    "notes": {
+      "raw_note": "탐방불가(사유지, 진입로 없음)",
+      "access": {
+        "status": "prohibited",
+        "detail": "탐방불가(사유지, 진입로 없음)",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -26565,7 +27854,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7868485",
-    "notes": "둥근형태의 아담한 오름.",
+    "notes": {
+      "raw_note": "둥근형태의 아담한 오름.",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "둥근 형태의 아담한 오름",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -26771,7 +28075,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7868596",
-    "notes": "네비 종료후 골목진입 (차량X)",
+    "notes": {
+      "raw_note": "네비 종료후 골목진입 (차량X)",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": "내비게이션 종료 후 골목 진입(차량 진입 불가)",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -27033,7 +28352,25 @@
       "hours_fee": "시범운영(2025년 2월부터)\n매주 토, 일 09:00 ~ 15:00"
     },
     "kakao_map_url": "http://place.map.kakao.com/7876363",
-    "notes": "정상탐방불가(군사기지)\n이용수칙\n- 군사기지 및 군사시설 보호법 제 9조(보호 구역에서의 금지행위 등) 에 의거 드론, 군사시설 촬영 및 인터넷(SNS) 게시 금지\n- 지정된 길만 이용 자연훼손, 쓰레기 투기 금지\n- 안전사고 발생 시 즉시 신고",
+    "notes": {
+      "raw_note": "정상탐방불가(군사기지)\n이용수칙\n- 군사기지 및 군사시설 보호법 제 9조(보호 구역에서의 금지행위 등) 에 의거 드론, 군사시설 촬영 및 인터넷(SNS) 게시 금지\n- 지정된 길만 이용 자연훼손, 쓰레기 투기 금지\n- 안전사고 발생 시 즉시 신고",
+      "access": {
+        "status": "prohibited",
+        "detail": "정상 탐방불가(군사기지)",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "드론/군사시설 촬영·SNS 게시 금지(군사기지 보호법)",
+        "지정된 길만 이용, 자연훼손·쓰레기투기 금지"
+      ],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -27639,7 +28976,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/237412511",
-    "notes": "정비 잘 되어있지 않음\n지나간 흔적은 뚜렷함\n입구 반대쪽으로 하산 가능하나 길 험함 정상원점회귀 추천",
+    "notes": {
+      "raw_note": "정비 잘 되어있지 않음\n지나간 흔적은 뚜렷함\n입구 반대쪽으로 하산 가능하나 길 험함 정상원점회귀 추천",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "poor",
+      "caution": [
+        "입구 반대쪽 하산로는 길 험함"
+      ],
+      "recommend_for": "정상에서 원점회귀 추천",
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -27805,7 +29159,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7875147",
-    "notes": "탐방 불가(사유지) 오름 출입하면 고발한다는 글을 적어놓음",
+    "notes": {
+      "raw_note": "탐방 불가(사유지) 오름 출입하면 고발한다는 글을 적어놓음",
+      "access": {
+        "status": "prohibited",
+        "detail": "탐방 불가(사유지), 출입 시 고발 경고문 있음",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -27846,7 +29215,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25237382",
-    "notes": "문처럼 생긴 돌이 있는 오름",
+    "notes": {
+      "raw_note": "문처럼 생긴 돌이 있는 오름",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "문처럼 생긴 돌이 있음",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -27903,7 +29287,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "https://place.map.kakao.com/7964847",
-    "notes": "그네 포토존추천",
+    "notes": {
+      "raw_note": "그네 포토존추천",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "그네 포토존"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -28081,7 +29482,25 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7873185",
-    "notes": "분화구에 습지가 형성된 람사르 습지. 다양한 습지식물과 철새 관찰 가능. 비올때 추천.\n둘레길 풍경 예쁨(1시간)",
+    "notes": {
+      "raw_note": "분화구에 습지가 형성된 람사르 습지. 다양한 습지식물과 철새 관찰 가능. 비올때 추천.\n둘레길 풍경 예쁨(1시간)",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": "비 올 때 추천",
+      "highlights": [
+        "습지식물·철새 관찰",
+        "둘레길 풍경(1시간 코스)"
+      ],
+      "directions": null,
+      "trivia": "람사르 습지(분화구 내 습지)",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -28299,7 +29718,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/11289720",
-    "notes": "출입 제한 탐방 불가",
+    "notes": {
+      "raw_note": "출입 제한 탐방 불가",
+      "access": {
+        "status": "prohibited",
+        "detail": "출입 제한 탐방 불가",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -28340,7 +29774,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10424248",
-    "notes": "탐방 불가 (한라산 국립공원)\n대한민국 천연기념물\n물장오리는 한라산 국립공원 지대 내에 위치하는데다 오름 자체가 절대보전지역으로 지정되어 출입이 엄격히 제한되고 있다.",
+    "notes": {
+      "raw_note": "탐방 불가 (한라산 국립공원)\n대한민국 천연기념물\n물장오리는 한라산 국립공원 지대 내에 위치하는데다 오름 자체가 절대보전지역으로 지정되어 출입이 엄격히 제한되고 있다.",
+      "access": {
+        "status": "prohibited",
+        "detail": "탐방 불가 (한라산 국립공원 절대보전지역)",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "대한민국 천연기념물",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -28381,7 +29830,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10417720",
-    "notes": "출입제한 확인 필요, 자연 휴식년제가 있음\n2008년부터 통제함 현재는 행사할 때 가끔 개방",
+    "notes": {
+      "raw_note": "출입제한 확인 필요, 자연 휴식년제가 있음\n2008년부터 통제함 현재는 행사할 때 가끔 개방",
+      "access": {
+        "status": "restricted",
+        "detail": "자연휴식년제, 2008년부터 통제, 행사 시 가끔 개방",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -28438,7 +29902,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25302677",
-    "notes": "지름길 있음\n제주도 서귀포시 토평동 16-3 치고 가면 금방 정상에 오름. 다만 멋진 숲길을 보고 싶다면 코스대로 등산하는거 추천",
+    "notes": {
+      "raw_note": "지름길 있음\n제주도 서귀포시 토평동 16-3 치고 가면 금방 정상에 오름. 다만 멋진 숲길을 보고 싶다면 코스대로 등산하는거 추천",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": "숲길 감상 원하면 정식 코스 등산 추천",
+      "highlights": [],
+      "directions": "제주도 서귀포시 토평동 16-3 검색 시 지름길로 빠른 접근 가능",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -29069,7 +30548,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10412117",
-    "notes": "옥귀마테마타운 나오면 쭉 직진, 막다른 길이 나오면 오른쪽으로 쭉 직진",
+    "notes": {
+      "raw_note": "옥귀마테마타운 나오면 쭉 직진, 막다른 길이 나오면 오른쪽으로 쭉 직진",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": "옥귀마테마타운에서 직진 → 막다른 길에서 우회전 직진",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -29207,7 +30701,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8316763",
-    "notes": "나무 없이 풀만있는 민둥산이라는 뜻",
+    "notes": {
+      "raw_note": "나무 없이 풀만있는 민둥산이라는 뜻",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "나무 없이 풀만 있는 민둥산이라는 뜻",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -29264,7 +30773,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8316764",
-    "notes": "도심 접근성 좋음, 오르는 길 다양",
+    "notes": {
+      "raw_note": "도심 접근성 좋음, 오르는 길 다양",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": "도심 접근성 좋음",
+      "highlights": [
+        "다양한 등산로"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -30142,7 +31668,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7881286",
-    "notes": "입구 찾기 쉽지않음.",
+    "notes": {
+      "raw_note": "입구 찾기 쉽지않음.",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -30183,7 +31724,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7879348",
-    "notes": "나무 없는 초원 오름",
+    "notes": {
+      "raw_note": "나무 없는 초원 오름",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "나무 없는 초원 오름",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -30240,7 +31796,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25240627",
-    "notes": "바늘처럼 뾰족한 형태. 독특한 외관",
+    "notes": {
+      "raw_note": "바늘처럼 뾰족한 형태. 독특한 외관",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "바늘처럼 뾰족한 형태의 독특한 외관",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -30882,7 +32453,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25243139",
-    "notes": "출입 제한 : 등산로 찾기 어려움",
+    "notes": {
+      "raw_note": "출입 제한 : 등산로 찾기 어려움",
+      "access": {
+        "status": "restricted",
+        "detail": "출입 제한",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -31028,7 +32614,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7896521",
-    "notes": "안돌오름과 연계 추천",
+    "notes": {
+      "raw_note": "안돌오름과 연계 추천",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": [
+        "안돌오름"
+      ]
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -31788,7 +33391,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7890028",
-    "notes": "출입 제한 : 탐방 불가",
+    "notes": {
+      "raw_note": "출입 제한 : 탐방 불가",
+      "access": {
+        "status": "prohibited",
+        "detail": "출입 제한 : 탐방 불가",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -31837,7 +33455,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10810149",
-    "notes": "오름 도장깨기가 아니라면 추천 하지않음",
+    "notes": {
+      "raw_note": "오름 도장깨기가 아니라면 추천 하지않음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": "오름 완등(도장깨기) 목적 아니면 비추천",
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -32135,7 +33768,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10393740",
-    "notes": "공원임. 여행객들에게 추천하기 어려움.",
+    "notes": {
+      "raw_note": "공원임. 여행객들에게 추천하기 어려움.",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": "여행객에게 추천하기 어려움",
+      "highlights": [],
+      "directions": null,
+      "trivia": "공원 형태",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -32206,7 +33854,26 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25248461",
-    "notes": "약초가 풀부. 힐링산책. 여름에는 초록 배경으로 인생샷 명소. 웨딩 촬영지",
+    "notes": {
+      "raw_note": "약초가 풀부. 힐링산책. 여름에는 초록 배경으로 인생샷 명소. 웨딩 촬영지",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "힐링 산책",
+        "여름 인생샷 명소",
+        "웨딩 촬영지"
+      ],
+      "directions": null,
+      "trivia": "약초가 풍부",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -32907,7 +34574,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7895084",
-    "notes": "입구 A가 더 멀지만 입구 A에서 출발해 초지와 초지 가운데 보이는 오름의 모습을 바라보면서 걸어가는거 추천",
+    "notes": {
+      "raw_note": "입구 A가 더 멀지만 입구 A에서 출발해 초지와 초지 가운데 보이는 오름의 모습을 바라보면서 걸어가는거 추천",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": "입구 A에서 출발해 초지 사이로 걷는 코스 추천(다소 멀지만 경관 좋음)",
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -33321,7 +35003,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7901044",
-    "notes": "운영시간 매일 09:00 ~ 17:00\n입장료\n어른 : 1,000원\n청소년 : 600원\n어린이 : 300원",
+    "notes": {
+      "raw_note": "운영시간 매일 09:00 ~ 17:00\n입장료\n어른 : 1,000원\n청소년 : 600원\n어린이 : 300원",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": "어른 1,000원 / 청소년 600원 / 어린이 300원",
+        "hours": "매일 09:00~17:00"
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -34886,7 +36583,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/11299651",
-    "notes": "뚜렷한 등산로 없음\n정상뷰없음, 길정비 안되어있음 잡풀없음",
+    "notes": {
+      "raw_note": "뚜렷한 등산로 없음\n정상뷰없음, 길정비 안되어있음 잡풀없음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "poor",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "정상뷰 없음",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -34972,7 +36684,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/17789092",
-    "notes": "탐방불가 (사유지)",
+    "notes": {
+      "raw_note": "탐방불가 (사유지)",
+      "access": {
+        "status": "prohibited",
+        "detail": "사유지",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -35235,7 +36962,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25254223",
-    "notes": "본래의 터라는 뜻",
+    "notes": {
+      "raw_note": "본래의 터라는 뜻",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "'본래의 터'라는 뜻",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -35409,7 +37151,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7901198",
-    "notes": "탐방불가",
+    "notes": {
+      "raw_note": "탐방불가",
+      "access": {
+        "status": "prohibited",
+        "detail": "탐방불가",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -35450,7 +37207,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/11054575",
-    "notes": "등산로 없음",
+    "notes": {
+      "raw_note": "등산로 없음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "none",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -35491,7 +37263,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10471809",
-    "notes": "현재 사유지라 출입 불가",
+    "notes": {
+      "raw_note": "현재 사유지라 출입 불가",
+      "access": {
+        "status": "prohibited",
+        "detail": "현재 사유지라 출입 불가",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -35678,7 +37465,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7906497",
-    "notes": "길이 너무 어려워서 관광객에게 추천하지 않는다",
+    "notes": {
+      "raw_note": "길이 너무 어려워서 관광객에게 추천하지 않는다",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "난이도 매우 높음"
+      ],
+      "recommend_for": "관광객 비추천(길이 매우 어려움)",
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -37182,7 +38986,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10455841",
-    "notes": "운영시간 매일 09:00 ~ 17:00\n입장료\n어른 : 1,000원\n청소년 : 600원\n어린이 : 300원",
+    "notes": {
+      "raw_note": "운영시간 매일 09:00 ~ 17:00\n입장료\n어른 : 1,000원\n청소년 : 600원\n어린이 : 300원",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": "어른 1,000원 / 청소년 600원 / 어린이 300원",
+        "hours": "매일 09:00~17:00"
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -37268,7 +39087,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25259581",
-    "notes": "탐방불가",
+    "notes": {
+      "raw_note": "탐방불가",
+      "access": {
+        "status": "prohibited",
+        "detail": "탐방불가",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -37317,7 +39151,28 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7915415",
-    "notes": "계단으로 짧고 굵은 등반 후 멋진 풍경. 해안, 등대",
+    "notes": {
+      "raw_note": "계단으로 짧고 굵은 등반 후 멋진 풍경. 해안, 등대",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "짧지만 굵은 계단 등반"
+      ],
+      "recommend_for": null,
+      "highlights": [
+        "멋진 풍경",
+        "해안",
+        "등대"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -37837,7 +39692,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7920053",
-    "notes": "등산로 찾기 어려움",
+    "notes": {
+      "raw_note": "등산로 찾기 어려움",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -38271,7 +40141,25 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25262407",
-    "notes": "제주시내 전망, 일출, 산책, 접근성 좋음",
+    "notes": {
+      "raw_note": "제주시내 전망, 일출, 산책, 접근성 좋음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": "접근성 좋음",
+      "highlights": [
+        "제주시내 전망",
+        "일출"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -38569,7 +40457,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25262407",
-    "notes": "사전예약 필수. 링크 https://visithalla.jeju.go.kr/main/main.do?language=ko_KR&utm_source=chatgpt.com",
+    "notes": {
+      "raw_note": "사전예약 필수. 링크 https://visithalla.jeju.go.kr/main/main.do?language=ko_KR&utm_source=chatgpt.com",
+      "access": {
+        "status": "reservation_required",
+        "detail": "사전예약 필수(visithalla.jeju.go.kr)",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -40279,7 +42182,22 @@
       "hours_fee": "탐방안내 : 064-730-7272\n오시는길 : 제주특별자치도 서귀포시 남원읍 서성로651번길 235(주차장)\n인터넷 선착순 예약 정원 : 400명\n운영시간 : 09:00 ~ 17:00 (17시 전까지 하산완료)\n숲해설 제공시간 : 오전9시, 오후1시"
     },
     "kakao_map_url": "http://place.map.kakao.com/7916414",
-    "notes": "해당 사이트 참고. 예약하고 가야됨. 항시 개방도 아니라 사이트 봐야 한다. \nhttps://www.foresttrip.go.kr/indvz/main.do?hmpgId=ID05030007",
+    "notes": {
+      "raw_note": "해당 사이트 참고. 예약하고 가야됨. 항시 개방도 아니라 사이트 봐야 한다. \nhttps://www.foresttrip.go.kr/indvz/main.do?hmpgId=ID05030007",
+      "access": {
+        "status": "reservation_required",
+        "detail": "예약 필수, 항시 개방 아님, 홈페이지 확인 필요(foresttrip.go.kr)",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -40361,7 +42279,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7914532",
-    "notes": "탐방불가",
+    "notes": {
+      "raw_note": "탐방불가",
+      "access": {
+        "status": "prohibited",
+        "detail": "탐방불가",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -40703,7 +42636,22 @@
       "hours_fee": "유료,산방굴사 입장료 유료( 어른 1.000원, 청소년.어린이 500원 , 장애인 경로인 무료)\n이용 시간\n평일 : 09:00 ~ 18:00 , 주말 : 09:00 ~ 18:00"
     },
     "kakao_map_url": "https://place.map.kakao.com/8386141",
-    "notes": "출입제한: 삼방굴사까지만 탐방가능\n설문대할망이 한라산 꼭대기를 뽑아 던져놓았다는 산방산 · 명승 제77호 · 천연기념물 제376호 · 올레10코스",
+    "notes": {
+      "raw_note": "출입제한: 삼방굴사까지만 탐방가능\n설문대할망이 한라산 꼭대기를 뽑아 던져놓았다는 산방산 · 명승 제77호 · 천연기념물 제376호 · 올레10코스",
+      "access": {
+        "status": "restricted",
+        "detail": "삼방굴사까지만 탐방 가능",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "설문대할망 전설, 명승 제77호, 천연기념물 제376호, 올레10코스",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -43490,7 +45438,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8387235",
-    "notes": "길이 너무 어려워서 관광객에게 추천하지 않는다",
+    "notes": {
+      "raw_note": "길이 너무 어려워서 관광객에게 추천하지 않는다",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "난이도 매우 높음"
+      ],
+      "recommend_for": "관광객 비추천(길이 매우 어려움)",
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -44096,7 +46061,26 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25274725",
-    "notes": "새벽별처럼 빛나는 오름. 들불 축제 장소로 유명. 경사가 가파름",
+    "notes": {
+      "raw_note": "새벽별처럼 빛나는 오름. 들불 축제 장소로 유명. 경사가 가파름",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "경사 가파름"
+      ],
+      "recommend_for": null,
+      "highlights": [
+        "들불축제 장소로 유명"
+      ],
+      "directions": null,
+      "trivia": "'새벽별처럼 빛나는 오름'",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -44681,7 +46665,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/11267601",
-    "notes": "단독 진입로가 없고 수풀이 우거져 있어 실제 탐방객들은 516도로(성판악 인근)나 사려니숲길 주차장에서 출발",
+    "notes": {
+      "raw_note": "단독 진입로가 없고 수풀이 우거져 있어 실제 탐방객들은 516도로(성판악 인근)나 사려니숲길 주차장에서 출발",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": "단독 진입로 없음 — 516도로(성판악 인근) 또는 사려니숲길 주차장에서 출발",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -44824,7 +46823,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25278387",
-    "notes": "출입 제한 : 개인사유지",
+    "notes": {
+      "raw_note": "출입 제한 : 개인사유지",
+      "access": {
+        "status": "restricted",
+        "detail": "개인사유지",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -45478,7 +47492,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "https://place.map.kakao.com/7940279",
-    "notes": "등산로 정비 잘 안되어있음.\n사람 흔적따라 이동\n진입로만 잘 찾으면 헤매지는 않을 정도. 혼자서는 가지마시길.",
+    "notes": {
+      "raw_note": "등산로 정비 잘 안되어있음.\n사람 흔적따라 이동\n진입로만 잘 찾으면 헤매지는 않을 정도. 혼자서는 가지마시길.",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "poor",
+      "caution": [
+        "혼자 탐방 비권장, 진입로 확인 필요"
+      ],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -45860,7 +47891,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7937664",
-    "notes": "출입제한 : 사유지",
+    "notes": {
+      "raw_note": "출입제한 : 사유지",
+      "access": {
+        "status": "restricted",
+        "detail": "사유지",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -45924,7 +47970,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25280784",
-    "notes": "유채꽃 이쁨",
+    "notes": {
+      "raw_note": "유채꽃 이쁨",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "유채꽃"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -46458,7 +48521,25 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25283148",
-    "notes": "묘지가 많은 오름\n묘지 구간 지나가는 길 있음\n정상 능선이 비교적 완만\n억새 많음\n주변 오름들과 들판 조망 가능",
+    "notes": {
+      "raw_note": "묘지가 많은 오름\n묘지 구간 지나가는 길 있음\n정상 능선이 비교적 완만\n억새 많음\n주변 오름들과 들판 조망 가능",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "well_maintained",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "억새",
+        "주변 오름·들판 조망"
+      ],
+      "directions": null,
+      "trivia": "묘지가 많은 오름",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -46661,7 +48742,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7946961",
-    "notes": "가파름",
+    "notes": {
+      "raw_note": "가파름",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "가파름"
+      ],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -47231,7 +49329,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8426762",
-    "notes": "세 오름(샛궤펜이, 큰퀘펜이, 섯궤펜이)중 서쪽에 위치하고 있어서 섯궤펜이라고 함.\n등산로 찾기 어려움",
+    "notes": {
+      "raw_note": "세 오름(샛궤펜이, 큰퀘펜이, 섯궤펜이)중 서쪽에 위치하고 있어서 섯궤펜이라고 함.\n등산로 찾기 어려움",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -47288,7 +49401,26 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25284265",
-    "notes": "4.3사건, 예비검속 화살터, 다크투어, 역사교육, 알뜨르비행장, 추모, 평화",
+    "notes": {
+      "raw_note": "4.3사건, 예비검속 화살터, 다크투어, 역사교육, 알뜨르비행장, 추모, 평화",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "다크투어",
+        "역사교육",
+        "추모·평화 공간"
+      ],
+      "directions": null,
+      "trivia": "4.3사건 예비검속 학살터, 알뜨르비행장 인근",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -47398,7 +49530,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7951103",
-    "notes": "불교, 사찰이 있었던 신성한 곳",
+    "notes": {
+      "raw_note": "불교, 사찰이 있었던 신성한 곳",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "사찰이 있었던 신성한 곳",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -48099,7 +50246,28 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/237466193",
-    "notes": "분화구(굼부리), 연못(세미소), 이시돌목장, 삼나무숲, 은총의 동산",
+    "notes": {
+      "raw_note": "분화구(굼부리), 연못(세미소), 이시돌목장, 삼나무숲, 은총의 동산",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "분화구(굼부리)",
+        "연못(세미소)",
+        "이시돌목장",
+        "삼나무숲",
+        "은총의 동산"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -48353,7 +50521,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/17782147",
-    "notes": "카카오맵 열면 샛게오리 나옴 잘못된 정보",
+    "notes": {
+      "raw_note": "카카오맵 열면 샛게오리 나옴 잘못된 정보",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "카카오맵 지명 오표기(샛게오리로 표시됨) 주의"
+      ],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -49051,7 +51236,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7958576",
-    "notes": "큰사슴이오름(대록산) 연계방문 추천",
+    "notes": {
+      "raw_note": "큰사슴이오름(대록산) 연계방문 추천",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": [
+        "대록산"
+      ]
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -49429,7 +51631,26 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7958410",
-    "notes": "대병악과 쌍둥이오름, 한라산/서귀포/산방산 전망",
+    "notes": {
+      "raw_note": "대병악과 쌍둥이오름, 한라산/서귀포/산방산 전망",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "한라산·서귀포·산방산 전망"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": [
+        "대병악"
+      ]
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -49547,7 +51768,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "https://place.map.kakao.com/24022940",
-    "notes": "등산로입구 산천단에서 주차시 곰솔나무 옆으로 진입. 길정비 안되어있음",
+    "notes": {
+      "raw_note": "등산로입구 산천단에서 주차시 곰솔나무 옆으로 진입. 길정비 안되어있음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "poor",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": "산천단 주차 후 곰솔나무 옆으로 진입",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -49931,7 +52167,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25288503",
-    "notes": "관광객들에게 추천 안함",
+    "notes": {
+      "raw_note": "관광객들에게 추천 안함",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": "관광객 비추천",
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -50133,7 +52384,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7959730",
-    "notes": "등산로 찾기 매우힘듦",
+    "notes": {
+      "raw_note": "등산로 찾기 매우힘듦",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [
+        "등산로 찾기 매우 힘듦"
+      ],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -50190,7 +52458,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7959260",
-    "notes": "한라산 축소판 같은 느낌",
+    "notes": {
+      "raw_note": "한라산 축소판 같은 느낌",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "한라산 축소판 같은 느낌",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -50428,7 +52711,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7957264",
-    "notes": "가시넝쿨, 등산로 안좋음",
+    "notes": {
+      "raw_note": "가시넝쿨, 등산로 안좋음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "poor",
+      "caution": [
+        "가시넝쿨 많음"
+      ],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -50485,7 +52785,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "https://place.map.kakao.com/7956367",
-    "notes": "이중분화구, 99봉, 2027년 7월 31일까지 출입 제한, 정산 자연휴식년제",
+    "notes": {
+      "raw_note": "이중분화구, 99봉, 2027년 7월 31일까지 출입 제한, 정산 자연휴식년제",
+      "access": {
+        "status": "restricted",
+        "detail": "2027-07-31까지 자연휴식년제로 정상 출입 제한",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "이중분화구, 99봉",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -50803,7 +53118,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8389783",
-    "notes": "문의 및 안내 : 우도 등대 064-783-0180, 제주관광정보센터 064-740-6000~1",
+    "notes": {
+      "raw_note": "문의 및 안내 : 우도 등대 064-783-0180, 제주관광정보센터 064-740-6000~1",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": "문의: 우도등대 064-783-0180 / 제주관광정보센터 064-740-6000~1",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -51223,7 +53553,25 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25294439",
-    "notes": "바다뷰, 지질트레일, 유네스코 세계 지질공원",
+    "notes": {
+      "raw_note": "바다뷰, 지질트레일, 유네스코 세계 지질공원",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "바다뷰",
+        "지질트레일"
+      ],
+      "directions": null,
+      "trivia": "유네스코 세계지질공원",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -51546,7 +53894,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7912287",
-    "notes": "탐방로 정비 잘 안되어있어 출입제한",
+    "notes": {
+      "raw_note": "탐방로 정비 잘 안되어있어 출입제한",
+      "access": {
+        "status": "restricted",
+        "detail": "탐방로 정비 잘 되어있지 않아 출입제한",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -51587,7 +53950,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8433711",
-    "notes": "출입 제한:개인사유지(감귤밭)",
+    "notes": {
+      "raw_note": "출입 제한:개인사유지(감귤밭)",
+      "access": {
+        "status": "restricted",
+        "detail": "개인사유지(감귤밭)",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -52349,7 +54727,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/17788462",
-    "notes": "등산로 찾기 어려움",
+    "notes": {
+      "raw_note": "등산로 찾기 어려움",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -52406,7 +54799,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8428406",
-    "notes": "등산로 정비 잘 되어있음",
+    "notes": {
+      "raw_note": "등산로 정비 잘 되어있음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "well_maintained",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -52918,7 +55326,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25310024",
-    "notes": "뚜렷한 정상없음",
+    "notes": {
+      "raw_note": "뚜렷한 정상없음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "뚜렷한 정상 없음",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -53112,7 +55535,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8428549",
-    "notes": "관리 전혀 안되어있음. 정상뷰도 없음. 등산로 찾기 어려움",
+    "notes": {
+      "raw_note": "관리 전혀 안되어있음. 정상뷰도 없음. 등산로 찾기 어려움",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "poor",
+      "caution": [
+        "등산로 찾기 어려움"
+      ],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "정상뷰 없음",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -53594,7 +56034,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8494697",
-    "notes": "일반 1인 5,000원\n드론, 셀프웨딩, 반려견 스냅 등 : 팀당 30,000원\n웨딩촬영 : 팀당 50,000원",
+    "notes": {
+      "raw_note": "일반 1인 5,000원\n드론, 셀프웨딩, 반려견 스냅 등 : 팀당 30,000원\n웨딩촬영 : 팀당 50,000원",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": "일반 1인 5,000원 / 드론·셀프웨딩·반려견 스냅 팀당 30,000원 / 웨딩촬영 팀당 50,000원",
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -53884,7 +56339,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/7986111",
-    "notes": "사유지\n입구쪽 집있음\n양해 구하고 진입해야함",
+    "notes": {
+      "raw_note": "사유지\n입구쪽 집있음\n양해 구하고 진입해야함",
+      "access": {
+        "status": "restricted",
+        "detail": "사유지, 입구 쪽 거주지 있어 양해 구하고 진입 필요",
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -54329,7 +56799,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10574639",
-    "notes": "꼬마한라산, 30분코스, 아이와 함께",
+    "notes": {
+      "raw_note": "꼬마한라산, 30분코스, 아이와 함께",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": "아이와 함께 가기 좋음(30분 코스)",
+      "highlights": [],
+      "directions": null,
+      "trivia": "'꼬마 한라산'으로 불림",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -55609,7 +58094,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8004025",
-    "notes": "사자상/ 용호상 조형물",
+    "notes": {
+      "raw_note": "사자상/ 용호상 조형물",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "사자상·용호상 조형물"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -55915,7 +58417,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8499806",
-    "notes": "안쪽에 여러 연못.",
+    "notes": {
+      "raw_note": "안쪽에 여러 연못.",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "여러 연못"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -57113,7 +59632,25 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25319845",
-    "notes": "연못이 여러 개. 습지 생태관찰",
+    "notes": {
+      "raw_note": "연못이 여러 개. 습지 생태관찰",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "연못 여러 개",
+        "습지 생태관찰"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -57323,7 +59860,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8021042",
-    "notes": "대한민국 100대 명품 숲\n안덕면 위생매립장 앞에 주차 하고 20분정도 들어가야함.\n차로 이동가능하나 좁고, 공사중인곳이 있을 수 있어 도보 추천",
+    "notes": {
+      "raw_note": "대한민국 100대 명품 숲\n안덕면 위생매립장 앞에 주차 하고 20분정도 들어가야함.\n차로 이동가능하나 좁고, 공사중인곳이 있을 수 있어 도보 추천",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": "안덕면 위생매립장 앞 주차 후 도보 약 20분(도로 좁고 공사구간 있어 도보 권장)",
+      "trivia": "대한민국 100대 명품숲",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -57601,7 +60153,25 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8018193",
-    "notes": "성읍1리 민속촌에서 수산리 방향으로 700m 지점에 위치한 승마장에서 북쪽으로 600m를 더 올라가면 오름 입구에 도착한다. 정상까지는 30분 정도 소요된다. 영주산 오름 동쪽 부분은 경사가 완만해 등산로로 이용된다.[1]?정상에서는?목장과 성읍민속촌,?일출봉을 조망할 수 있다. 가을철 오름 전사면에는 억새가 풍부하기 때문에 오름을 찾는 탐방객들이 많다.",
+    "notes": {
+      "raw_note": "성읍1리 민속촌에서 수산리 방향으로 700m 지점에 위치한 승마장에서 북쪽으로 600m를 더 올라가면 오름 입구에 도착한다. 정상까지는 30분 정도 소요된다. 영주산 오름 동쪽 부분은 경사가 완만해 등산로로 이용된다.[1]?정상에서는?목장과 성읍민속촌,?일출봉을 조망할 수 있다. 가을철 오름 전사면에는 억새가 풍부하기 때문에 오름을 찾는 탐방객들이 많다.",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "목장·성읍민속촌·일출봉 조망",
+        "가을 억새"
+      ],
+      "directions": "성읍1리 민속촌에서 수산리 방향 700m 지점 승마장 → 북쪽 600m 진입",
+      "trivia": "동쪽 사면이 완만해 등산로로 이용됨, 정상까지 약 30분",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -58059,7 +60629,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/11189551",
-    "notes": "캠파제주 옆으로 주차가능함\n(캠파제주는 사유지로 주차불가)",
+    "notes": {
+      "raw_note": "캠파제주 옆으로 주차가능함\n(캠파제주는 사유지로 주차불가)",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": "캠파제주 옆 주차 가능(단, 캠파제주 부지 자체는 사유지로 주차 불가)",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -59083,7 +61668,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/17788831",
-    "notes": "웨딩촬영 명소",
+    "notes": {
+      "raw_note": "웨딩촬영 명소",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "웨딩촬영 명소"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -59641,7 +62243,25 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10626439",
-    "notes": "사진 명소, 웨딩스냅",
+    "notes": {
+      "raw_note": "사진 명소, 웨딩스냅",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "사진 명소",
+        "웨딩스냅"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -59967,7 +62587,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/11187864",
-    "notes": "관리되어있지 않은 길\n우보악 주변은 대유사격장(대유랜드) 및 개인 목장 사유지와 맞닿아 있습니다. 서쪽 '중문 오프로드 체험장'이나 사격장 방면의 길로 잘못 진입하면 \"사유지 무단출입 시 고발 조치한다\"는 강력한 경고판과 마주치게 되므로, 사유지를 침범하지 않는 동쪽 상예로 쪽이나 연못(색달동 952) 방면 진입로를 정확히 확인하고 가야 합니다",
+    "notes": {
+      "raw_note": "관리되어있지 않은 길\n우보악 주변은 대유사격장(대유랜드) 및 개인 목장 사유지와 맞닿아 있습니다. 서쪽 '중문 오프로드 체험장'이나 사격장 방면의 길로 잘못 진입하면 \"사유지 무단출입 시 고발 조치한다\"는 강력한 경고판과 마주치게 되므로, 사유지를 침범하지 않는 동쪽 상예로 쪽이나 연못(색달동 952) 방면 진입로를 정확히 확인하고 가야 합니다",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "poor",
+      "caution": [
+        "주변 사격장·사유지 인접, 잘못 진입 시 무단출입 경고"
+      ],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": "동쪽 상예로 또는 연못(색달동 952) 방면 진입로 이용 권장",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -60031,7 +62668,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8460981",
-    "notes": "등산로 가파름",
+    "notes": {
+      "raw_note": "등산로 가파름",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "가파름"
+      ],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -60575,7 +63229,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8035989",
-    "notes": "정상 진입 찾기 어려움\n리본따라 정상진입",
+    "notes": {
+      "raw_note": "정상 진입 찾기 어려움\n리본따라 정상진입",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": "리본 표식 따라 정상 진입",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -60905,7 +63574,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8026958",
-    "notes": "등산로 찾기 어려움",
+    "notes": {
+      "raw_note": "등산로 찾기 어려움",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -60962,7 +63646,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "https://place.map.kakao.com/8033485",
-    "notes": "불탑사 오층석탑",
+    "notes": {
+      "raw_note": "불탑사 오층석탑",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "불탑사 오층석탑",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -61254,7 +63953,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8471394",
-    "notes": "탐방로 정비 잘 되어있음.",
+    "notes": {
+      "raw_note": "탐방로 정비 잘 되어있음.",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "well_maintained",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -61737,7 +64451,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8477757",
-    "notes": "물의 도시 베니스랜드 옆골목으로 진입.\n등산로 정비 잘 되어있음",
+    "notes": {
+      "raw_note": "물의 도시 베니스랜드 옆골목으로 진입.\n등산로 정비 잘 되어있음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "well_maintained",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": "'물의 도시 베니스랜드' 옆 골목으로 진입",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -63772,7 +66501,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8041649",
-    "notes": "등산로 찾기 어려움",
+    "notes": {
+      "raw_note": "등산로 찾기 어려움",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -64424,7 +67168,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25343635",
-    "notes": "무덤 천국의 오름: 오름 사면 전체에 약 3,000기에 달하는 묘지가 빼곡하게 들어서 있어, 제주의 독특한 장례 문화와 돌담(산담)을 한눈에 볼 수 있는 '망자의 고향' 같은 곳입니다.",
+    "notes": {
+      "raw_note": "무덤 천국의 오름: 오름 사면 전체에 약 3,000기에 달하는 묘지가 빼곡하게 들어서 있어, 제주의 독특한 장례 문화와 돌담(산담)을 한눈에 볼 수 있는 '망자의 고향' 같은 곳입니다.",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "약 3,000기의 묘지, 제주 장례문화(산담)를 볼 수 있는 곳",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -64481,7 +67240,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/11158780",
-    "notes": "정비 잘 되어있음. 고인돌 있음",
+    "notes": {
+      "raw_note": "정비 잘 되어있음. 고인돌 있음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "well_maintained",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "고인돌 있음",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -65227,7 +68001,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8055384",
-    "notes": "등산로 찾기 어려움 : 출입제한",
+    "notes": {
+      "raw_note": "등산로 찾기 어려움 : 출입제한",
+      "access": {
+        "status": "restricted",
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -65513,7 +68302,26 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/85419607",
-    "notes": "저지오름은 닥몰오름 또는 새오름이라고도 부릅니다. 비고 100미터, 둘레 1540미터로 약 40분 정도면 정상에 오릅니다. 저지오름(楮旨岳)이란 호칭은 마을이름이 ‘저지’로 되면서부터 생긴 한자명이라 합니다. 그전까지는 ‘닥몰오름’이라 불렀으며, 저지의 옛 이름은 '닥모루'(닥몰)였습니다. 이는 닥나무(楮)가 많았다는데서 연유한 것이고, 한자이름은 한자의 뜻을 빌어서 표기한 것이라고 전해집니다. 2007년 제 8회 아름다운 숲 전국대회에서 생명상(대상)을 수상한 오름으로 오르는 숲길이 아주 인상적입니다. 또한 돌계단이 아주 정겹게 놓여 있어 오름 오르는 맛이 남다릅니다. 정상에 올랐을 때 한라산은 남북으로 뻗은 가장 아름답고 웅장한 모습으로 다가옵니다.",
+    "notes": {
+      "raw_note": "저지오름은 닥몰오름 또는 새오름이라고도 부릅니다. 비고 100미터, 둘레 1540미터로 약 40분 정도면 정상에 오릅니다. 저지오름(楮旨岳)이란 호칭은 마을이름이 ‘저지’로 되면서부터 생긴 한자명이라 합니다. 그전까지는 ‘닥몰오름’이라 불렀으며, 저지의 옛 이름은 '닥모루'(닥몰)였습니다. 이는 닥나무(楮)가 많았다는데서 연유한 것이고, 한자이름은 한자의 뜻을 빌어서 표기한 것이라고 전해집니다. 2007년 제 8회 아름다운 숲 전국대회에서 생명상(대상)을 수상한 오름으로 오르는 숲길이 아주 인상적입니다. 또한 돌계단이 아주 정겹게 놓여 있어 오름 오르는 맛이 남다릅니다. 정상에 올랐을 때 한라산은 남북으로 뻗은 가장 아름답고 웅장한 모습으로 다가옵니다.",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "인상적인 숲길",
+        "정겨운 돌계단",
+        "한라산 조망"
+      ],
+      "directions": null,
+      "trivia": "닥몰오름/새오름이라고도 불림, 2007년 아름다운 숲 전국대회 생명상(대상) 수상, 비고 100m·둘레 1540m·약 40분 소요",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -67994,7 +70802,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10801926",
-    "notes": "우천시 주의 (흙길)",
+    "notes": {
+      "raw_note": "우천시 주의 (흙길)",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "우천 시 흙길 미끄럼 주의"
+      ],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -68372,7 +71197,27 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/11153555",
-    "notes": "갈대 자라면 길 찾기 어려움\n입구 어디든 등산 가능하지만 뒤쪽 입구 추천\n긴팔, 긴바지 필수\n정비되어있지 않은 오름\n뷰 좋음",
+    "notes": {
+      "raw_note": "갈대 자라면 길 찾기 어려움\n입구 어디든 등산 가능하지만 뒤쪽 입구 추천\n긴팔, 긴바지 필수\n정비되어있지 않은 오름\n뷰 좋음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "poor",
+      "caution": [
+        "갈대 자라는 시기 길찾기 어려움",
+        "긴팔·긴바지 필수"
+      ],
+      "recommend_for": "뒤쪽 입구 추천",
+      "highlights": [
+        "뷰 좋음"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -68840,7 +71685,27 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/10798266",
-    "notes": "원시림, 울창한 숲, 화산탄, 웨딩촬영명소, 아스달연대기 촬영지",
+    "notes": {
+      "raw_note": "원시림, 울창한 숲, 화산탄, 웨딩촬영명소, 아스달연대기 촬영지",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "원시림·울창한 숲",
+        "화산탄",
+        "웨딩촬영명소",
+        "'아스달연대기' 촬영지"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -70470,7 +73335,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8060802",
-    "notes": "탐방로 찾기 어려움",
+    "notes": {
+      "raw_note": "탐방로 찾기 어려움",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -71164,7 +74044,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8520293",
-    "notes": "종지처럼 움푹파인 분화구",
+    "notes": {
+      "raw_note": "종지처럼 움푹파인 분화구",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": "종지처럼 움푹 파인 분화구",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -71270,7 +74165,25 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/26974939",
-    "notes": "길 험함 등산스틱 추천. 45도 각도로 올라갔다 내려갔다 4번 반복",
+    "notes": {
+      "raw_note": "길 험함 등산스틱 추천. 45도 각도로 올라갔다 내려갔다 4번 반복",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "길 험함, 등산스틱 권장",
+        "45도 경사 오르내림 4회 반복"
+      ],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -72132,7 +75045,25 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/17788991",
-    "notes": "길 험함 등산스틱 추천 45도 각도로 올라갔다 내려갔다 4번 반복",
+    "notes": {
+      "raw_note": "길 험함 등산스틱 추천 45도 각도로 올라갔다 내려갔다 4번 반복",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "길 험함, 등산스틱 권장",
+        "45도 경사 오르내림 4회 반복"
+      ],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -73035,7 +75966,26 @@
       "hours_fee": null
     },
     "kakao_map_url": null,
-    "notes": "성산일출봉, 우도 뷰, 가파른 계단",
+    "notes": {
+      "raw_note": "성산일출봉, 우도 뷰, 가파른 계단",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [
+        "가파른 계단"
+      ],
+      "recommend_for": null,
+      "highlights": [
+        "성산일출봉·우도 뷰"
+      ],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -73221,7 +76171,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8078733",
-    "notes": "등산로 찾기 어려움",
+    "notes": {
+      "raw_note": "등산로 찾기 어려움",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -73977,7 +76942,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8547569",
-    "notes": "등산로 비교적 잘 되어있음",
+    "notes": {
+      "raw_note": "등산로 비교적 잘 되어있음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "well_maintained",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -74143,7 +77123,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25379468",
-    "notes": "넓은 등산로",
+    "notes": {
+      "raw_note": "넓은 등산로",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "well_maintained",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -74970,7 +77965,22 @@
       "hours_fee": null
     },
     "kakao_map_url": null,
-    "notes": "입구 표지판 참고해서 등반",
+    "notes": {
+      "raw_note": "입구 표지판 참고해서 등반",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": "입구 표지판 참고",
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": []
   },
@@ -75253,7 +78263,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/8128672",
-    "notes": "물통/밥통 모양, 성읍민속마을 인근, 가을 야생화",
+    "notes": {
+      "raw_note": "물통/밥통 모양, 성읍민속마을 인근, 가을 야생화",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": null,
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [
+        "가을 야생화"
+      ],
+      "directions": "성읍민속마을 인근",
+      "trivia": "물통/밥통 모양",
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -76532,7 +79559,22 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25392324",
-    "notes": "등산로 찾기 어려움",
+    "notes": {
+      "raw_note": "등산로 찾기 어려움",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "unclear",
+      "caution": [],
+      "recommend_for": null,
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
@@ -77782,7 +80824,24 @@
       "hours_fee": null
     },
     "kakao_map_url": "http://place.map.kakao.com/25221315",
-    "notes": "오름이정표 바닥에 떨어져 있음. 길 정비는 안되어있지만 걷기 좋음",
+    "notes": {
+      "raw_note": "오름이정표 바닥에 떨어져 있음. 길 정비는 안되어있지만 걷기 좋음",
+      "access": {
+        "status": null,
+        "detail": null,
+        "fee": null,
+        "hours": null
+      },
+      "trail_condition": "poor",
+      "caution": [
+        "오름 이정표가 바닥에 떨어져 있어 확인 어려움"
+      ],
+      "recommend_for": "정비는 안됐지만 걷기 좋음",
+      "highlights": [],
+      "directions": null,
+      "trivia": null,
+      "linked_oreums": []
+    },
     "created_at": "2026-08-07 14:50:33",
     "trails": [
       {
