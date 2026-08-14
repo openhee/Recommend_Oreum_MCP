@@ -6,6 +6,7 @@ data/oreum.db는 전혀 읽거나 쓰지 않는다 — data/oreum.json이 유일
 """
 import json
 import math
+import os
 from pathlib import Path
 from typing import Literal
 
@@ -88,8 +89,10 @@ def load_records() -> list[dict]:
 
 
 def save_records(records: list[dict]) -> None:
-    with open(JSON_PATH, "w", encoding="utf-8") as f:
+    tmp_path = JSON_PATH.with_suffix(".json.tmp")
+    with open(tmp_path, "w", encoding="utf-8") as f:
         json.dump(records, f, ensure_ascii=False, indent=2)
+    os.replace(tmp_path, JSON_PATH)
 
 
 def find_record(records: list[dict], oreum_id: int) -> dict:
