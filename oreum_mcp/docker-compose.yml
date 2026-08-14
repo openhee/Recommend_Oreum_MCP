@@ -1,0 +1,48 @@
+services:
+  oreum-mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: oreum-mcp
+    ports:
+      - "${OREUM_MCP_PORT:-11010}:${OREUM_MCP_PORT:-11010}"
+    volumes:
+      - ./modules:/app/modules
+      - ./app.py:/app/app.py
+      - ../data:/app/data:ro   # data/oreum.json 읽기 전용 마운트 (map_editor가 쓰는 파일 그대로)
+    environment:
+      - OREUM_MCP_PORT=${OREUM_MCP_PORT:-11010}
+      - OREUM_DATA_PATH=/app/data/oreum.json
+    command: sh -c "python app.py --host 0.0.0.0 --port $${OREUM_MCP_PORT}"
+    restart: unless-stopped
+    networks:
+      - etri-jejuax-gateway-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:$${OREUM_MCP_PORT}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 외부(ngrok)로 노출해 MCP 도구 등록 시 사용. 필요 없으면 이 서비스는 빼고
+  # oreum-mcp-server만 내부망에서 써도 된다.
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: oreum-mcp-ngrok
+    restart: unless-stopped
+    command:
+      - "http"
+      - "oreum-mcp-server:${OREUM_MCP_PORT:-11010}"
+      - "--log=stdout"
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    ports:
+      - "4041:4040"
+    depends_on:
+      - oreum-mcp-server
+    networks:
+      - etri-jejuax-gateway-network
+
+networks:
+  etri-jejuax-gateway-network:
+    name: etri-jejuax-gateway-network

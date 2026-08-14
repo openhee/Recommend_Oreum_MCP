@@ -3,3 +3,14 @@ __pycache__/
 .venv/
 venv/
 data/oreum.json.bak*
+
+# 참고용 샘플 코드 (우리 프로젝트 코드 아님)
+sample_MCP/
+sample_MCP2/
+
+# 대용량 DEM 원본 + 재생성 가능한 산출물
+output_hh.tif
+data/oreum_with_elevation.json
+
+# 실제 토큰이 들어갈 수 있는 로컬 설정 (템플릿은 .env.example 참고)
+oreum_mcp/.env
