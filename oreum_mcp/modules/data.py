@@ -22,23 +22,82 @@ def load_oreums() -> list[dict[str, Any]]:
         return json.load(f)
 
 
+def entrance_coords(record: dict[str, Any]) -> list[dict[str, Any]]:
+    coords = record.get("coordinates") or {}
+    return [
+        {"lat": e.get("lat"), "lng": e.get("lng"), "address": e.get("address"), "note": e.get("note")}
+        for e in (coords.get("entrances") or [])
+    ]
+
+
+def parking_coords(record: dict[str, Any]) -> list[dict[str, Any]]:
+    coords = record.get("coordinates") or {}
+    facilities = record.get("facilities") or {}
+    official = is_official_parking(facilities.get("parking"))
+    return [
+        {
+            "lat": p.get("lat"),
+            "lng": p.get("lng"),
+            "address": p.get("address"),
+            "note": p.get("note"),
+            "official": official,
+        }
+        for p in (coords.get("parking") or [])
+    ]
+
+
+def restroom_coord(record: dict[str, Any]) -> Optional[dict[str, Any]]:
+    restroom = (record.get("coordinates") or {}).get("restroom") or {}
+    if restroom.get("lat") is None:
+        return None
+    return {"lat": restroom.get("lat"), "lng": restroom.get("lng"), "note": restroom.get("note")}
+
+
 def to_summary(record: dict[str, Any]) -> dict[str, Any]:
-    """추천 목록용 요약 — 좌표 배열 등 부피가 큰 필드는 뺀다."""
+    """레코드를 data/oreum.json에 저장된 그대로 반환한다 (요약/축약 없음).
+
+    이름은 과거 "요약본만 반환" 시절의 흔적으로 남아있지만, 지금은 recommend_oreum
+    결과와 get_oreum_detail/recommend_linked_oreums의 candidates 양쪽 모두 필터링된
+    오름의 전체 정보(basic_info/coordinates/facilities/trails/notes 등)를 그대로
+    내려달라는 요청에 따라 record를 그대로 반환한다."""
+    return record
+
+
+def completeness_score(record: dict[str, Any]) -> int:
+    """난이도/거리/소요시간/추천계절(basic_info) + 입구/주차장/화장실/등산로(map_editor
+    수집 좌표), 8개 항목 중 채워진 개수(0~8)를 센다.
+
+    "지역명만 넘어온" 추천 모드에서 쓴다. 화장실 좌표 수집률이 워낙 낮아서(예:
+    서귀포 144개 중 15개, 한림읍 16개 중 0개) 8개를 전부 요구하는 하드 필터를 쓰면
+    지역에 따라 결과가 통째로 0건이 되는 경우가 잦았다 — 그래서 있음/없음으로 걸러내는
+    대신 점수로 매겨 "그나마 정보가 가장 많은 오름"을 우선 추천하는 방식으로 바꿨다.
+    """
     basic = record.get("basic_info") or {}
-    notes = record.get("notes") or {}
-    return {
-        "id": record.get("id"),
-        "name": record.get("name"),
-        "region": record.get("region"),
-        "address": record.get("address"),
-        "difficulty": basic.get("difficulty"),
-        "distance_km": basic.get("distance_km"),
-        "climb_time_min": basic.get("climb_time_min"),
-        "recommended_season": basic.get("recommended_season"),
-        "highlights": notes.get("highlights") or [],
-        "access_status": (notes.get("access") or {}).get("status"),
-        "kakao_map_url": record.get("kakao_map_url"),
-    }
+    coords = record.get("coordinates") or {}
+    restroom = coords.get("restroom") or {}
+
+    checks = [
+        basic.get("difficulty") is not None,
+        basic.get("distance_km") is not None,
+        basic.get("climb_time_min") is not None,
+        bool(basic.get("recommended_season")),
+        bool(coords.get("entrances")),
+        bool(coords.get("parking")),
+        restroom.get("lat") is not None and restroom.get("lng") is not None,
+        bool(record.get("trails")),
+    ]
+    return sum(checks)
+
+
+def has_access_restriction_keyword(record: dict[str, Any]) -> bool:
+    """레코드 전체 JSON 텍스트 어디에든 "출입제한"이 있으면 True.
+
+    notes.access.status로 분류된 것만 걸러내는 access_open_only 기본 로직은
+    notes가 아예 미분류(null)인 레코드를 놓친다 — 예: "살핀오름"/"성진이오름"은
+    notes가 null이지만 facilities.hours_fee에 "출입제한: 탐방불가"가 그대로
+    적혀있다. status 필드 위치에 의존하지 않고 레코드 전체를 뒤져서 이런
+    누락을 잡는다."""
+    return "출입제한" in json.dumps(record, ensure_ascii=False)
 
 
 def is_official_parking(facilities_parking_text: Optional[str]) -> Optional[bool]:

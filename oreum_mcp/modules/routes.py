@@ -6,7 +6,16 @@ from typing import Any, Dict, List, Optional
 from fastapi import FastAPI
 from pydantic import BaseModel, Field, model_validator
 
-from .data import find_oreum, is_official_parking, load_oreums, to_summary
+from .data import (
+    completeness_score,
+    entrance_coords,
+    find_oreum,
+    has_access_restriction_keyword,
+    load_oreums,
+    parking_coords,
+    restroom_coord,
+    to_summary,
+)
 
 _LEADING_NUMBER = re.compile(r"-?\d+(\.\d+)?")
 
@@ -55,10 +64,12 @@ class RecommendRequest(BaseModel):
     )
     max_distance_km: Optional[float] = Field(
         default=None,
+        gt=0,
         description="편도 등산로 거리(km) 상한. 예: 1.0이면 1km 이하인 오름만.",
     )
     max_climb_time_min: Optional[int] = Field(
         default=None,
+        gt=0,
         description="예상 등반 소요시간(분) 상한. 예: 30이면 30분 이내로 오를 수 있는 오름만.",
     )
     season: Optional[str] = Field(
@@ -74,14 +85,20 @@ class RecommendRequest(BaseModel):
         description=(
             "true면 access_status가 명시적으로 제한된(예약 필요/통제/금지) 오름만 제외하고 반환 "
             "(안전 우선 — 확실히 제한이 확인된 곳은 절대 추천하지 않음). 출입 제한 여부가 아직 "
-            "미확인/미분류인 오름(대다수)은 위험이 확인된 게 아니므로 제외하지 않고 포함시킨다."
+            "미확인/미분류인 오름(대다수)은 위험이 확인된 게 아니므로 제외하지 않고 포함시킨다. "
+            "추가로 notes.access.status 분류와 무관하게, 레코드 어디에든 '출입제한'이라는 "
+            "문구가 있으면(미분류 레코드의 facilities.hours_fee 등에 남아있는 경우 포함) 무조건 제외한다."
         ),
     )
+    restroom_required: bool = Field(
+        default=False,
+        description="true면 화장실 좌표(coordinates.restroom)가 수집된 오름만 반환한다 (하드 필터).",
+    )
     limit: int = Field(
-        default=10,
+        default=3,
         ge=1,
         le=50,
-        description="반환할 최대 개수 (기본 10, 최대 50).",
+        description="반환할 최대 개수 (기본 3, 최대 50).",
     )
 
 
@@ -100,7 +117,27 @@ def register_routes(app: FastAPI) -> None:
     )
     def recommend_oreum(request: RecommendRequest = RecommendRequest()) -> Dict[str, Any]:
         records = load_oreums()
-        results = []
+
+        # 지역명 외에 다른 필터를 하나도 안 준 경우: 난이도/거리/소요시간/추천계절 +
+        # 입구/주차장/화장실/등산로 좌표, 8개 항목 중 채워진 개수(completeness_score)가
+        # 높은 오름부터, 동점이면 거리가 짧은 오름부터 최대 3개를 추천한다. 8개를 전부
+        # 요구하는 하드 필터였던 적이 있었는데 화장실 좌표 수집률이 낮아 지역에 따라
+        # 결과가 통째로 0건이 되는 문제가 있어 점수 기반 랭킹으로 바꿨다. 그 외엔
+        # 기존처럼 조건 필터링 후 거리순 limit개를 반환한다. access_open_only는 이
+        # 판정에 영향을 주지 않는다(켜져 있어도 지역-only 모드가 그대로 적용됨).
+        region_only = (
+            request.region is not None
+            and request.difficulty is None
+            and request.max_distance_km is None
+            and request.max_climb_time_min is None
+            and request.season is None
+            and request.keyword is None
+        )
+
+        # 필터링은 원본 레코드(r) 단위로 하고, 정렬/무작위추출까지 끝난 뒤 마지막에
+        # to_summary()로 변환한다 — distance_km 등은 정렬용으로만 쓰고 응답엔 안 담기 때문에
+        # 요약 딕셔너리가 아니라 레코드를 들고 있어야 정렬 키를 뽑을 수 있다.
+        candidates = []
         for r in records:
             basic = r.get("basic_info") or {}
             notes = r.get("notes") or {}
@@ -130,6 +167,16 @@ def register_routes(app: FastAPI) -> None:
                 status = (notes.get("access") or {}).get("status")
                 if status not in (None, "open"):
                     continue
+                # status 분류(notes.access.status)에 의존하는 위 체크는 notes 자체가
+                # 미분류(null)인 레코드를 놓친다 — facilities.hours_fee 등 다른 필드에
+                # "출입제한"이 그대로 적혀있는 경우가 실제로 있었다(예: 살핀오름/성진이오름).
+                # 필드 위치를 안 가리고 레코드 전체에서 이 문구를 찾아 추가로 걸러낸다.
+                if has_access_restriction_keyword(r):
+                    continue
+            if request.restroom_required:
+                restroom = (r.get("coordinates") or {}).get("restroom") or {}
+                if restroom.get("lat") is None or restroom.get("lng") is None:
+                    continue
             if request.keyword:
                 haystack = " ".join(
                     [
@@ -141,10 +188,24 @@ def register_routes(app: FastAPI) -> None:
                 if request.keyword not in haystack:
                     continue
 
-            results.append(to_summary(r))
+            candidates.append(r)
 
-        results.sort(key=lambda s: (s["distance_km"] is None, s["distance_km"]))
-        results = results[: request.limit]
+        # 어떤 필터 조합이든(지역-only든 키워드/난이도 등을 섞어 줬든) 정보 점수
+        # (completeness_score) 내림차순, 동점이면 거리 오름차순으로 정렬한다 —
+        # "조건에 맞으면서 그나마 정보가 가장 많은 오름"을 우선 추천. 지금은 8개 항목
+        # 전부 동일 가중치(1점씩)지만, 실용성 차이(등산로/입구/주차장 vs 계절 텍스트 등)를
+        # 반영해 가중치를 조정할 계획이라 completeness_score() 하나만 바꾸면 전체에
+        # 반영되도록 정렬 로직을 여기 한 곳으로 통일해뒀다.
+        candidates.sort(
+            key=lambda r: (
+                -completeness_score(r),
+                (r.get("basic_info") or {}).get("distance_km") is None,
+                (r.get("basic_info") or {}).get("distance_km"),
+            )
+        )
+        picked = candidates[:3] if region_only else candidates[: request.limit]
+
+        results = [to_summary(r) for r in picked]
 
         return {"success": True, "count": len(results), "results": results}
 
@@ -172,9 +233,6 @@ def register_routes(app: FastAPI) -> None:
 
         coords = record.get("coordinates") or {}
         basic = record.get("basic_info") or {}
-        facilities = record.get("facilities") or {}
-        restroom = coords.get("restroom") or {}
-        parking_official = is_official_parking(facilities.get("parking"))
 
         return {
             "success": True,
@@ -190,28 +248,12 @@ def register_routes(app: FastAPI) -> None:
             "relative_height_m": basic.get("relative_height_m"),
             "peak_coord": coords.get("peak"),
             # 실제 좌표값. 각 좌표는 map_editor로 수집된 것이고, 없으면 빈 배열/null.
-            "entrance_coords": [
-                {"lat": e.get("lat"), "lng": e.get("lng"), "address": e.get("address"), "note": e.get("note")}
-                for e in (coords.get("entrances") or [])
-            ],
             # official=False면 CSV 원본상 "정식 주차장 없음"으로 기재된 오름이라, 아래 좌표는
             # map_editor 답사 중 발견한 갓길/공터 등 비공식 주차 공간일 가능성이 높다는 뜻.
             # 안내할 때 "정식 주차장"이라 단정하지 말고 이 점을 밝힐 것.
-            "parking_coords": [
-                {
-                    "lat": p.get("lat"),
-                    "lng": p.get("lng"),
-                    "address": p.get("address"),
-                    "note": p.get("note"),
-                    "official": parking_official,
-                }
-                for p in (coords.get("parking") or [])
-            ],
-            "restroom_coord": (
-                {"lat": restroom.get("lat"), "lng": restroom.get("lng"), "note": restroom.get("note")}
-                if restroom.get("lat") is not None
-                else None
-            ),
+            "entrance_coords": entrance_coords(record),
+            "parking_coords": parking_coords(record),
+            "restroom_coord": restroom_coord(record),
             # 등산로 경로 좌표. 오름 하나에 등산로가 여러 개(예: 정상 코스 + 둘레길)일 수 있다.
             "trails": [
                 {

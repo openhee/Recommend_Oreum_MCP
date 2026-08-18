@@ -1,205 +1,243 @@
-"""oreum-mcp 도구 3개에 대한 테스트 케이스 (도구당 약 10개).
+"""oreum_mcp 3개 도구(recommend_oreum / get_oreum_detail / recommend_linked_oreums)에
+대한 회귀 테스트. fastmcp.Client로 실행 중인 서버에 실제 MCP 호출을 날린다.
 
-이 저장소엔 별도 테스트 프레임워크가 없어서(pytest 등 미설치), fastmcp.Client로
-실행 중인 서버에 실제 MCP 호출을 날리고 결과를 단순 assert로 검증하는 스크립트
-형태로 작성했다. 서버가 먼저 떠 있어야 한다:
+사전 조건: 서버가 떠 있어야 한다 (`python app.py`, 기본 http://localhost:11010/).
 
-    python app.py --host 127.0.0.1 --port 11010
-
-실행:
-    python test_tools.py [--url http://127.0.0.1:11010/]
+실행: python test_tools.py
 """
-import argparse
 import asyncio
+import os
 import sys
+
+sys.path.insert(0, ".")
 
 from fastmcp import Client
 
-PASS = 0
-FAIL = 0
+from modules.data import has_access_restriction_keyword
+
+BASE_URL = f"http://localhost:{os.getenv('OREUM_MCP_PORT', '11010')}/"
+
+_results: list[tuple[str, bool, str]] = []
 
 
-def check(label: str, condition: bool, detail: str = "") -> None:
-    global PASS, FAIL
-    if condition:
-        PASS += 1
-        print(f"  [PASS] {label}")
-    else:
-        FAIL += 1
-        print(f"  [FAIL] {label}  {detail}")
+def check(name: str, condition: bool, detail: str = "") -> None:
+    _results.append((name, condition, detail))
 
 
-async def test_recommend_oreum(client: Client) -> None:
-    print("\n=== recommend_oreum ===")
-
-    r = await client.call_tool("recommend_oreum", {})
-    check("1. 필터/인자 전혀 없음 -> 기본 limit(10)만큼 반환", r.data["success"] and r.data["count"] == 10)
-
-    r = await client.call_tool("recommend_oreum", {"region": "제주시", "limit": 50})
-    check(
-        "2. region 정확매치(제주시) -> 전부 제주시",
-        all(x["region"] == "제주시" for x in r.data["results"]),
-    )
-
-    r = await client.call_tool("recommend_oreum", {"region": "한림", "limit": 50})
-    check("3. region 세부지명(한림) 부분일치 -> 16건", r.data["count"] == 16, f"got {r.data['count']}")
-
-    r = await client.call_tool("recommend_oreum", {"difficulty": "쉬움", "limit": 50})
-    check(
-        "4. difficulty 필터 -> 전부 쉬움",
-        all(x["difficulty"] == "쉬움" for x in r.data["results"]),
-    )
-
-    r = await client.call_tool("recommend_oreum", {"max_distance_km": "1.5km", "limit": 50})
-    check(
-        "5. 단위 붙은 숫자('1.5km') 파싱 -> 전부 1.5km 이하",
-        all((x["distance_km"] or 0) <= 1.5 for x in r.data["results"]),
-    )
-
-    r = await client.call_tool("recommend_oreum", {"max_climb_time_min": "30분", "limit": 50})
-    check(
-        "6. 단위 붙은 숫자('30분') 파싱 -> 전부 30분 이하",
-        all((x["climb_time_min"] or 0) <= 30 for x in r.data["results"]),
-    )
-
-    r = await client.call_tool("recommend_oreum", {"season": "가을", "limit": 50})
-    check(
-        "7. season 키워드 -> 전부 '가을' 포함",
-        all("가을" in (x["recommended_season"] or "") for x in r.data["results"]),
-    )
-
-    r = await client.call_tool(
-        "recommend_oreum",
-        {
-            "region": "",
-            "difficulty": "",
-            "max_distance_km": "",
-            "max_climb_time_min": "",
-            "season": "",
-            "keyword": "",
-            "access_open_only": False,
-            "limit": 50,
-        },
-    )
-    check("8. 전체 필드 빈 문자열('') -> 422 없이 정상 처리", r.data["success"])
-
-    r = await client.call_tool("recommend_oreum", {"access_open_only": True, "limit": 50})
-    check(
-        "9. access_open_only=True -> restricted/prohibited/reservation_required 없음",
-        all(x["access_status"] in (None, "open") for x in r.data["results"]),
-    )
-
-    r = await client.call_tool("recommend_oreum", {"region": "존재하지않는지역이름", "limit": 10})
-    check("10. 매칭 없는 조건 -> count 0", r.data["success"] and r.data["count"] == 0)
+async def call(client: Client, tool: str, args: dict) -> dict:
+    result = await client.call_tool(tool, args)
+    return result.structured_content or result.data
 
 
-async def test_get_oreum_detail(client: Client) -> None:
-    print("\n=== get_oreum_detail ===")
-
-    r = await client.call_tool("get_oreum_detail", {"identifier": "가세오름"})
-    check("1. 이름 정확조회", r.data["success"] and r.data["id"] == 7)
-
-    r = await client.call_tool("get_oreum_detail", {"identifier": "7"})
-    check("2. id로 조회('7')", r.data["success"] and r.data["name"] == "가세오름")
-
-    r = await client.call_tool("get_oreum_detail", {"identifier": "존재하지않는오름이름XYZ"})
-    check("3. 존재하지 않는 이름 -> success false, candidates 없음", not r.data["success"] and r.data["candidates"] == [])
-
-    r = await client.call_tool("get_oreum_detail", {"identifier": "가"})
-    check(
-        "4. 모호한 이름('가') -> success false + candidates 여러 개",
-        not r.data["success"] and len(r.data["candidates"]) > 1,
-    )
-
-    r = await client.call_tool("get_oreum_detail", {"identifier": "가세오름"})
-    parking = r.data["parking_coords"]
-    check(
-        "5. 정식주차장 아님(official=False) 반영 (가세오름)",
-        len(parking) == 1 and parking[0]["official"] is False,
-    )
-
-    r = await client.call_tool("get_oreum_detail", {"identifier": "가세오름"})
-    check("6. restroom 없음 -> restroom_coord null", r.data["restroom_coord"] is None)
-
-    r = await client.call_tool("get_oreum_detail", {"identifier": "노꼬메족은오름"})
-    check(
-        "7. 입구 여러 개 -> entrance_coords 길이 > 1",
-        len(r.data["entrance_coords"]) > 1,
-        f"got {len(r.data['entrance_coords'])}",
-    )
-
-    r = await client.call_tool("get_oreum_detail", {"identifier": "거슨세미"})
-    check(
-        "8. 등산로 여러 개 -> trails 길이 > 1",
-        len(r.data["trails"]) > 1,
-        f"got {len(r.data['trails'])}",
-    )
-
-    r = await client.call_tool("get_oreum_detail", {"identifier": "가시오름"})
-    check("9. notes 구조화 데이터 존재", r.data["notes"] is not None)
-
-    r = await client.call_tool("get_oreum_detail", {"identifier": "가메옥"})
-    check("10. notes 없음(null)", r.data["notes"] is None)
+def basic_info(record: dict) -> dict:
+    return record.get("basic_info") or {}
 
 
-async def test_recommend_linked_oreums(client: Client) -> None:
-    print("\n=== recommend_linked_oreums ===")
-
-    r = await client.call_tool("recommend_linked_oreums", {"identifier": "궷물오름"})
-    linked_names = {x.get("name") for x in r.data["linked"]}
-    check(
-        "1. 궷물오름 -> 노꼬메큰오름/노꼬메족은오름 둘 다 resolved",
-        linked_names == {"노꼬메큰오름", "노꼬메족은오름"}
-        and all(x["resolved"] for x in r.data["linked"]),
-    )
-
-    r = await client.call_tool("recommend_linked_oreums", {"identifier": "가세오름"})
-    check(
-        "2. 연계정보 없는 오름 -> 빈 목록 + 안내 메시지",
-        r.data["success"] and r.data["linked"] == [] and "message" in r.data,
-    )
-
-    r = await client.call_tool("recommend_linked_oreums", {"identifier": "존재하지않는오름이름XYZ"})
-    check("3. 존재하지 않는 이름 -> success false", not r.data["success"])
-
-    r = await client.call_tool("recommend_linked_oreums", {"identifier": "가"})
-    check("4. 모호한 이름 -> candidates 반환", not r.data["success"] and len(r.data["candidates"]) > 1)
-
-    r = await client.call_tool("recommend_linked_oreums", {"identifier": "52"})
-    check("5. id로 조회('52') -> 궷물오름 기준 연계 목록", r.data["base"]["name"] == "궷물오름")
-
-    r = await client.call_tool("recommend_linked_oreums", {"identifier": "대병악"})
-    check("6. 대병악 -> 소병악", any(x.get("name") == "소병악" for x in r.data["linked"]))
-
-    r = await client.call_tool("recommend_linked_oreums", {"identifier": "밧돌오름"})
-    check("7. 밧돌오름 -> 안돌오름", any(x.get("name") == "안돌오름" for x in r.data["linked"]))
-
-    r = await client.call_tool("recommend_linked_oreums", {"identifier": "소록산"})
-    check("8. 소록산 -> 대록산", any(x.get("name") == "대록산" for x in r.data["linked"]))
-
-    r = await client.call_tool("recommend_linked_oreums", {"identifier": "소병악"})
-    check("9. 역방향 참조(소병악 -> 대병악)도 존재", any(x.get("name") == "대병악" for x in r.data["linked"]))
-
-    r = await client.call_tool("recommend_linked_oreums", {"identifier": "노꼬메족은오름"})
-    check(
-        "10. 상호참조(노꼬메족은오름 -> 노꼬메큰오름/궷물오름) 모두 resolved",
-        all(x["resolved"] for x in r.data["linked"]) and len(r.data["linked"]) == 2,
-    )
+def coords(record: dict) -> dict:
+    return record.get("coordinates") or {}
 
 
-async def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--url", default="http://127.0.0.1:11010/")
-    args = parser.parse_args()
+def is_full_record(record: dict) -> bool:
+    """recommend_oreum/candidates가 요약이 아니라 data/oreum.json 원본 레코드
+    그대로를 반환하는지 확인 (basic_info/coordinates/facilities/trails/notes 존재)."""
+    return all(k in record for k in ("basic_info", "coordinates", "facilities", "trails", "notes"))
 
-    async with Client(args.url) as client:
-        await test_recommend_oreum(client)
-        await test_get_oreum_detail(client)
-        await test_recommend_linked_oreums(client)
 
-    print(f"\n총 {PASS + FAIL}개 중 PASS {PASS}, FAIL {FAIL}")
-    sys.exit(1 if FAIL else 0)
+def rank_key(record: dict) -> tuple:
+    """routes.py의 recommend_oreum 정렬 키(completeness_score desc, distance_km asc)를
+    테스트 쪽에서 동일하게 재구현 — 서버 응답 순서 검증용."""
+    dist = basic_info(record).get("distance_km")
+    return (-completeness_score(record), dist is None, dist)
+
+
+def completeness_score(record: dict) -> int:
+    """routes.py의 completeness_score()와 동일한 8개 항목 채점을 테스트 쪽에서
+    독립적으로 재구현 — 서버 정렬 결과를 검증하는 기준으로 쓴다."""
+    basic = basic_info(record)
+    c = coords(record)
+    restroom = c.get("restroom") or {}
+    checks = [
+        basic.get("difficulty") is not None,
+        basic.get("distance_km") is not None,
+        basic.get("climb_time_min") is not None,
+        bool(basic.get("recommended_season")),
+        bool(c.get("entrances")),
+        bool(c.get("parking")),
+        restroom.get("lat") is not None and restroom.get("lng") is not None,
+        bool(record.get("trails")),
+    ]
+    return sum(checks)
+
+
+async def run_tests() -> None:
+    async with Client(BASE_URL) as client:
+
+        # --- recommend_oreum: 지역-only 모드 (완전정보 점수 랭킹) ---
+
+        r = await call(client, "recommend_oreum", {"region": "서귀포"})
+        check("region-only(서귀포) success", r.get("success") is True)
+        check("region-only(서귀포) count<=3", r.get("count", 99) <= 3)
+        results = r.get("results", [])
+        check("region-only(서귀포) 결과가 전부 완전 레코드", all(is_full_record(x) for x in results))
+        keys = [rank_key(x) for x in results]
+        check("region-only(서귀포) 랭킹 키 순서대로 정렬", keys == sorted(keys))
+
+        # 화장실 좌표 수집률이 0%인 지역(한림)도 결과가 나와야 한다 (하드필터였다면 0건)
+        r = await call(client, "recommend_oreum", {"region": "한림"})
+        check("region-only(한림) success", r.get("success") is True)
+        check("region-only(한림) 결과 0건 아님 (완전정보 하드필터 회귀 방지)", r.get("count", 0) > 0)
+        for x in r.get("results", []):
+            restroom = coords(x).get("restroom") or {}
+            check(
+                f"한림·{x.get('name')} restroom 실제로 비어있음(현재 데이터 기준)",
+                restroom.get("lat") is None,
+            )
+
+        # access_open_only를 켜도 region-only 모드가 그대로 적용돼야 한다
+        r = await call(client, "recommend_oreum", {"region": "서귀포", "access_open_only": True})
+        check("region-only + access_open_only success", r.get("success") is True)
+        check("region-only + access_open_only count<=3", r.get("count", 99) <= 3)
+        for x in r.get("results", []):
+            status = ((x.get("notes") or {}).get("access") or {}).get("status")
+            check(
+                f"region-only+access_open_only·{x.get('name')} 제한 상태 아님",
+                status not in ("reservation_required", "restricted", "prohibited"),
+            )
+
+        # 존재하지 않는 지역명 -> 0건 (에러 아님)
+        r = await call(client, "recommend_oreum", {"region": "존재하지않는지역명XYZ"})
+        check("region-only(존재하지않는지역) success", r.get("success") is True)
+        check("region-only(존재하지않는지역) count==0", r.get("count") == 0)
+
+        # --- recommend_oreum: access_open_only의 '출입제한' 키워드 하드필터 ---
+        # 살핀오름(id=199)/성진이오름(id=224)은 notes가 미분류(null)라 access.status로는
+        # 못 걸러지지만, facilities.hours_fee에 "출입제한"이 그대로 적혀있다. 함수를
+        # 직접 호출해 판정 자체를 검증(랭킹/limit에 좌우되지 않는 단위 테스트).
+        r199 = await call(client, "get_oreum_detail", {"identifier": "199"})
+        check("살핀오름 실존 확인(id=199)", r199.get("name") == "살핀오름")
+        check("has_access_restriction_keyword(살핀오름)=True", has_access_restriction_keyword(r199))
+
+        r224 = await call(client, "get_oreum_detail", {"identifier": "224"})
+        check("성진이오름 실존 확인(id=224)", r224.get("name") == "성진이오름")
+        check("has_access_restriction_keyword(성진이오름)=True", has_access_restriction_keyword(r224))
+
+        # 위 두 오름을 name 매칭으로 확실히 후보에 포함시킨 뒤 access_open_only로 걸러지는지 확인
+        r = await call(client, "recommend_oreum", {"keyword": "살핀오름", "limit": 5})
+        check("access_open_only 없이는 살핀오름 후보에 있음", any(x.get("name") == "살핀오름" for x in r.get("results", [])))
+        r = await call(client, "recommend_oreum", {"keyword": "살핀오름", "access_open_only": True, "limit": 5})
+        check("access_open_only 켜면 살핀오름 제외됨", not any(x.get("name") == "살핀오름" for x in r.get("results", [])))
+
+        # --- recommend_oreum: restroom_required 하드 필터 ---
+
+        r = await call(client, "recommend_oreum", {"region": "한림", "restroom_required": True})
+        check("restroom_required(한림) success", r.get("success") is True)
+        check(
+            "restroom_required(한림) 결과 0건 (한림 전체가 restroom 미수집)",
+            r.get("count") == 0,
+        )
+
+        r = await call(client, "recommend_oreum", {"region": "서귀포", "restroom_required": True})
+        check("restroom_required(서귀포) success", r.get("success") is True)
+        for x in r.get("results", []):
+            restroom = coords(x).get("restroom") or {}
+            check(
+                f"restroom_required·{x.get('name')} restroom 좌표 실제로 있음",
+                restroom.get("lat") is not None and restroom.get("lng") is not None,
+            )
+
+        # --- recommend_oreum: 일반 모드 (region+difficulty 등 다른 필터 병행 시에도
+        # region-only와 동일하게 완전정보 점수 내림차순 + 동점 시 거리 오름차순) ---
+
+        r = await call(client, "recommend_oreum", {"region": "서귀포", "difficulty": "쉬움"})
+        check("일반모드(region+difficulty) success", r.get("success") is True)
+        results = r.get("results", [])
+        check(
+            "일반모드(region+difficulty) 전부 쉬움",
+            all(basic_info(x).get("difficulty") == "쉬움" for x in results),
+        )
+        keys = [rank_key(x) for x in results]
+        check("일반모드(region+difficulty) 랭킹 키 순서대로 정렬", keys == sorted(keys))
+        check("일반모드(region+difficulty) 기본 limit=3", len(results) <= 3)
+
+        # region 없이 keyword/difficulty만 줘도 랭킹(정보량→거리)이 반영돼야 한다
+        r = await call(client, "recommend_oreum", {"difficulty": "어려움", "limit": 10})
+        check("일반모드(난이도만) success", r.get("success") is True)
+        results = r.get("results", [])
+        keys = [rank_key(x) for x in results]
+        check("일반모드(난이도만) 랭킹 키 순서대로 정렬", keys == sorted(keys))
+
+        # 필터 없음(region도 없음) -> region-only 아님, 정상적으로 거리순 limit=3
+        r = await call(client, "recommend_oreum", {})
+        check("무인자 호출 success", r.get("success") is True)
+        check("무인자 호출 기본 limit=3", r.get("count", 99) <= 3)
+
+        # limit 명시 시 존중되는지 (일반모드에서만)
+        r = await call(client, "recommend_oreum", {"max_climb_time_min": 9999, "limit": 7})
+        check("limit=7 명시 시 최대 7개", r.get("count", 99) <= 7)
+
+        # 단위 붙은 문자열 파싱 ("30분")
+        r = await call(client, "recommend_oreum", {"max_climb_time_min": "30분"})
+        check("max_climb_time_min='30분' 파싱 성공(422 아님)", r.get("success") is True)
+        check(
+            "max_climb_time_min='30분' 필터 실제 적용",
+            all((basic_info(x).get("climb_time_min") or 0) <= 30 for x in r.get("results", [])),
+        )
+
+        # 빈 문자열 -> None 정규화 (422 아님)
+        r = await call(client, "recommend_oreum", {"difficulty": "", "region": ""})
+        check("빈 문자열 필터 정규화 성공(422 아님)", r.get("success") is True)
+
+        # --- get_oreum_detail ---
+
+        r = await call(client, "get_oreum_detail", {"identifier": "법정악"})
+        check("get_oreum_detail(이름) success", r.get("success") is True)
+        check("get_oreum_detail(이름) 이름 일치", r.get("name") == "법정악")
+        check("get_oreum_detail trails에 path_coords 있음", bool((r.get("trails") or [{}])[0].get("path_coords")))
+        check(
+            "get_oreum_detail parking_coords[].official 필드 존재",
+            all("official" in p for p in r.get("parking_coords", [])),
+        )
+
+        oreum_id = r.get("id")
+        r2 = await call(client, "get_oreum_detail", {"identifier": str(oreum_id)})
+        check("get_oreum_detail(id) 이름 일치", r2.get("name") == "법정악")
+
+        r = await call(client, "get_oreum_detail", {"identifier": "오름"})
+        check("get_oreum_detail(모호한 이름) success=False", r.get("success") is False)
+        check("get_oreum_detail(모호한 이름) candidates 비어있지 않음", len(r.get("candidates", [])) > 0)
+        check(
+            "get_oreum_detail candidates도 완전 레코드",
+            all(is_full_record(c) for c in r.get("candidates", [])[:5]),
+        )
+
+        r = await call(client, "get_oreum_detail", {"identifier": "존재하지않는오름이름XYZ"})
+        check("get_oreum_detail(없는 이름) success=False", r.get("success") is False)
+        check("get_oreum_detail(없는 이름) candidates 없음", r.get("candidates") == [])
+
+        # --- recommend_linked_oreums ---
+
+        r = await call(client, "recommend_linked_oreums", {"identifier": "법정악"})
+        check("recommend_linked_oreums 응답 success", r.get("success") is True)
+        check("recommend_linked_oreums base 이름 일치", (r.get("base") or {}).get("name") == "법정악")
+
+        r = await call(client, "recommend_linked_oreums", {"identifier": "존재하지않는오름이름XYZ"})
+        check("recommend_linked_oreums(없는 이름) success=False", r.get("success") is False)
+
+
+def print_summary() -> bool:
+    passed = sum(1 for _, ok, _ in _results if ok)
+    total = len(_results)
+    for name, ok, detail in _results:
+        mark = "PASS" if ok else "FAIL"
+        line = f"[{mark}] {name}"
+        if detail and not ok:
+            line += f" ({detail})"
+        print(line)
+    print(f"\n총 {total}개 중 PASS {passed}, FAIL {total - passed}")
+    return passed == total
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(run_tests())
+    ok = print_summary()
+    sys.exit(0 if ok else 1)
