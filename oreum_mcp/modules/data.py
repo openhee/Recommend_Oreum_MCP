@@ -112,6 +112,50 @@ def is_official_parking(facilities_parking_text: Optional[str]) -> Optional[bool
     return "없음" not in facilities_parking_text
 
 
+def resolve_linked_oreums(
+    record: dict[str, Any],
+    all_records: list[dict[str, Any]],
+) -> list[tuple[Optional[dict[str, Any]], str, str]]:
+    """record와 연계된 오름들을 양방향으로 찾는다.
+
+    notes.linked_oreums는 저장 시 한쪽에만 적히는 단방향 데이터라서(예:
+    가메오름 -> 누운오름은 적혀있지만 누운오름 -> 가메오름은 없음), record
+    자신의 linked_oreums(forward)뿐 아니라 다른 레코드의 linked_oreums에
+    record 이름이 적혀있는 경우(reverse)도 함께 찾아 어느 쪽 오름으로
+    조회하든 연계 관계가 보이게 한다. 데이터 저장 방식 자체는 바꾸지 않고
+    조회 시점에만 양방향으로 합친다.
+
+    반환: (매칭된 레코드 또는 None(미해결), 이름, direction) 튜플 리스트.
+    direction은 "forward"(record 자신의 linked_oreums에 적힌 이름) 또는
+    "reverse"(다른 레코드가 record를 linked_oreums로 지목). 같은 오름이
+    양쪽에서 겹치면(상호 연계로 이미 양쪽에 적혀있는 경우) 한 번만 남긴다.
+    """
+    name = record.get("name")
+    by_name = {r.get("name"): r for r in all_records}
+
+    seen_ids: set = set()
+    results: list[tuple[Optional[dict[str, Any]], str, str]] = []
+
+    for linked_name in (record.get("notes") or {}).get("linked_oreums") or []:
+        match = by_name.get(linked_name)
+        if match is not None and match.get("id") in seen_ids:
+            continue
+        if match is not None:
+            seen_ids.add(match.get("id"))
+        results.append((match, linked_name, "forward"))
+
+    for other in all_records:
+        if other.get("id") == record.get("id"):
+            continue
+        if name in ((other.get("notes") or {}).get("linked_oreums") or []):
+            if other.get("id") in seen_ids:
+                continue
+            seen_ids.add(other.get("id"))
+            results.append((other, other.get("name"), "reverse"))
+
+    return results
+
+
 def find_oreum(
     records: list[dict[str, Any]],
     identifier: str,

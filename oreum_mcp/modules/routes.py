@@ -1,7 +1,7 @@
 # FastAPI 라우트 1개는 MCP 도구 1개입니다.
 
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from fastapi import FastAPI
 from pydantic import BaseModel, Field, model_validator
@@ -13,6 +13,7 @@ from .data import (
     has_access_restriction_keyword,
     load_oreums,
     parking_coords,
+    resolve_linked_oreums,
     restroom_coord,
     to_summary,
 )
@@ -294,8 +295,12 @@ def register_routes(app: FastAPI) -> None:
                 "candidates": [],
             }
 
-        linked_names: List[str] = (record.get("notes") or {}).get("linked_oreums") or []
-        if not linked_names:
+        # linked_oreums는 저장 시 한쪽에만 적히는 단방향 데이터라(예: 가메오름 ->
+        # 누운오름은 있어도 누운오름 -> 가메오름은 없음), resolve_linked_oreums가
+        # 역방향(다른 레코드가 나를 지목한 경우)까지 합쳐서 어느 쪽으로 조회하든
+        # 연계 관계가 보이게 한다.
+        resolved = resolve_linked_oreums(record, records)
+        if not resolved:
             return {
                 "success": True,
                 "base": {"id": record.get("id"), "name": record.get("name")},
@@ -303,14 +308,12 @@ def register_routes(app: FastAPI) -> None:
                 "message": "이 오름은 아직 수집된 연계 코스 추천 정보가 없습니다.",
             }
 
-        by_name = {r.get("name"): r for r in records}
         linked = []
-        for name in linked_names:
-            match = by_name.get(name)
+        for match, name, direction in resolved:
             if match:
-                linked.append({**to_summary(match), "resolved": True})
+                linked.append({**to_summary(match), "resolved": True, "direction": direction})
             else:
-                linked.append({"name": name, "resolved": False})
+                linked.append({"name": name, "resolved": False, "direction": direction})
 
         return {
             "success": True,

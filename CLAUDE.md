@@ -18,6 +18,11 @@ This repo builds and serves the **오름(Oreum) dataset** for a Jeju oreum-recom
 - `python scripts/build_oreum_json.py` — rebuild `data/oreum.json` from the raw CSV. **Destructive** to all map_editor-collected data; see below before running.
 - `oreum_mcp/` has its own `requirements.txt` (`fastapi`, `fastmcp`, `uvicorn[standard]`, `python-dotenv`); `oreum_mcp/docker-compose.yml` + `Dockerfile` run it in a container with `data/` mounted read-only and `OREUM_DATA_PATH` pointing at the mounted `oreum.json` (an optional `ngrok` sidecar service exposes it externally for MCP tool registration — needs `NGROK_AUTHTOKEN` in `oreum_mcp/.env`, copy from `.env.example`). No requirements.txt/pyproject.toml or lint config exists at the repo root for `map_editor`/`scripts` — their dependencies (`fastapi`, `uvicorn`, `pydantic`, `requests`) must already be available in the environment. `oreum_mcp/test_tools.py` — regression cases run against a live server via `fastmcp.Client` (`python oreum_mcp/test_tools.py`, requires the MCP server already running) — is the closest thing to a test suite; no pytest config exists at the repo root.
 
+## Conventions
+
+- All Korean-text JSON I/O (reading/writing `data/oreum.json`, the CSV, etc.) must use `encoding="utf-8"` and, on writes, `ensure_ascii=False` — dropping either mangles the 오름 names/addresses.
+- Commit messages: short imperative subject, optionally prefixed Conventional-Commit-style (`fix:`, `docs:`, `feat:`) — see `git log` for examples.
+
 ## Data pipeline
 
 ```

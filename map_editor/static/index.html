@@ -15,15 +15,16 @@
 <meta charset="utf-8" />
 <title>오름 POI 좌표 편집기</title>
 <link rel="icon" type="image/jpeg" href="/favicon.jpg" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   html, body { margin: 0; height: 100%; font-family: -apple-system, "Malgun Gothic", sans-serif; }
   #layout { display: flex; height: 100%; }
   #sidebar { width: 320px; flex: none; border-right: 1px solid #ddd; padding: 12px; box-sizing: border-box; overflow-y: auto; }
   #map { flex: 1; }
   #search { width: 100%; box-sizing: border-box; padding: 6px 8px; font-size: 14px; }
-  #results, #address-results { list-style: none; margin: 8px 0; padding: 0; max-height: 220px; overflow-y: auto; border: 1px solid #eee; }
-  #results li, #address-results li { padding: 6px 8px; cursor: pointer; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
-  #results li:hover, #address-results li:hover { background: #f5f5f5; }
+  #results, #address-results, #trail-copy-results { list-style: none; margin: 8px 0; padding: 0; max-height: 220px; overflow-y: auto; border: 1px solid #eee; }
+  #results li, #address-results li, #trail-copy-results li { padding: 6px 8px; cursor: pointer; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+  #results li:hover, #address-results li:hover, #trail-copy-results li:hover { background: #f5f5f5; }
   #address-results li.selected { background: #eef6ff; }
   #address-results .ar-name { display: block; }
   #address-results .ar-addr { display: block; font-size: 11px; color: #888; margin-top: 2px; }
@@ -88,7 +89,15 @@
   .result-progress.rp-done { background: #e3f6e9; color: #1fa25a; }
   #results li { display: flex; align-items: center; }
   .badge-needs-trail { padding: 1px 6px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #fdecea; color: #c0392b; margin-left: 6px; }
-  #needs-trail-filter { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #555; margin-top: 6px; }
+  .badge-linked-oreum { padding: 1px 6px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #eef6ff; color: #2b6cff; margin-left: 6px; }
+  #needs-trail-filter, #linked-oreum-filter { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #555; margin-top: 6px; }
+  #linked-oreum-list { margin: 4px 0 10px; }
+  .linked-oreum-item { display: flex; align-items: center; gap: 6px; padding: 5px 8px; margin: 4px 0; border: 1px solid #eee; border-radius: 4px; cursor: pointer; font-size: 13px; }
+  .linked-oreum-item:hover { background: #f5f5f5; }
+  .linked-oreum-item.unresolved { cursor: default; color: #aaa; }
+  .linked-oreum-item .lo-dir { flex: none; font-size: 11px; padding: 1px 6px; border-radius: 10px; background: #eef6ff; color: #2b6cff; }
+  .linked-oreum-item .lo-dir.reverse { background: #fff4e5; color: #e08a1e; }
+  .linked-oreum-item .lo-unresolved-tag { flex: none; font-size: 11px; color: #c0392b; }
 </style>
 </head>
 <body>
@@ -99,6 +108,10 @@
     <label id="needs-trail-filter">
       <input id="needs-trail-checkbox" type="checkbox" />
       등산로 정보 "있음"인데 미수집인 오름만 보기
+    </label>
+    <label id="linked-oreum-filter">
+      <input id="linked-oreum-checkbox" type="checkbox" />
+      연계오름 있는 오름만 보기
     </label>
     <div id="result-count" style="font-size:11px;color:#888;margin-top:4px;"></div>
     <ul id="results"></ul>
@@ -122,6 +135,11 @@
 
     <div id="current" style="display:none;">
       <h2 id="current-name"></h2>
+
+      <div id="linked-oreum-section" style="display:none;">
+        <div class="section-label">연계오름 (함께 방문하기 좋은 오름 — 클릭하면 해당 오름으로 이동)</div>
+        <div id="linked-oreum-list"></div>
+      </div>
 
       <div class="section-label">입구 / 화장실 / 주차장 좌표 (클릭 즉시 저장)</div>
       <div class="poi-row">
@@ -173,6 +191,25 @@
         </div>
         <button id="trail-save-btn" class="apply-btn">등산로 저장</button>
         <div id="trail-status" style="font-size:12px;color:#666;margin-top:6px;"></div>
+
+        <div class="poi-row">
+          <button id="trail-elevation-btn" class="trail-btn">고도 프로파일 보기</button>
+        </div>
+        <div id="elevation-panel" style="display:none;">
+          <canvas id="elevation-chart" height="140"></canvas>
+          <div id="elevation-status" style="font-size:12px;color:#666;margin-top:4px;"></div>
+        </div>
+
+        <div class="section-label">연계오름끼리 같은 등산로일 때: 저장된 등산로를 다른 오름에 그대로 복사</div>
+        <div class="poi-row">
+          <button id="trail-copy-toggle-btn" class="trail-btn">다른 오름에 복사</button>
+        </div>
+        <div id="trail-copy-panel" style="display:none;">
+          <div class="poi-row">
+            <input id="trail-copy-search" class="addr-input" type="text" placeholder="복사할 대상 오름 이름 검색..." />
+          </div>
+          <ul id="trail-copy-results"></ul>
+        </div>
       </div>
 
       <div class="legend">
@@ -494,6 +531,53 @@ function renderParkingList(o) {
   });
 }
 
+// linked_oreums는 저장 시 한쪽에만 적히는 단방향 데이터라, 서버가
+// /api/oreum/{id}/linked에서 반대쪽(다른 오름이 이 오름을 지목한 경우)까지
+// 합쳐 direction("forward"/"reverse")과 함께 내려준다. 여기선 표시만 한다 —
+// notes.linked_oreums 자체를 map_editor에서 편집하지는 않는다.
+function renderLinkedOreumList(items) {
+  const section = document.getElementById('linked-oreum-section');
+  const container = document.getElementById('linked-oreum-list');
+  container.innerHTML = '';
+  if (!items || items.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+  items.forEach((item) => {
+    const el = document.createElement('div');
+    el.className = 'linked-oreum-item' + (item.resolved ? '' : ' unresolved');
+
+    const dir = document.createElement('span');
+    dir.className = 'lo-dir' + (item.direction === 'reverse' ? ' reverse' : '');
+    dir.textContent = item.direction === 'reverse' ? '← 연계됨' : '→ 연계 추천';
+    el.appendChild(dir);
+
+    el.appendChild(document.createTextNode(item.name));
+
+    if (!item.resolved) {
+      const tag = document.createElement('span');
+      tag.className = 'lo-unresolved-tag';
+      tag.textContent = '(이름 미확인)';
+      el.appendChild(tag);
+    } else {
+      el.addEventListener('click', () => selectOreum(item.id));
+    }
+
+    container.appendChild(el);
+  });
+}
+
+async function loadLinkedOreums(oreumId) {
+  try {
+    const res = await fetch(`/api/oreum/${oreumId}/linked`);
+    if (!res.ok) return;
+    renderLinkedOreumList(await res.json());
+  } catch (err) {
+    // 연계오름 조회 실패는 편집 흐름을 막을 정도는 아니라 조용히 무시
+  }
+}
+
 async function addEntrance(lat, lng) {
   if (!currentOreumId) {
     setStatus('먼저 오름을 검색해서 선택하세요.');
@@ -715,8 +799,10 @@ async function saveRestroomNote(note) {
 
 async function searchOreum(q) {
   const needsTrailOnly = document.getElementById('needs-trail-checkbox').checked;
+  const linkedOreumOnly = document.getElementById('linked-oreum-checkbox').checked;
   const params = new URLSearchParams({ q });
   if (needsTrailOnly) params.set('needs_trail_only', '1');
+  if (linkedOreumOnly) params.set('linked_oreum_only', '1');
   const res = await fetch('/api/oreum?' + params.toString());
   return res.json();
 }
@@ -756,6 +842,12 @@ function renderResults(items) {
       const badge = document.createElement('span');
       badge.className = 'badge-needs-trail';
       badge.textContent = '등산로 필요';
+      li.appendChild(badge);
+    }
+    if (item.has_linked_oreum) {
+      const badge = document.createElement('span');
+      badge.className = 'badge-linked-oreum';
+      badge.textContent = '연계오름';
       li.appendChild(badge);
     }
 
@@ -914,6 +1006,8 @@ function updateTrailControlsForActive() {
 
 function activateTrail(idx) {
   if (trailDrawing) resetTrailDrawUi();
+  document.getElementById('trail-copy-panel').style.display = 'none';
+  closeElevationPanel();
   activeTrailIndex = idx;
   updateTrailControlsForActive();
   renderTrailVisuals();
@@ -980,6 +1074,7 @@ async function selectOreum(id) {
 
   document.getElementById('current').style.display = 'block';
   document.getElementById('current-name').textContent = o.name;
+  loadLinkedOreums(o.id);
 
   const restroomBtn = document.querySelector('.mode-btn[data-type="restroom"]');
   if (o.facilities.restroom === '없음') {
@@ -1010,6 +1105,8 @@ async function selectOreum(id) {
   document.getElementById('restroom-note-input').value = o.coordinates.restroom.note || '';
 
   resetTrailDrawUi();
+  document.getElementById('trail-copy-panel').style.display = 'none';
+  closeElevationPanel();
   draftTrails = (o.trails || []).map((t) => ({
     id: t.id,
     points: (t.path || []).map((p) => ({ lat: p.lat, lng: p.lng })),
@@ -1037,6 +1134,11 @@ document.getElementById('search').addEventListener('input', async (e) => {
 });
 
 document.getElementById('needs-trail-checkbox').addEventListener('change', async () => {
+  const items = await searchOreum(document.getElementById('search').value);
+  renderResults(items);
+});
+
+document.getElementById('linked-oreum-checkbox').addEventListener('change', async () => {
   const items = await searchOreum(document.getElementById('search').value);
   renderResults(items);
 });
@@ -1230,6 +1332,157 @@ document.getElementById('trail-save-btn').addEventListener('click', async () => 
     if (isNew) refreshProgress();
   } catch (err) {
     setStatus(`등산로 저장 실패: ${err.message}`);
+  }
+});
+
+// 연계오름끼리 물리적으로 같은 등산로를 공유할 때, 다시 그리지 않고 저장된
+// 등산로를 상대 오름 trails 배열에 그대로 복사하는 기능 (path/surface_type/note 그대로).
+document.getElementById('trail-copy-toggle-btn').addEventListener('click', () => {
+  const trail = draftTrails[activeTrailIndex];
+  if (!trail) {
+    setStatus('먼저 복사할 등산로 탭을 선택하세요.');
+    return;
+  }
+  if (trail.id == null) {
+    setStatus('이 등산로는 아직 저장되지 않았습니다. 먼저 "등산로 저장"을 눌러주세요.');
+    return;
+  }
+  const panel = document.getElementById('trail-copy-panel');
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
+    document.getElementById('trail-copy-search').value = '';
+    document.getElementById('trail-copy-results').innerHTML = '';
+    document.getElementById('trail-copy-search').focus();
+  }
+});
+
+document.getElementById('trail-copy-search').addEventListener('input', async (e) => {
+  const q = e.target.value.trim();
+  const ul = document.getElementById('trail-copy-results');
+  if (!q) {
+    ul.innerHTML = '';
+    return;
+  }
+  const res = await fetch('/api/oreum?' + new URLSearchParams({ q }).toString());
+  const items = (await res.json()).filter((item) => item.id !== currentOreumId);
+  ul.innerHTML = '';
+  items.forEach((item) => {
+    const li = document.createElement('li');
+    li.textContent = `${item.name} (${item.region})`;
+    li.addEventListener('click', () => copyActiveTrailTo(item.id, item.name));
+    ul.appendChild(li);
+  });
+});
+
+async function copyActiveTrailTo(targetOreumId, targetName) {
+  const trail = draftTrails[activeTrailIndex];
+  if (!trail || trail.id == null || !currentOreumId) return;
+  try {
+    const res = await fetch(`/api/oreum/${currentOreumId}/trails/${trail.id}/copy-to/${targetOreumId}`, {
+      method: 'POST',
+    });
+    if (!res.ok) throw new Error('copy failed');
+    document.getElementById('trail-copy-panel').style.display = 'none';
+    setStatus(`등산로 ${activeTrailIndex + 1}을(를) "${targetName}"에 복사했습니다.`);
+    refreshProgress();
+  } catch (err) {
+    setStatus(`복사 실패: ${err.message}`);
+  }
+}
+
+// 등산로 고도 프로파일: 누적거리(X)-고도(Y) 그래프 + 그래프 hover 시 지도 위 마커 동기화.
+// trail_id 없이 좌표 배열만 서버로 보내므로 저장 전 초안 상태에서도 미리볼 수 있다.
+let elevationChart = null;
+let elevationCursorMarker = null;
+
+function closeElevationPanel() {
+  document.getElementById('elevation-panel').style.display = 'none';
+  document.getElementById('elevation-status').textContent = '';
+  if (elevationChart) {
+    elevationChart.destroy();
+    elevationChart = null;
+  }
+  if (elevationCursorMarker) {
+    elevationCursorMarker.setMap(null);
+    elevationCursorMarker = null;
+  }
+}
+
+document.getElementById('trail-elevation-btn').addEventListener('click', async () => {
+  const trail = draftTrails[activeTrailIndex];
+  if (!trail) {
+    setStatus('먼저 등산로 탭을 선택하세요.');
+    return;
+  }
+  if (trail.points.length < 2) {
+    setStatus('등산로는 점을 2개 이상 찍어야 고도 프로파일을 볼 수 있습니다.');
+    return;
+  }
+
+  const panel = document.getElementById('elevation-panel');
+  const statusEl = document.getElementById('elevation-status');
+  panel.style.display = 'block';
+  statusEl.textContent = '고도 계산 중...';
+  if (elevationChart) {
+    elevationChart.destroy();
+    elevationChart = null;
+  }
+
+  try {
+    const res = await fetch('/api/elevation-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ points: trail.points }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      statusEl.textContent = data.detail || '고도 프로파일을 계산하지 못했습니다.';
+      return;
+    }
+
+    statusEl.textContent = `총 거리 ${formatDistance(data.total_distance_m)} · 누적 상승 ${data.total_gain_m}m`;
+
+    const ctx = document.getElementById('elevation-chart').getContext('2d');
+    elevationChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data.points.map((p) => p.distance_m),
+        datasets: [{
+          label: '고도(m)',
+          data: data.points.map((p) => p.elevation),
+          borderColor: '#2b6cff',
+          backgroundColor: 'rgba(43,108,255,0.1)',
+          fill: true,
+          pointRadius: 0,
+          tension: 0.2,
+        }],
+      },
+      options: {
+        animation: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+          x: { title: { display: true, text: '누적 거리 (m)' } },
+          y: { title: { display: true, text: '고도 (m)' } },
+        },
+        onHover: (event, elements) => {
+          if (!elements.length) {
+            if (elevationCursorMarker) elevationCursorMarker.setMap(null);
+            return;
+          }
+          const p = data.points[elements[0].index];
+          const pos = new kakao.maps.LatLng(p.lat, p.lng);
+          if (!elevationCursorMarker) {
+            elevationCursorMarker = new kakao.maps.Marker({ position: pos, map });
+          } else {
+            elevationCursorMarker.setPosition(pos);
+            elevationCursorMarker.setMap(map);
+          }
+        },
+      },
+    });
+  } catch (err) {
+    statusEl.textContent = `고도 프로파일 계산 실패: ${err.message}`;
   }
 });
 
