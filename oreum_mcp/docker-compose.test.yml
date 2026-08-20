@@ -1,0 +1,23 @@
+services:
+  # 로컬 LLM(hostllm 대역) 테스트용 Ollama 서버. 실제 배포에는 안 쓰임 —
+  # hostllm은 별도로 이미 존재하므로, oreum-mcp-server와 같은
+  # etri-jejuax-gateway-network에서 MCP 연결이 되는지 로컬에서 검증할 때만 쓴다.
+  ollama-test:
+    image: ollama/ollama
+    container_name: ollama-test
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-test-data:/root/.ollama
+    restart: unless-stopped
+    networks:
+      - etri-jejuax-gateway-network
+
+volumes:
+  ollama-test-data:
+    name: ollama-test-data
+
+networks:
+  etri-jejuax-gateway-network:
+    external: true
+    name: etri-jejuax-gateway-network
