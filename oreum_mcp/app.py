@@ -10,11 +10,15 @@ import sys
 import argparse
 from fastmcp import FastMCP
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 sys.path.insert(0, str(Path(__file__).parent))
 
+from modules.data import load_oreums
 from modules.routes import register_routes
 from modules.shared import create_base_app
+
+STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 
 # 1. REST API 앱 생성
@@ -38,6 +42,9 @@ mcp = FastMCP.from_fastapi(
 1. 조건 기반 추천 (recommend_oreum)
    - 지역/난이도/거리/소요시간/계절/키워드로 필터링해 오름 목록 추천
    - 예: "서귀포시에 있고 30분 이내로 오를 수 있는 쉬운 오름 추천해줘"
+   - 응답의 map_url은 추천된 오름들을 카카오맵에 마커로 찍어 보여주는
+     읽기 전용 페이지 링크입니다(결과가 없으면 null). 사용자에게 추천 결과를
+     안내할 때 이 링크도 함께 제시하세요.
 2. 오름 상세 조회 (get_oreum_detail)
    - 이름 또는 id로 특정 오름의 기본정보/시설/등산로/노트 조회
    - 이름이 여러 오름과 부분일치하면 candidates 목록을 반환하니, 사용자에게
@@ -82,6 +89,26 @@ app = FastAPI(
 async def health_check():
     return {"status": "healthy", "service": "oreum-mcp"}
 
+
+# recommend_oreum이 반환하는 map_url이 여는, 추천 결과를 지도에 찍어 보여주는
+# 읽기 전용 페이지. api_app(register_routes)이 아니라 이 래퍼 app에 직접 붙인
+# 일반 FastAPI 라우트라 MCP 도구로 변환되지 않는다 — static/index.html은
+# map_editor(쓰기 도구)와 완전히 분리된, 좌표 저장 기능이 전혀 없는 정적 페이지.
+@app.get("/view/data")
+async def view_data(ids: str):
+    """레코드를 축약하지 않고 그대로 반환한다 — 지도 페이지가 basic_info/
+    facilities/notes/coordinates(entrances·parking·restroom 포함)/trails(경로
+    포함)까지 전부 보여줘야 해서, get_oreum_detail과 동일하게 "요약 없이 전체"
+    원칙을 따른다."""
+    try:
+        id_set = {int(x) for x in ids.split(",") if x.strip()}
+    except ValueError:
+        return []
+    records = load_oreums()
+    return [r for r in records if r.get("id") in id_set]
+
+
+app.mount("/view", StaticFiles(directory=STATIC_DIR, html=True), name="view-static")
 
 # 5. MCP 앱 마운트
 app.mount("/", mcp_app)

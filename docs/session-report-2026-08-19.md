@@ -5,7 +5,6 @@
 ---
 
 ## 1. 코드 변경 (전부 미커밋 — working tree에만 존재)
-
 | 파일 | 변경 내용 |
 |---|---|
 | `map_editor/app.py` | (이전 세션에서 이어짐) `resolve_linked_oreums`, `GET /api/oreum/{id}/linked`, `linked_oreum_only` 검색 필터, `POST /api/oreum/{id}/trails/{trail_id}/copy-to/{target_id}` 추가. **(이 세션에서 신규)** `scripts/compute_trail_difficulty.py`의 `DemSampler`/`interpolate_path`/`compute_total_gain`을 import해 재사용하는 `POST /api/elevation-profile` 엔드포인트 추가 — trail_id 없이 좌표 배열만 받아 실시간 DEM 샘플링으로 누적거리·고도·총 상승고도를 반환. DEM 파일은 프로세스당 1회만 열어 전역 재사용(`get_dem_sampler` 지연 초기화) |

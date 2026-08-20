@@ -1,5 +1,6 @@
 # FastAPI 라우트 1개는 MCP 도구 1개입니다.
 
+import os
 import re
 from typing import Any, Dict, Optional
 
@@ -15,6 +16,7 @@ from .data import (
     parking_coords,
     resolve_linked_oreums,
     restroom_coord,
+    strip_coordinates,
     to_summary,
 )
 
@@ -206,9 +208,31 @@ def register_routes(app: FastAPI) -> None:
         )
         picked = candidates[:3] if region_only else candidates[: request.limit]
 
-        results = [to_summary(r) for r in picked]
+        # 좌표(위경도)는 map_url 지도 페이지가 마커/등산로로 보여주므로 텍스트
+        # 응답에서는 뺀다 — strip_coordinates()가 주소/난이도/메모 등 좌표가
+        # 아닌 필드는 그대로 남기고 위경도 숫자값만 제거한다.
+        results = [strip_coordinates(to_summary(r)) for r in picked]
 
-        return {"success": True, "count": len(results), "results": results}
+        # 추천 결과를 카카오맵에 마커로 찍어 보여주는 읽기 전용 페이지 링크.
+        # OREUM_MCP_PUBLIC_URL은 이 서버가 외부(ngrok 등)로 노출된 실제 주소를
+        # 가리켜야 한다 — 미설정 시 로컬 개발 기본값(localhost:포트)으로 대체.
+        picked_ids = [r.get("id") for r in picked if r.get("id") is not None]
+        map_url = None
+        if picked_ids:
+            base_url = (
+                os.getenv("OREUM_MCP_PUBLIC_URL")
+                or f"http://localhost:{os.getenv('OREUM_MCP_PORT', '11010')}"
+            ).rstrip("/")
+            ids_param = ",".join(str(i) for i in picked_ids)
+            map_url = f"{base_url}/view/?ids={ids_param}"
+
+        return {
+            "success": True,
+            "count": len(results),
+            "results": results,
+            "map_url": map_url,
+            "coordinates_note": "정확한 좌표(입구/주차장/화장실/등산로 경로)는 이 응답에 없습니다 — map_url 지도 페이지에서 확인하세요." if map_url else None,
+        }
 
     @app.post(
         "/oreum",

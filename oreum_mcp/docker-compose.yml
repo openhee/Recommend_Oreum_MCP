@@ -9,10 +9,15 @@ services:
     volumes:
       - ./modules:/app/modules
       - ./app.py:/app/app.py
+      - ./static:/app/static   # 추천 결과 지도 보기 페이지 (읽기 전용, 좌표 저장 기능 없음)
       - ../data:/app/data:ro   # data/oreum.json 읽기 전용 마운트 (map_editor가 쓰는 파일 그대로)
     environment:
       - OREUM_MCP_PORT=${OREUM_MCP_PORT:-11010}
       - OREUM_DATA_PATH=/app/data/oreum.json
+      # recommend_oreum이 반환하는 map_url에 쓰일, 이 서버가 외부에 노출된 실제
+      # 주소. ngrok으로 노출한다면 발급된 고정 도메인으로 설정 (미설정 시
+      # http://localhost:$OREUM_MCP_PORT로 대체되어 컨테이너 밖에서는 안 열림).
+      - OREUM_MCP_PUBLIC_URL=${OREUM_MCP_PUBLIC_URL:-}
     command: sh -c "python app.py --host 0.0.0.0 --port $${OREUM_MCP_PORT}"
     restart: unless-stopped
     networks:
@@ -44,5 +49,10 @@ services:
       - etri-jejuax-gateway-network
 
 networks:
+  # gateway(Kong)가 미리 생성한 외부 네트워크 — sample_MCP/docker-compose.yml과
+  # 동일한 패턴. external: true 없이 name:만 쓰면, 이 compose를 먼저 올릴 때
+  # 같은 이름의 새 네트워크를 만들어버려 실제 gateway/hostllm 네트워크와
+  # 분리될 위험이 있다.
   etri-jejuax-gateway-network:
+    external: true
     name: etri-jejuax-gateway-network

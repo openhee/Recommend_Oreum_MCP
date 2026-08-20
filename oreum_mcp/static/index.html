@@ -1,0 +1,333 @@
+<!--
+  추천 오름 지도 보기 (읽기 전용)
+
+  recommend_oreum MCP 도구 응답의 map_url이 가리키는 페이지. 좌표를 찍거나
+  저장하는 기능은 전혀 없다 — data/oreum.json을 쓰지 않는 oreum_mcp의 성격을
+  그대로 유지하기 위해 map_editor(쓰기 도구)와는 완전히 분리된 정적 페이지다.
+
+  사용법: /view?ids=12,45,67 처럼 오름 id를 콤마로 이어 넘기면 해당 오름들을
+  카카오맵에 마커/등산로로 표시하고, 사이드바에 각 오름의 전체 정보(기본정보/
+  시설/노트/등산로)를 보여준다. /view/data가 레코드를 축약 없이 그대로 내려주므로
+  (oreum_mcp/app.py의 view_data) 이 페이지에서 필드를 추가로 보여주고 싶으면
+  거기 필드를 그대로 읽으면 된다 — 서버 쪽 변경이 필요 없다.
+
+  실행 전 준비:
+    카카오 개발자 콘솔 > 내 애플리케이션 > 앱 설정 > 플랫폼 > Web 플랫폼 도메인에
+    이 페이지가 열릴 주소(예: http://localhost:11010, 또는 ngrok 공개 도메인)를
+    등록해야 지도가 정상적으로 뜬다. map_editor용으로 등록된 localhost:8010과는
+    별개 포트/도메인이므로 반드시 추가 등록이 필요하다.
+-->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>추천 오름 지도</title>
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=6df8501cdf4922b2d68fbd2a8d5e68a9&libraries=services"></script>
+<style>
+  html, body { margin: 0; height: 100%; font-family: -apple-system, "Malgun Gothic", sans-serif; }
+  #layout { display: flex; height: 100%; }
+  #sidebar { width: 380px; flex: none; border-right: 1px solid #ddd; padding: 12px; box-sizing: border-box; overflow-y: auto; }
+  #map-wrap { flex: 1; position: relative; }
+  #map { width: 100%; height: 100%; }
+  #sidebar h1 { font-size: 16px; margin: 0 0 12px; }
+  #empty { color: #999; font-size: 13px; padding: 8px; }
+
+  #map-controls { position: absolute; top: 10px; right: 10px; z-index: 10; }
+  #map-controls button {
+    padding: 8px 12px; font-size: 13px; cursor: pointer; border: 1px solid #ccc;
+    border-radius: 6px; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  #map-controls button.active { background: #333; color: #fff; border-color: #333; }
+
+  .card { border: 1px solid #e5e5e5; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; font-size: 13px; cursor: pointer; }
+  .card:hover { border-color: #999; }
+  .card .name { font-weight: bold; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+  .card .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .card .address { color: #888; font-size: 12px; margin: 2px 0 4px; }
+  .card .kakao-link { display: inline-block; font-size: 12px; color: #391b1b; text-decoration: none; margin-bottom: 8px; }
+  .card .kakao-link:hover { text-decoration: underline; }
+  .card .section-title { font-size: 11px; color: #999; margin: 8px 0 3px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .card .badges { display: flex; flex-wrap: wrap; gap: 4px; }
+  .badge { display: inline-block; padding: 2px 7px; border-radius: 10px; background: #f0f0f0; color: #555; font-size: 11px; white-space: nowrap; }
+  .badge.warn { background: #fdecea; color: #c0392b; }
+  .badge.ok { background: #eafaf1; color: #1e8449; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 12px; color: #444; }
+  .kv dt { color: #999; }
+  .kv dd { margin: 0; }
+  .caution-list { margin: 2px 0 0; padding-left: 16px; font-size: 12px; color: #c0392b; }
+  .trail-row { font-size: 12px; color: #444; padding: 3px 0; border-top: 1px dashed #eee; }
+  .trail-row:first-child { border-top: none; }
+  .muted { color: #aaa; font-size: 12px; }
+</style>
+</head>
+<body>
+<div id="layout">
+  <div id="sidebar">
+    <h1>추천 오름</h1>
+    <div id="list"></div>
+    <div id="empty" style="display:none;">표시할 오름이 없습니다. URL에 ?ids=1,2,3 형식으로 오름 id를 지정하세요.</div>
+  </div>
+  <div id="map-wrap">
+    <div id="map"></div>
+    <div id="map-controls">
+      <button id="btn-roadmap" class="active">지도</button>
+      <button id="btn-satellite">위성</button>
+    </div>
+  </div>
+</div>
+<script>
+const params = new URLSearchParams(location.search);
+const ids = params.get("ids") || "";
+
+const map = new kakao.maps.Map(document.getElementById("map"), {
+  center: new kakao.maps.LatLng(33.38, 126.55),
+  level: 9,
+});
+
+document.getElementById("btn-roadmap").addEventListener("click", () => {
+  map.setMapTypeId(kakao.maps.MapTypeId.ROADMAP);
+  document.getElementById("btn-roadmap").classList.add("active");
+  document.getElementById("btn-satellite").classList.remove("active");
+});
+document.getElementById("btn-satellite").addEventListener("click", () => {
+  map.setMapTypeId(kakao.maps.MapTypeId.HYBRID); // 위성 + 도로/지명 라벨
+  document.getElementById("btn-satellite").classList.add("active");
+  document.getElementById("btn-roadmap").classList.remove("active");
+});
+
+const TRAIL_COLORS = ['#8a2be2', '#e67e22', '#16a085', '#e74c3c', '#2980b9', '#c0392b', '#27ae60', '#8e44ad'];
+let trailColorSeq = 0;
+function nextTrailColor() { return TRAIL_COLORS[trailColorSeq++ % TRAIL_COLORS.length]; }
+
+const SURFACE_TYPE_LABELS = {
+  1: "단단/매끈 (데크·콘크리트)",
+  2: "거의 흙길",
+  3: "흙길 위주 (50~80%)",
+  4: "돌길 위주 (50~80%)",
+  5: "거의 돌길",
+};
+
+const ACCESS_STATUS_LABELS = {
+  open: "출입 가능",
+  reservation_required: "예약 필요",
+  restricted: "출입 제한",
+  prohibited: "출입 금지",
+};
+
+const TRAIL_CONDITION_LABELS = {
+  well_maintained: "정비 잘됨",
+  poor: "정비 미흡",
+  unclear: "경로 불분명",
+  none: "등산로 없음",
+};
+
+// CustomOverlay는 Marker/Polyline과 달리 kakao.maps.event.addListener로 클릭 이벤트가
+// 오지 않는다(순수 HTML 오버레이라 카카오맵 이벤트 시스템을 안 탄다) — content로 쓰는
+// DOM 엘리먼트에 네이티브 클릭 리스너를 직접 붙여야 한다.
+function poiOverlay(pos, emoji, bg, onClick) {
+  const el = document.createElement("div");
+  el.style.cssText = `
+    width: 26px; height: 26px; border-radius: 50%; background: ${bg};
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4); border: 2px solid #fff; cursor: pointer;
+  `;
+  el.textContent = emoji;
+  if (onClick) el.addEventListener("click", onClick);
+  return new kakao.maps.CustomOverlay({ position: pos, content: el, yAnchor: 0.5 });
+}
+
+function fmtNum(v, unit = "") {
+  return v == null ? null : `${v}${unit}`;
+}
+
+function basicInfoKv(basic) {
+  const rows = [
+    ["난이도", basic.difficulty],
+    ["편도거리", fmtNum(basic.distance_km, "km")],
+    ["소요시간", fmtNum(basic.climb_time_min, "분")],
+    ["비고도", fmtNum(basic.relative_height_m, "m")],
+    ["해발고도", fmtNum(basic.elevation_m, "m")],
+    ["면적", fmtNum(basic.area_sqm, "m²")],
+    ["형태", basic.shape_type],
+    ["방향", basic.shape_direction],
+    ["추천계절", basic.recommended_season],
+  ].filter(([, v]) => v != null && v !== "");
+  if (!rows.length) return "";
+  return `<dl class="kv">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`;
+}
+
+function facilitiesKv(facilities) {
+  const rows = [
+    ["노면", facilities.surface],
+    ["주차(원문)", facilities.parking],
+    ["화장실(원문)", facilities.restroom],
+    ["등산로유무", facilities.trail_info],
+    ["운영시간/요금", facilities.hours_fee],
+  ].filter(([, v]) => v != null && v !== "");
+  if (!rows.length) return "";
+  return `<dl class="kv">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`;
+}
+
+function notesBlock(notes) {
+  if (!notes) return "";
+  let html = "";
+  const access = notes.access || {};
+  const accessBadges = [];
+  if (access.status) {
+    const isRestricted = access.status !== "open";
+    accessBadges.push(`<span class="badge ${isRestricted ? "warn" : "ok"}">${ACCESS_STATUS_LABELS[access.status] || access.status}</span>`);
+  }
+  if (access.fee) accessBadges.push(`<span class="badge">요금: ${access.fee}</span>`);
+  if (access.hours) accessBadges.push(`<span class="badge">${access.hours}</span>`);
+  if (accessBadges.length) html += `<div class="section-title">출입</div><div class="badges">${accessBadges.join("")}</div>`;
+  if (access.detail) html += `<div class="muted">${access.detail}</div>`;
+
+  if (notes.trail_condition) {
+    html += `<div class="section-title">등산로 상태</div><div class="badges"><span class="badge">${TRAIL_CONDITION_LABELS[notes.trail_condition] || notes.trail_condition}</span></div>`;
+  }
+  if (notes.caution && notes.caution.length) {
+    html += `<div class="section-title">주의사항</div><ul class="caution-list">${notes.caution.map((c) => `<li>${c}</li>`).join("")}</ul>`;
+  }
+  if (notes.recommend_for) html += `<div class="section-title">추천 대상</div><div class="muted">${notes.recommend_for}</div>`;
+  if (notes.highlights && notes.highlights.length) {
+    html += `<div class="section-title">볼거리</div><div class="badges">${notes.highlights.map((h) => `<span class="badge">${h}</span>`).join("")}</div>`;
+  }
+  if (notes.directions) html += `<div class="section-title">찾아가는 길</div><div class="muted">${notes.directions}</div>`;
+  if (notes.trivia) html += `<div class="section-title">알아두면 좋은 정보</div><div class="muted">${notes.trivia}</div>`;
+  return html;
+}
+
+function trailsBlock(trails, colorForTrail) {
+  if (!trails || !trails.length) return "";
+  const rows = trails.map((t) => {
+    const parts = [];
+    if (t.length_m != null) parts.push(`${(t.length_m / 1000).toFixed(2)}km`);
+    if (t.surface_type != null) parts.push(SURFACE_TYPE_LABELS[t.surface_type] || `노면타입 ${t.surface_type}`);
+    if (t.note) parts.push(t.note);
+    const hasPath = t.path && t.path.length >= 2;
+    const swatch = hasPath ? `<span class="swatch" style="background:${colorForTrail(t.id)}"></span>` : "";
+    return `<div class="trail-row">${swatch} ${parts.join(" · ") || "(정보 없음)"}${hasPath ? "" : " <span class=\"muted\">(경로 미수집)</span>"}</div>`;
+  });
+  return `<div class="section-title">등산로 (${trails.length})</div>${rows.join("")}`;
+}
+
+async function load() {
+  if (!ids) {
+    document.getElementById("empty").style.display = "block";
+    return;
+  }
+  const res = await fetch(`/view/data?ids=${encodeURIComponent(ids)}`);
+  const oreums = await res.json();
+
+  if (!oreums.length) {
+    document.getElementById("empty").style.display = "block";
+    return;
+  }
+
+  const listEl = document.getElementById("list");
+  const bounds = new kakao.maps.LatLngBounds();
+  const infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
+
+  oreums.forEach((o) => {
+    const basic = o.basic_info || {};
+    const facilities = o.facilities || {};
+    const coords = o.coordinates || {};
+    const peak = coords.peak;
+    const trails = o.trails || [];
+
+    let peakMarker = null;
+    if (peak && peak.lat != null && peak.lng != null) {
+      const pos = new kakao.maps.LatLng(peak.lat, peak.lng);
+      bounds.extend(pos);
+      peakMarker = new kakao.maps.Marker({ map, position: pos, title: o.name });
+
+      const showInfo = () => {
+        infowindow.setContent(
+          `<div style="padding:6px 10px;font-size:13px;">
+            <strong>${o.name}</strong> (정상)<br/>
+            ${o.address ? `<span style="color:#888;font-size:12px;">${o.address}</span>` : ""}
+          </div>`
+        );
+        infowindow.open(map, peakMarker);
+      };
+      kakao.maps.event.addListener(peakMarker, "click", showInfo);
+    }
+
+    (coords.entrances || []).forEach((e) => {
+      if (e.lat == null || e.lng == null) return;
+      const pos = new kakao.maps.LatLng(e.lat, e.lng);
+      bounds.extend(pos);
+      const ov = poiOverlay(pos, "🚪", "#16a085", () => {
+        infowindow.setContent(`<div style="padding:6px 10px;font-size:12px;"><strong>입구</strong><br/>${e.address || ""}${e.note ? `<br/>${e.note}` : ""}</div>`);
+        infowindow.open(map, ov);
+      });
+      ov.setMap(map);
+    });
+
+    (coords.parking || []).forEach((p) => {
+      if (p.lat == null || p.lng == null) return;
+      const pos = new kakao.maps.LatLng(p.lat, p.lng);
+      bounds.extend(pos);
+      const ov = poiOverlay(pos, "🅿", "#2980b9", () => {
+        infowindow.setContent(`<div style="padding:6px 10px;font-size:12px;"><strong>주차장</strong><br/>${p.address || ""}${p.note ? `<br/>${p.note}` : ""}</div>`);
+        infowindow.open(map, ov);
+      });
+      ov.setMap(map);
+    });
+
+    const restroom = coords.restroom;
+    if (restroom && restroom.lat != null && restroom.lng != null) {
+      const pos = new kakao.maps.LatLng(restroom.lat, restroom.lng);
+      bounds.extend(pos);
+      const ov = poiOverlay(pos, "🚻", "#e67e22", () => {
+        infowindow.setContent(`<div style="padding:6px 10px;font-size:12px;"><strong>화장실</strong>${restroom.note ? `<br/>${restroom.note}` : ""}</div>`);
+        infowindow.open(map, ov);
+      });
+      ov.setMap(map);
+    }
+
+    const trailColors = {};
+    trails.forEach((t) => {
+      if (!t.path || t.path.length < 2) return;
+      const color = nextTrailColor();
+      trailColors[t.id] = color;
+      const path = t.path.map((p) => new kakao.maps.LatLng(p.lat, p.lng));
+      path.forEach((p) => bounds.extend(p));
+      const line = new kakao.maps.Polyline({
+        path,
+        strokeWeight: 4,
+        strokeColor: color,
+        strokeOpacity: 0.85,
+        strokeStyle: "solid",
+      });
+      line.setMap(map);
+    });
+    const colorForTrail = (trailId) => trailColors[trailId] || "#999";
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="name">${o.name}</div>
+      <div class="address">${o.address || ""}</div>
+      ${o.kakao_map_url ? `<a class="kakao-link" href="${o.kakao_map_url}" target="_blank" rel="noopener">카카오맵에서 보기 ↗</a>` : ""}
+      ${basicInfoKv(basic)}
+      ${facilitiesKv(facilities) ? `<div class="section-title">시설(원문)</div>${facilitiesKv(facilities)}` : ""}
+      ${trailsBlock(trails, colorForTrail)}
+      ${notesBlock(o.notes)}
+    `;
+    const kakaoLink = card.querySelector(".kakao-link");
+    if (kakaoLink) kakaoLink.addEventListener("click", (ev) => ev.stopPropagation());
+    card.addEventListener("click", () => {
+      if (peakMarker) map.panTo(peakMarker.getPosition());
+    });
+    listEl.appendChild(card);
+  });
+
+  if (!bounds.isEmpty()) map.setBounds(bounds);
+}
+
+load();
+</script>
+</body>
+</html>

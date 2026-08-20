@@ -5,6 +5,7 @@
 반영한다 — map_editor에서 수집을 계속하는 동안 서버 재시작 없이도 반영되게
 하기 위함.
 """
+import copy
 import json
 import os
 from pathlib import Path
@@ -61,6 +62,32 @@ def to_summary(record: dict[str, Any]) -> dict[str, Any]:
     오름의 전체 정보(basic_info/coordinates/facilities/trails/notes 등)를 그대로
     내려달라는 요청에 따라 record를 그대로 반환한다."""
     return record
+
+
+def strip_coordinates(record: dict[str, Any]) -> dict[str, Any]:
+    """recommend_oreum처럼 map_url(지도 페이지)이 함께 나가는 응답에서, 위경도
+    숫자값을 뺀 사본을 반환한다. 좌표는 이제 지도 페이지가 마커/등산로로
+    시각적으로 보여주므로, LLM에게 넘기는 텍스트 응답에 그대로 중복해서 실을
+    필요가 없다(특히 trails[].path는 점이 많으면 응답이 커진다) — 주소/메모/
+    난이도 등 좌표가 아닌 필드는 그대로 남긴다. 원본 record는 건드리지 않는다
+    (load_oreums()가 매 요청 새로 읽어오긴 하지만, candidates 정렬 등 같은
+    요청 안에서 원본을 재사용할 수 있어 깊은 복사 후 수정한다)."""
+    r = copy.deepcopy(record)
+    coords = r.get("coordinates") or {}
+    coords.pop("peak", None)
+    for e in coords.get("entrances") or []:
+        e.pop("lat", None)
+        e.pop("lng", None)
+    for p in coords.get("parking") or []:
+        p.pop("lat", None)
+        p.pop("lng", None)
+    restroom = coords.get("restroom")
+    if restroom:
+        restroom.pop("lat", None)
+        restroom.pop("lng", None)
+    for t in r.get("trails") or []:
+        t.pop("path", None)
+    return r
 
 
 def completeness_score(record: dict[str, Any]) -> int:
