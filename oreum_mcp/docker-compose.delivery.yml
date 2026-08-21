@@ -1,0 +1,68 @@
+# 오름 추천 MCP 서버
+#
+# 관광AX플랫폼의 "MCP 서버 등록" 화면에 서버 URL을 입력하면 플랫폼이 인터넷을
+# 통해 그 URL로 직접 접속 — 그래서 oreum-mcp-server는 host 포트를 직접 열지
+# 않고, ngrok 서비스 하나로만 외부에 노출합니다.
+#
+# recommend_oreum이 반환하는 /view/{...} 지도 페이지도 oreum-mcp-server의
+# 같은 포트에서 나가므로, ngrok 터널이 뜨면 자동으로 같은 도메인에서 열립니다.
+#
+#   docker compose up --build
+#
+# 준비물 (.env, 같은 폴더의 .env.example 참고):
+#   - NGROK_AUTHTOKEN, NGROK_DOMAIN: ngrok 대시보드(https://dashboard.ngrok.com)에서 발급
+#   - KAKAO_JS_KEY: 카카오 개발자 콘솔 > 내 애플리케이션 > 앱 키 > JavaScript 키
+#     (지도 보기 페이지용. 이 키가 서빙될 도메인을 카카오 콘솔의 Web 플랫폼
+#     도메인에도 등록해야 지도가 뜬다 — ngrok 도메인이 정해진 뒤 등록 필요)
+#
+services:
+  oreum-mcp-server:
+    build: .
+    environment:
+      OREUM_MCP_PORT: "11010"
+      OREUM_DATA_PATH: /app/data/oreum.json
+      # map_url(지도 링크)에 쓰일 이 서버의 외부 접근 주소. ngrok 고정 도메인을
+      # 쓴다면 여기에 그대로 채워야 컨테이너 밖에서도 지도 링크가 열린다.
+      OREUM_MCP_PUBLIC_URL: ${OREUM_MCP_PUBLIC_URL:-}
+      KAKAO_JS_KEY: ${KAKAO_JS_KEY:-}
+    volumes:
+      - ./modules:/app/modules
+      - ./app.py:/app/app.py
+      - ./static:/app/static
+      - ../data:/app/data:ro
+    networks:
+      - oreum-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11010/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # 관광AX플랫폼 등록 화면이 이 URL로 인터넷을 통해 직접 접속해 tools/list를
+  # 검증합니다. oreum-mcp-server는 host 포트를 열지 않고, 외부 노출은 이
+  # ngrok 터널 하나로만 나갑니다.
+  ngrok:
+    image: ngrok/ngrok:latest
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    # --url은 ngrok agent v3 문법입니다. 이미지가 v2 계열이면 --domain/--hostname으로
+    # 바꿔야 합니다. NGROK_DOMAIN 미설정 시 ngrok이 임의 도메인을 발급합니다 —
+    # 그 경우 발급된 주소를 OREUM_MCP_PUBLIC_URL에 다시 채워 재기동해야 map_url이 맞습니다.
+    command: ["http", "oreum-mcp-server:11010", "--url=${NGROK_DOMAIN:-}", "--log=stdout"]
+    depends_on:
+      oreum-mcp-server:
+        condition: service_healthy
+    networks:
+      - oreum-net
+    restart: unless-stopped
+    ports:
+      # 반드시 루프백(127.0.0.1)으로만 바인딩합니다. "4040:4040"으로 열면
+      # 인증 없는 ngrok 인스펙터가 모든 요청/응답 내용을 외부에 노출합니다 —
+      # 로컬에서 터널 상태/발급된 도메인을 확인할 때만 쓰는 용도입니다.
+      - "127.0.0.1:4040:4040"
+
+networks:
+  oreum-net:
+    driver: bridge

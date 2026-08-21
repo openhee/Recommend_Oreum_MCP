@@ -18,6 +18,8 @@ services:
       # 주소. ngrok으로 노출한다면 발급된 고정 도메인으로 설정 (미설정 시
       # http://localhost:$OREUM_MCP_PORT로 대체되어 컨테이너 밖에서는 안 열림).
       - OREUM_MCP_PUBLIC_URL=${OREUM_MCP_PUBLIC_URL:-}
+      # /view 지도 페이지(카카오맵)용 JS 키. 레포에 하드코딩하지 않고 .env에서 주입.
+      - KAKAO_JS_KEY=${KAKAO_JS_KEY:-}
     command: sh -c "python app.py --host 0.0.0.0 --port $${OREUM_MCP_PORT}"
     restart: unless-stopped
     networks:

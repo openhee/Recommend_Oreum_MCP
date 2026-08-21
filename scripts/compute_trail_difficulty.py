@@ -1,8 +1,11 @@
 """오름 등산로에 DEM 고도값을 입히고 경사도 기반 난이도를 계산한다.
 
 data/oreum.json의 각 trail.path에 elevation(m)을 추가하고, 경로를 따라
-누적상승/경사도 지표를 계산해 difficulty_metrics를 붙여
-data/oreum_with_elevation.json으로 저장한다.
+누적상승/경사도 지표를 계산해 difficulty_metrics를 붙여 저장한다.
+data/oreum_with_elevation.json(비교/분석용, compare_difficulty.py·
+analyze_mismatch.py가 읽음)과 data/oreum.json(map_editor/oreum_mcp가
+실제로 읽는 파일) 양쪽에 동일한 결과를 쓴다 — map_editor로 새 등산로가
+추가될 때마다 재실행해야 하는 배치 스크립트다(자동 트리거 없음).
 
 DEM: output_hh.tif (Copernicus 30m DSM, EPSG:4326) — 좌표계 변환 불필요.
 """
@@ -322,6 +325,12 @@ def main():
     with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
         json.dump(records, f, ensure_ascii=False, indent=2)
     print(f"\n저장 완료: {OUTPUT_JSON}")
+
+    # map_editor/oreum_mcp가 실제로 읽는 파일에도 반영 — 이 스크립트가 이제
+    # oreum.json의 trail.difficulty_metrics를 채우는 (재실행 가능한) 배치 스텝이다.
+    with open(INPUT_JSON, "w", encoding="utf-8") as f:
+        json.dump(records, f, ensure_ascii=False, indent=2)
+    print(f"저장 완료: {INPUT_JSON}")
 
 
 if __name__ == "__main__":

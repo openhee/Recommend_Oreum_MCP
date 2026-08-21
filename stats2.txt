@@ -1,0 +1,4 @@
+total_trails: 241
+scored: 241
+skipped: 0
+labels: {'쉬움': 90, '보통': 104, '어려움': 47}

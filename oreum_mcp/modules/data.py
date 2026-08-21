@@ -90,9 +90,26 @@ def strip_coordinates(record: dict[str, Any]) -> dict[str, Any]:
     return r
 
 
+def trail_difficulty(trail: dict[str, Any]) -> Optional[str]:
+    """trail 하나의 DEM 기반 난이도 라벨(쉬움/보통/어려움). 미계산이면 None.
+
+    scripts/compute_trail_difficulty.py가 배치로 채워두는 trail.difficulty_metrics.difficulty를
+    읽는다 — path가 없거나 DEM 범위/nodata로 스킵된 trail은 이 필드 자체가 없다."""
+    return (trail.get("difficulty_metrics") or {}).get("difficulty")
+
+
+def oreum_trail_difficulties(record: dict[str, Any]) -> list[str]:
+    """record의 등산로들 중 난이도가 계산된 것들의 라벨 목록 (중복 포함, trail 개수만큼).
+
+    오름 하나에 등산로가 여러 개면 서로 다른 난이도가 섞여 나올 수 있다(예: 쉬운
+    둘레길 + 어려운 정상코스) — basic_info.difficulty(CSV, 오름당 값 하나)를 대체하는
+    새 난이도 출처. 이 record가 basic_info.difficulty를 갖고 있어도 여기서는 보지 않는다."""
+    return [d for t in (record.get("trails") or []) if (d := trail_difficulty(t)) is not None]
+
+
 def completeness_score(record: dict[str, Any]) -> int:
-    """난이도/거리/소요시간/추천계절(basic_info) + 입구/주차장/화장실/등산로(map_editor
-    수집 좌표), 8개 항목 중 채워진 개수(0~8)를 센다.
+    """난이도(등산로 DEM 계산값)/거리/소요시간/추천계절(basic_info) + 입구/주차장/화장실/
+    등산로(map_editor 수집 좌표), 8개 항목 중 채워진 개수(0~8)를 센다.
 
     "지역명만 넘어온" 추천 모드에서 쓴다. 화장실 좌표 수집률이 워낙 낮아서(예:
     서귀포 144개 중 15개, 한림읍 16개 중 0개) 8개를 전부 요구하는 하드 필터를 쓰면
@@ -104,7 +121,7 @@ def completeness_score(record: dict[str, Any]) -> int:
     restroom = coords.get("restroom") or {}
 
     checks = [
-        basic.get("difficulty") is not None,
+        bool(oreum_trail_difficulties(record)),
         basic.get("distance_km") is not None,
         basic.get("climb_time_min") is not None,
         bool(basic.get("recommended_season")),

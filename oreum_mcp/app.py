@@ -6,19 +6,28 @@ data/oreum.json을 읽어 조건 기반 추천 / 오름 상세 조회 / 연계 �
 """
 from pathlib import Path
 
+import os
 import sys
 import argparse
+from dotenv import load_dotenv
 from fastmcp import FastMCP
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
 
 sys.path.insert(0, str(Path(__file__).parent))
+
+# Docker에서는 docker-compose.yml이 .env를 읽어 컨테이너 환경변수로 주입하지만,
+# `python app.py`로 로컬에서 직접 띄울 때는 그 과정이 없으므로 여기서 직접 로드한다.
+load_dotenv(Path(__file__).resolve().parent / ".env")
 
 from modules.data import load_oreums
 from modules.routes import register_routes
 from modules.shared import create_base_app
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+# 카카오 지도 JS 키. 레포에 하드코딩하지 않고 .env(KAKAO_JS_KEY)에서 읽어 /view
+# 페이지 서빙 시 치환한다 — index.html에 커밋된 키가 그대로 노출되지 않도록.
+KAKAO_JS_KEY = os.getenv("KAKAO_JS_KEY", "")
 
 
 # 1. REST API 앱 생성
@@ -54,8 +63,12 @@ mcp = FastMCP.from_fastapi(
    - 아직 연계 정보가 수집되지 않은 오름은 빈 목록 + 안내 메시지를 반환합니다.
 
 주의:
-- 난이도(difficulty)는 CSV 원본 값(쉬움/보통/어려움)이며, 일부 오름은 아직
-  값이 없을 수 있습니다(null) — 필터에서 제외되니 참고하세요.
+- 난이도(difficulty)는 CSV 원본 값이 아니라, 등산로마다 DEM(고도데이터) 기반
+  경사도 분석으로 계산한 값입니다(쉬움/보통/어려움). 오름 하나에 등산로가
+  여러 개면 서로 다른 난이도가 섞여 있을 수 있고(get_oreum_detail의
+  trail_difficulties/trails[].difficulty로 확인), recommend_oreum의 difficulty
+  필터는 그중 하나라도 일치하면 그 오름을 포함합니다. 등산로가 없거나 경로가
+  아직 수집되지 않은 오름은 난이도가 없을 수 있습니다(null) — 필터에서 제외되니 참고하세요.
 - access_status가 'reservation_required'/'restricted'/'prohibited'인 오름은
   방문 전 예약/통제 여부를 반드시 안내하세요.
 - get_oreum_detail의 parking_coords[].official이 false면 CSV 원본상 "정식 주차장
@@ -108,7 +121,15 @@ async def view_data(ids: str):
     return [r for r in records if r.get("id") in id_set]
 
 
-app.mount("/view", StaticFiles(directory=STATIC_DIR, html=True), name="view-static")
+@app.get("/view", include_in_schema=False)
+@app.get("/view/", include_in_schema=False)
+async def view_page():
+    """static/index.html을 그대로 서빙하되, __KAKAO_JS_KEY__ 플레이스홀더를
+    KAKAO_JS_KEY 환경변수 값으로 치환한다 — 카카오 API 키를 레포/정적 파일에
+    하드코딩하지 않기 위함(StaticFiles 마운트로는 이 치환을 할 수 없어 라우트로 뺌)."""
+    html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
+    html = html.replace("__KAKAO_JS_KEY__", KAKAO_JS_KEY)
+    return HTMLResponse(html)
 
 # 5. MCP 앱 마운트
 app.mount("/", mcp_app)

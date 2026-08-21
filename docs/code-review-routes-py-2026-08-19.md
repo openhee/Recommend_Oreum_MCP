@@ -1,8 +1,9 @@
 # 코드 리뷰 학습 노트 — `oreum_mcp/modules/routes.py`
 
-- 시작일: 2026-08-19
+- 시작일: 2026-08-19 / 이어서 진행: 2026-08-21
 - 진행 방식: `routes.py`를 1번 줄부터 섹션(임포트/클래스/함수) 단위로 나눠서 정독. 코딩 1년차 주니어 기준으로 설명.
-- 진행 상황: **1~102줄 완료.** 다음은 105줄(`OreumIdentifierRequest`)부터 이어서.
+- 진행 상황: **1~194줄 완료** (`RecommendRequest` 전체 + `OreumIdentifierRequest` + `register_routes` 시작부 + `recommend_oreum`의 필터링 for-loop까지). 다음은 196줄(정렬 로직)부터 이어서.
+- **주의**: 2026-08-19 이후 `routes.py`가 일부 수정됨(`strip_coordinates`/`resolve_linked_oreums` import 추가, `List` import 제거, `parking_coords[].official` 관련 등). 아래 08-21 섹션은 **수정된 최신 파일 기준 줄 번호**를 쓰므로, 위 08-19 섹션의 줄 번호(예: "105~110줄 `OreumIdentifierRequest`")와 몇 줄씩 어긋날 수 있음 — 최신 파일 기준이 맞는 번호임.
 
 ---
 
@@ -163,16 +164,201 @@ def _normalize(cls, data: Any) -> Any:
 
 ---
 
+---
+
+## 2026-08-21 진행분 (최신 파일 기준 줄 번호)
+
+## 108~112줄: `OreumIdentifierRequest` 클래스
+
+```python
+class OreumIdentifierRequest(BaseModel):
+    identifier: str = Field(
+        ...,
+        description="오름 이름(예: '가세오름') 또는 oreum.json의 id(숫자를 문자열로 전달, 예: '7').",
+    )
+```
+
+- `RecommendRequest`와 별개의 작은 요청 모델. `get_oreum_detail`, `recommend_linked_oreums` 두 도구가 공유해서 씀.
+- `identifier: str = Field(...)`에서 `...`(Ellipsis)는 "기본값 없음, 필수 필드"라는 뜻. `RecommendRequest`의 필드들은 전부 `default=None`/`default=False`였던 것과 대조적으로, 이건 반드시 값을 줘야 함.
+- 이름이 `id`가 아니라 `identifier`인 이유는 타입이 `str` 하나로 이름과 id를 둘 다 받기 때문 — 실제로 이름/숫자 어느 쪽이 들어왔는지 구분하는 로직은 여기가 아니라 `find_oreum()`(`modules/data.py`)에 있음. 숫자 id도 "문자열로 전달"하라고 명시한 이유는, 이 모델 타입이 그냥 `str`이라 정수를 넣으면 타입이 안 맞기 때문(명확성을 위해 문자열로 받는 규약).
+
+## 115번 줄: `register_routes` 함수 시작
+
+```python
+def register_routes(app: FastAPI) -> None:
+```
+
+- 이 함수가 실제로 3개의 라우트(`/recommend`, `/oreum`, `/linked`)를 `app`에 등록함. `oreum_mcp/app.py`에서 이 함수를 호출해서 FastAPI 앱을 완성한 뒤, `FastMCP.from_fastapi()`로 감싸서 MCP 서버로 변환.
+- "FastAPI 라우트 1개 = MCP 도구 1개" 원칙이 여기서 실현됨.
+
+## 116~121줄: `/recommend` 라우트 데코레이터 + 함수 시그니처
+
+```python
+@app.post(
+    "/recommend",
+    operation_id="recommend_oreum",
+    summary="조건(지역/난이도/거리/소요시간/계절/키워드)에 맞는 오름을 추천한다",
+)
+def recommend_oreum(request: RecommendRequest = RecommendRequest()) -> Dict[str, Any]:
+```
+
+- `operation_id="recommend_oreum"` — MCP 도구로 변환될 때 실제 도구 이름이 됨(라우트 경로 `/recommend`가 아니라).
+- `summary`는 도구 설명으로 노출되어 LLM이 "이 도구가 뭘 하는지" 판단하는 근거가 됨.
+- `request: RecommendRequest = RecommendRequest()` — 파라미터에 **기본값으로 빈 인스턴스**를 줌. 이유: 본문 파라미터에 기본값이 없으면 요청 body를 아예 안 보냈을 때 FastAPI가 422를 냄. 인자 없이 호출해도(`recommend_oreum()`) 모든 필드가 기본값인 요청으로 동작하게 만든 것.
+
+## 122번 줄: 데이터 로드
+
+```python
+records = load_oreums()
+```
+
+`modules/data.py`의 함수. 매 요청마다 `data/oreum.json`을 새로 읽음 — `oreum_mcp`는 read-only이고 캐싱 없이 매번 재로드해서, map_editor에서 수집한 데이터가 서버 재시작 없이 바로 반영되도록 설계된 부분.
+
+## 124~138줄: `region_only` 판정
+
+```python
+region_only = (
+    request.region is not None
+    and request.difficulty is None
+    and request.max_distance_km is None
+    and request.max_climb_time_min is None
+    and request.season is None
+    and request.keyword is None
+)
+```
+
+- "지역만 지정하고 다른 필터는 아무것도 안 준 경우"를 판별하는 플래그.
+- `True`가 되려면: `region`은 반드시 값이 있어야 하고(`is not None`), 나머지 5개 필드(`difficulty`, `max_distance_km`, `max_climb_time_min`, `season`, `keyword`)는 전부 기본값(`None`)이어야 함.
+- **주의**: `access_open_only`, `restroom_required`, `limit`은 이 판정에 포함되지 않음 — `access_open_only=True`를 켜도 `region_only` 여부에는 영향 없음(주석에 명시).
+- 나중에(209번 줄) `picked = candidates[:3] if region_only else candidates[: request.limit]`에서 사용 — 지역만 준 "느슨한 질의"는 결과가 너무 많이 쏟아질 수 있으니 `limit` 값과 무관하게 무조건 3개로 캡하고, 그 외엔 사용자가 지정한 `limit`(기본 3, 최대 50)을 따름.
+- 왜 이런 특별 취급을 하는가: 예전엔 8개 필드(난이도/거리/소요시간/계절 + 4개 좌표류)를 전부 요구하는 하드 필터였는데, 화장실 좌표 수집률이 낮아 지역별로 결과가 통째로 0건이 되는 문제가 있어 completeness_score 기반 랭킹으로 개편됨. "필터 조건이 거의 없는 경우엔 정보가 가장 많이 채워진 오름 상위 3개를 보여준다"는 동작을 지원하기 위한 플래그.
+
+## 140~194줄: 후보 필터링 for-loop
+
+### 140~143줄: 왜 레코드 단위로 필터링하는가
+
+```python
+candidates = []
+for r in records:
+```
+
+필터링은 원본 레코드(`r`) 단위로 하고, 정렬까지 끝난 뒤 마지막에(214번 줄) `to_summary()`로 변환. 이유: `distance_km` 같은 필드는 정렬 키로만 쓰이고 최종 응답에는 안 담기는데, 필터링 단계에서 이미 요약본으로 바꿔버리면 정렬 시점에 그 값을 다시 뽑아올 수 없기 때문.
+
+### 144~146줄: 루프 안 준비
+
+```python
+basic = r.get("basic_info") or {}
+notes = r.get("notes") or {}
+```
+
+`basic_info`나 `notes`가 `None`일 수 있으므로(`notes`는 `null` 허용), `or {}`로 빈 dict를 fallback시켜 이후 `.get()` 호출이 `AttributeError`를 내지 않도록 방어.
+
+### 148~152줄: `region` 필터
+
+```python
+if request.region and request.region not in (r.get("address") or ""):
+    continue
+```
+
+`region`이 `None`/빈 문자열이면 건너뜀. 값이 있으면 `region` 필드가 아니라 **`address` 전체 문자열**에 대해 부분일치 검사 — "제주특별자치도 OO시 OO읍 OO리 ..."가 다 들어있어 "한림"/"구좌" 같은 읍면동 지명도 걸림.
+
+### 153~154줄: `difficulty` 필터
+
+```python
+if request.difficulty and basic.get("difficulty") != request.difficulty:
+    continue
+```
+
+정확히 일치(`!=`)해야 통과. 값 자체는 검증 안 하므로 CSV 값과 정확히 같은 문자열이 아니면 매치 실패.
+
+### 155~158줄: `max_distance_km` 필터
+
+```python
+if request.max_distance_km is not None:
+    dist = basic.get("distance_km")
+    if dist is None or dist > request.max_distance_km:
+        continue
+```
+
+`dist is None`(거리 데이터 자체가 없는 오름)도 걸러냄 — "상한 이하인지 알 수 없으니 안전하게 제외". `access_open_only`의 null 처리(통과시킴)와 반대 방향이라 헷갈리지 말 것.
+
+### 159~162줄: `max_climb_time_min` 필터
+
+거리 필터와 완전히 동일한 패턴. `climb_time_min`이 없거나 상한을 초과하면 제외.
+
+### 163~164줄: `season` 필터
+
+```python
+if request.season and request.season not in (basic.get("recommended_season") or ""):
+    continue
+```
+
+부분일치. `region` 필터와 같은 패턴.
+
+### 165~178줄: `access_open_only` 필터 (2단 체크)
+
+```python
+if request.access_open_only:
+    status = (notes.get("access") or {}).get("status")
+    if status not in (None, "open"):
+        continue
+    if has_access_restriction_keyword(r):
+        continue
+```
+
+- 1단계: `notes.access.status`가 `None`이나 `"open"`이면 통과, 그 외(`reservation_required`/`restricted`/`prohibited`)면 제외. "확실히 위험이 확인된 것만 걸러낸다"는 안전 우선 원칙과 "미분류(null)까지 걸러내면 결과가 거의 0건"이라는 데이터 현실의 절충안.
+- 2단계: 1단계는 `notes.access.status`라는 구조화된 필드에만 의존하는데, `notes` 자체가 `null`인 레코드(살핀오름/성진이오름 등)는 다른 필드(`facilities.hours_fee` 등)에 "출입제한" 문구가 텍스트로만 남아있는 경우가 있었음. `has_access_restriction_keyword(r)`가 레코드 전체 JSON 텍스트에서 이 문구를 검색해서 필드 위치와 무관하게 걸러냄.
+- 두 체크 모두 `request.access_open_only`가 `True`일 때만 실행(중첩 `if`).
+
+### 179~182줄: `restroom_required` 필터
+
+```python
+if request.restroom_required:
+    restroom = (r.get("coordinates") or {}).get("restroom") or {}
+    if restroom.get("lat") is None or restroom.get("lng") is None:
+        continue
+```
+
+`coordinates.restroom.lat`/`lng` 둘 다 값이 있어야 통과하는 하드 필터.
+
+### 183~192줄: `keyword` 필터
+
+```python
+if request.keyword:
+    haystack = " ".join(
+        [
+            r.get("name") or "",
+            " ".join(notes.get("highlights") or []),
+            notes.get("recommend_for") or "",
+        ]
+    )
+    if request.keyword not in haystack:
+        continue
+```
+
+검색 대상(`haystack`)을 오름 이름 + `notes.highlights`(리스트를 공백 연결) + `notes.recommend_for` 세 군데에서 조합, 이 안에 `keyword`가 부분일치하면 통과.
+
+### 194줄: 통과한 레코드 누적
+
+```python
+candidates.append(r)
+```
+
+모든 필터를 통과한 레코드만 원본 그대로 `candidates`에 쌓임. 이 리스트가 다음 단계(196번 줄 이후)에서 `completeness_score` 기준으로 정렬됨.
+
+**패턴 요약**: 전형적인 "얼리 컨티뉴(early continue)" 필터 체인 — 각 조건은 독립적으로 검사되고, 하나라도 실패하면 즉시 다음 레코드로 넘어가 나머지 체크를 생략. `None`/`or {}` 방어 코드가 반복되는 이유는 `data/oreum.json`의 여러 필드가 구조적으로 `null`을 허용하기 때문.
+
+---
+
 ## 다음에 이어서 볼 부분
 
-- **105~110줄**: `OreumIdentifierRequest` 클래스 (아직 미검토)
-- **112줄~**: `register_routes(app: FastAPI)` 함수 본문
-  - `/recommend` (`recommend_oreum`, 113~210줄)
-  - `/oreum` (`get_oreum_detail`, 212~273줄)
-  - `/linked` (`recommend_linked_oreums`, 275~319줄)
+- **196~235줄**: `completeness_score` 정렬 로직, `picked`/`results` 조립, `map_url` 생성, 최종 응답 dict (`recommend_oreum` 나머지)
+- **237~298줄**: `/oreum` (`get_oreum_detail`)
+- **300~347줄**: `/linked` (`recommend_linked_oreums`)
 
 ## 학습 메모 (계속 헷갈리면 다시 볼 것)
 
 - `Optional[X]` = `X` 또는 `None`. `Field(default=...)`는 값이 없을 때 채워지는 기본값이지 타입이 아님 — 둘은 별개 개념.
 - Pydantic의 `Field(gt=..., ge=..., le=...)` 제약은 요청 자체를 자동으로 거부(422)시키는 "검증 규칙"이지, 비즈니스 로직(필터링)이 아님. 실제 "조건에 맞는 오름만 고르기"는 함수 본문에서 수동으로 함.
 - `@model_validator(mode="before")`는 "원본 입력 다듬기" 단계, Pydantic 필드 검증(타입 체크, `gt`/`ge` 등)은 그 다음 단계. 순서를 헷갈리지 말 것.
+- 필터 루프의 `None` 처리 방향이 필드마다 다름: `max_distance_km`/`max_climb_time_min`은 값이 없으면(null) 제외하지만, `access_open_only`는 값이 없으면(status: null) 오히려 통과시킴. "null = 모른다"를 안전 쪽으로 해석할지 관대한 쪽으로 해석할지는 필드 성격(수치 데이터 vs 위험 확인 여부)에 따라 다르게 설계된 것 — 일괄 규칙이 아니라 각각 이유가 있음.

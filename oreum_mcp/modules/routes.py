@@ -13,14 +13,39 @@ from .data import (
     find_oreum,
     has_access_restriction_keyword,
     load_oreums,
+    oreum_trail_difficulties,
     parking_coords,
     resolve_linked_oreums,
     restroom_coord,
     strip_coordinates,
     to_summary,
+    trail_difficulty,
 )
 
 _LEADING_NUMBER = re.compile(r"-?\d+(\.\d+)?")
+
+_COORDINATES_NOTE = (
+    "정확한 좌표(입구/주차장/화장실/등산로 경로)는 이 응답에 없습니다 — map_url 지도 페이지에서 확인하세요. "
+    "[필수] 이 응답의 map_url과 각 오름의 kakao_map_url은 링크 형태 그대로 사용자 답변에 반드시 포함하세요 "
+    "— 생략하지 마세요. map_url은 '추천 오름 한눈에 보기'라고 소개하고, 그 지도 페이지에 주차장으로 "
+    "바로 길안내를 시작할 수 있는 버튼도 있다는 점을 덧붙여 안내하세요(예: '주차장으로 바로 갈 수 있는 "
+    "링크도 있어요!'). kakao_map_url은 '카카오맵에서 위치 보기'라고 소개하세요."
+)
+
+
+def _build_map_url(ids: list) -> Optional[str]:
+    """추천 결과를 카카오맵에 마커로 찍어 보여주는 읽기 전용 페이지 링크.
+
+    OREUM_MCP_PUBLIC_URL은 이 서버가 외부(ngrok 등)로 노출된 실제 주소를
+    가리켜야 한다 — 미설정 시 로컬 개발 기본값(localhost:포트)으로 대체."""
+    if not ids:
+        return None
+    base_url = (
+        os.getenv("OREUM_MCP_PUBLIC_URL")
+        or f"http://localhost:{os.getenv('OREUM_MCP_PORT', '11010')}"
+    ).rstrip("/")
+    ids_param = ",".join(str(i) for i in ids)
+    return f"{base_url}/view/?ids={ids_param}"
 
 # 사람이나 LLM이 폼/자연어로 채우다 보면 숫자 필드에도 "30분", "1.5km"처럼
 # 단위가 붙은 문자열이 들어올 수 있다. 순수 숫자를 요구하는 대신, 앞의 숫자만
@@ -53,6 +78,15 @@ class RecommendRequest(BaseModel):
     def _normalize(cls, data: Any) -> Any:
         return _normalize_request_dict(data)
 
+    @model_validator(mode="after")
+    def _apply_companion_difficulty_default(self) -> "RecommendRequest":
+        """has_elderly_or_child_companion이 켜져 있고 difficulty를 따로 안 줬으면
+        '쉬움'을 기본값으로 채운다. difficulty를 명시적으로 지정했다면 그 값을
+        그대로 존중하고 덮어쓰지 않는다."""
+        if self.has_elderly_or_child_companion and self.difficulty is None:
+            self.difficulty = "쉬움"
+        return self
+
     region: Optional[str] = Field(
         default=None,
         description=(
@@ -63,7 +97,11 @@ class RecommendRequest(BaseModel):
     )
     difficulty: Optional[str] = Field(
         default=None,
-        description="난이도 필터. '쉬움' / '보통' / '어려움' 중 하나. 생략하면 전체 난이도.",
+        description=(
+            "난이도 필터. '쉬움' / '보통' / '어려움' 중 하나. 생략하면 전체 난이도. "
+            "등산로별 DEM(고도데이터) 기반 경사도 계산값이며(CSV 원본 난이도가 아님), "
+            "오름 하나에 등산로가 여러 개면 그중 하나라도 이 값과 일치하면 그 오름을 포함한다."
+        ),
     )
     max_distance_km: Optional[float] = Field(
         default=None,
@@ -97,6 +135,14 @@ class RecommendRequest(BaseModel):
         default=False,
         description="true면 화장실 좌표(coordinates.restroom)가 수집된 오름만 반환한다 (하드 필터).",
     )
+    has_elderly_or_child_companion: bool = Field(
+        default=False,
+        description=(
+            "true면 동반자 중 노약자/어린이가 있다는 뜻. difficulty를 별도로 지정하지 않은 "
+            "경우에만 '쉬움'을 기본값으로 적용한다 — difficulty를 명시적으로 지정했다면 "
+            "그 값을 그대로 존중하고 덮어쓰지 않는다."
+        ),
+    )
     limit: int = Field(
         default=3,
         ge=1,
@@ -112,11 +158,41 @@ class OreumIdentifierRequest(BaseModel):
     )
 
 
+class LinkedOreumRequest(BaseModel):
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize(cls, data: Any) -> Any:
+        return _normalize_request_dict(data)
+
+    identifier: Optional[str] = Field(
+        default=None,
+        description=(
+            "오름 이름(예: '가세오름') 또는 id. 생략하면 특정 오름을 지목하지 않고, "
+            "연계 코스가 수집된 오름들 중에서 골라 추천한다 (예: '연계코스로 갈 수 있는 "
+            "오름 추천해줘'처럼 오름명을 언급하지 않는 요청에 사용)."
+        ),
+    )
+    limit: int = Field(
+        default=3,
+        ge=1,
+        le=10,
+        description="identifier를 생략했을 때, 추천할 오름 묶음의 최대 개수 (기본 3). identifier를 지정한 경우엔 무시된다.",
+    )
+
+
 def register_routes(app: FastAPI) -> None:
     @app.post(
         "/recommend",
         operation_id="recommend_oreum",
         summary="조건(지역/난이도/거리/소요시간/계절/키워드)에 맞는 오름을 추천한다",
+        description=(
+            "응답의 map_url(추천 오름들을 지도에 표시한 링크)과 각 결과의 kakao_map_url"
+            "(카카오맵 장소 링크, 없을 수 있음)은 참고용 부가정보가 아니라 사용자에게 그대로 "
+            "전달해야 하는 필수 정보다. 오름을 추천하는 답변에는 이 링크들을 반드시 포함할 것. "
+            "map_url은 '추천 오름 한눈에 보기'라고 소개하고, 그 지도 페이지에서 주차장으로 바로 "
+            "길안내를 시작할 수 있는 버튼도 있다는 점을 함께 안내할 것(예: '주차장으로 바로 갈 수 "
+            "있는 링크도 있어요!'). kakao_map_url은 '카카오맵에서 위치 보기'라고 소개할 것."
+        ),
     )
     def recommend_oreum(request: RecommendRequest = RecommendRequest()) -> Dict[str, Any]:
         records = load_oreums()
@@ -137,9 +213,9 @@ def register_routes(app: FastAPI) -> None:
             and request.keyword is None
         )
 
-        # 필터링은 원본 레코드(r) 단위로 하고, 정렬/무작위추출까지 끝난 뒤 마지막에
-        # to_summary()로 변환한다 — distance_km 등은 정렬용으로만 쓰고 응답엔 안 담기 때문에
-        # 요약 딕셔너리가 아니라 레코드를 들고 있어야 정렬 키를 뽑을 수 있다.
+        # 필터링은 원본 레코드(r) 단위로 하고
+        # to_summary()로 변환한다. 하지만 json 형식 그대로 반환. map_url 링크를 통해 지도 페이지에서 마커/등산로 경로를 확인할 수 있으므로
+        # 좌표(위경도)는 strip_coordinates()로 제거한다.
         candidates = []
         for r in records:
             basic = r.get("basic_info") or {}
@@ -150,7 +226,7 @@ def register_routes(app: FastAPI) -> None:
             # region은 물론 "한림"/"구좌" 같은 읍면동 단위 지명도 걸러진다.
             if request.region and request.region not in (r.get("address") or ""):
                 continue
-            if request.difficulty and basic.get("difficulty") != request.difficulty:
+            if request.difficulty and request.difficulty not in oreum_trail_difficulties(r):
                 continue
             if request.max_distance_km is not None:
                 dist = basic.get("distance_km")
@@ -213,25 +289,15 @@ def register_routes(app: FastAPI) -> None:
         # 아닌 필드는 그대로 남기고 위경도 숫자값만 제거한다.
         results = [strip_coordinates(to_summary(r)) for r in picked]
 
-        # 추천 결과를 카카오맵에 마커로 찍어 보여주는 읽기 전용 페이지 링크.
-        # OREUM_MCP_PUBLIC_URL은 이 서버가 외부(ngrok 등)로 노출된 실제 주소를
-        # 가리켜야 한다 — 미설정 시 로컬 개발 기본값(localhost:포트)으로 대체.
         picked_ids = [r.get("id") for r in picked if r.get("id") is not None]
-        map_url = None
-        if picked_ids:
-            base_url = (
-                os.getenv("OREUM_MCP_PUBLIC_URL")
-                or f"http://localhost:{os.getenv('OREUM_MCP_PORT', '11010')}"
-            ).rstrip("/")
-            ids_param = ",".join(str(i) for i in picked_ids)
-            map_url = f"{base_url}/view/?ids={ids_param}"
+        map_url = _build_map_url(picked_ids)
 
         return {
             "success": True,
             "count": len(results),
             "results": results,
             "map_url": map_url,
-            "coordinates_note": "정확한 좌표(입구/주차장/화장실/등산로 경로)는 이 응답에 없습니다 — map_url 지도 페이지에서 확인하세요." if map_url else None,
+            "coordinates_note": _COORDINATES_NOTE if map_url else None,
         }
 
     @app.post(
@@ -265,7 +331,11 @@ def register_routes(app: FastAPI) -> None:
             "name": record.get("name"),
             "region": record.get("region"),
             "address": record.get("address"),
-            "difficulty": basic.get("difficulty"),
+            # 등산로별 DEM 기반 난이도 (CSV 원본 basic_info.difficulty는 더 이상 안 씀).
+            # 오름 하나에 등산로가 여러 개면 서로 다른 난이도가 섞여 나올 수 있다 —
+            # 값 하나로 뭉개는 대신 등산로 개수만큼(중복 포함) 그대로 나열한다.
+            # 등산로별 개별 값은 아래 trails[].difficulty에도 있다.
+            "trail_difficulties": oreum_trail_difficulties(record),
             "distance_km": basic.get("distance_km"),
             "climb_time_min": basic.get("climb_time_min"),
             "recommended_season": basic.get("recommended_season"),
@@ -287,6 +357,8 @@ def register_routes(app: FastAPI) -> None:
                     "surface_type": t.get("surface_type"),
                     "length_m": t.get("length_m"),
                     "note": t.get("note"),
+                    # DEM 기반 난이도. path가 없거나 DEM 범위/nodata로 스킵된 등산로는 null.
+                    "difficulty": trail_difficulty(t),
                 }
                 for t in (record.get("trails") or [])
             ],
@@ -297,50 +369,105 @@ def register_routes(app: FastAPI) -> None:
             "kakao_map_url": record.get("kakao_map_url"),
         }
 
-    @app.post(
-        "/linked",
-        operation_id="recommend_linked_oreums",
-        summary="특정 오름과 함께 방문하기 좋은 연계 오름 목록을 추천한다",
-    )
-    def recommend_linked_oreums(request: OreumIdentifierRequest) -> Dict[str, Any]:
-        records = load_oreums()
-        record, candidates = find_oreum(records, request.identifier)
+    def _build_linked_group(record: Dict[str, Any], records: list) -> Optional[Dict[str, Any]]:
+        """record와 연계된 오름 묶음(base/linked/map_url)을 만든다. 연계 정보가
+        없으면 None. identifier 지정 모드와 브라우즈(identifier 생략) 모드가
+        동일한 묶음 형태를 공유하도록 여기 한 곳으로 뽑아뒀다.
 
-        if record is None:
-            if candidates:
-                return {
-                    "success": False,
-                    "message": f"'{request.identifier}'와 정확히 일치하는 오름이 없습니다. 후보를 확인하세요.",
-                    "candidates": [to_summary(c) for c in candidates],
-                }
-            return {
-                "success": False,
-                "message": f"'{request.identifier}'에 해당하는 오름을 찾지 못했습니다.",
-                "candidates": [],
-            }
-
-        # linked_oreums는 저장 시 한쪽에만 적히는 단방향 데이터라(예: 가메오름 ->
-        # 누운오름은 있어도 누운오름 -> 가메오름은 없음), resolve_linked_oreums가
-        # 역방향(다른 레코드가 나를 지목한 경우)까지 합쳐서 어느 쪽으로 조회하든
-        # 연계 관계가 보이게 한다.
+        linked_oreums는 저장 시 한쪽에만 적히는 단방향 데이터라(예: 가메오름 ->
+        누운오름은 있어도 누운오름 -> 가메오름은 없음), resolve_linked_oreums가
+        역방향(다른 레코드가 나를 지목한 경우)까지 합쳐서 어느 쪽으로 조회하든
+        연계 관계가 보이게 한다."""
         resolved = resolve_linked_oreums(record, records)
         if not resolved:
-            return {
-                "success": True,
-                "base": {"id": record.get("id"), "name": record.get("name")},
-                "linked": [],
-                "message": "이 오름은 아직 수집된 연계 코스 추천 정보가 없습니다.",
-            }
+            return None
 
         linked = []
+        linked_ids = []
         for match, name, direction in resolved:
             if match:
-                linked.append({**to_summary(match), "resolved": True, "direction": direction})
+                # 좌표(위경도)는 map_url 지도 페이지가 마커로 보여주므로 텍스트
+                # 응답에서는 뺀다 (recommend_oreum과 동일한 처리).
+                linked.append({**strip_coordinates(to_summary(match)), "resolved": True, "direction": direction})
+                if match.get("id") is not None:
+                    linked_ids.append(match.get("id"))
             else:
                 linked.append({"name": name, "resolved": False, "direction": direction})
 
+        base_id = record.get("id")
+        map_url = _build_map_url(([base_id] if base_id is not None else []) + linked_ids)
+
+        return {
+            "base": {"id": base_id, "name": record.get("name")},
+            "linked": linked,
+            "map_url": map_url,
+            "coordinates_note": _COORDINATES_NOTE if map_url else None,
+        }
+
+    @app.post(
+        "/linked",
+        operation_id="recommend_linked_oreums",
+        summary="특정 오름과 함께 방문하기 좋은 연계 오름 목록을 추천한다 (오름명을 지정하지 않으면 연계 코스가 있는 오름 중에서 추천)",
+        description=(
+            "응답의 map_url(base 오름 + 연계 오름들을 지도에 표시한 링크)과 각 연계 오름의 "
+            "kakao_map_url(카카오맵 장소 링크, 없을 수 있음)은 참고용 부가정보가 아니라 사용자에게 "
+            "그대로 전달해야 하는 필수 정보다. 연계 코스를 안내하는 답변에는 이 링크들을 반드시 포함할 것. "
+            "map_url은 '추천 오름 한눈에 보기'라고 소개하고, 그 지도 페이지에서 주차장으로 바로 길안내를 "
+            "시작할 수 있는 버튼도 있다는 점을 함께 안내할 것(예: '주차장으로 바로 갈 수 있는 링크도 "
+            "있어요!'). kakao_map_url은 '카카오맵에서 위치 보기'라고 소개할 것."
+        ),
+    )
+    def recommend_linked_oreums(request: LinkedOreumRequest = LinkedOreumRequest()) -> Dict[str, Any]:
+        records = load_oreums()
+
+        if request.identifier is not None:
+            record, candidates = find_oreum(records, request.identifier)
+
+            if record is None:
+                if candidates:
+                    return {
+                        "success": False,
+                        "message": f"'{request.identifier}'와 정확히 일치하는 오름이 없습니다. 후보를 확인하세요.",
+                        "candidates": [to_summary(c) for c in candidates],
+                    }
+                return {
+                    "success": False,
+                    "message": f"'{request.identifier}'에 해당하는 오름을 찾지 못했습니다.",
+                    "candidates": [],
+                }
+
+            group = _build_linked_group(record, records)
+            if group is None:
+                return {
+                    "success": True,
+                    "base": {"id": record.get("id"), "name": record.get("name")},
+                    "linked": [],
+                    "message": "이 오름은 아직 수집된 연계 코스 추천 정보가 없습니다.",
+                }
+
+            return {"success": True, **group}
+
+        # identifier 생략: 연계 코스가 수집된(양방향 포함) 오름들 중, 정보가 가장
+        # 많이 채워진 순으로(completeness_score, recommend_oreum의 region-only
+        # 모드와 동일한 정렬 기준) 상위 limit개를 추천한다.
+        groups = []
+        for r in records:
+            group = _build_linked_group(r, records)
+            if group is not None:
+                groups.append((r, group))
+
+        groups.sort(
+            key=lambda item: (
+                -completeness_score(item[0]),
+                (item[0].get("basic_info") or {}).get("distance_km") is None,
+                (item[0].get("basic_info") or {}).get("distance_km"),
+            )
+        )
+        picked = [g for _, g in groups[: request.limit]]
+
         return {
             "success": True,
-            "base": {"id": record.get("id"), "name": record.get("name")},
-            "linked": linked,
+            "count": len(picked),
+            "results": picked,
+            "message": "연계 코스 정보가 아직 수집된 오름이 없습니다." if not picked else None,
         }

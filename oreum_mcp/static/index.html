@@ -11,11 +11,19 @@
   (oreum_mcp/app.py의 view_data) 이 페이지에서 필드를 추가로 보여주고 싶으면
   거기 필드를 그대로 읽으면 된다 — 서버 쪽 변경이 필요 없다.
 
+  주차장 "바로 안내" 버튼은 좌표 저장/편집이 아니라 카카오맵의 공개 길찾기 딥링크
+  (https://map.kakao.com/link/to/{name},{lat},{lng})로 새 탭을 여는 것뿐이라, 읽기 전용
+  성격을 벗어나지 않는다.
+
   실행 전 준비:
     카카오 개발자 콘솔 > 내 애플리케이션 > 앱 설정 > 플랫폼 > Web 플랫폼 도메인에
     이 페이지가 열릴 주소(예: http://localhost:11010, 또는 ngrok 공개 도메인)를
     등록해야 지도가 정상적으로 뜬다. map_editor용으로 등록된 localhost:8010과는
     별개 포트/도메인이므로 반드시 추가 등록이 필요하다.
+
+  __KAKAO_JS_KEY__는 리터럴 플레이스홀더다 — 이 파일을 정적으로 서빙하지 않고,
+  oreum_mcp/app.py의 GET /view 라우트가 KAKAO_JS_KEY 환경변수 값으로 치환해
+  내려준다(레포에 API 키를 하드코딩하지 않기 위함, .env의 KAKAO_JS_KEY 참고).
 -->
 <!doctype html>
 <html lang="ko">
@@ -23,53 +31,138 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>추천 오름 지도</title>
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=6df8501cdf4922b2d68fbd2a8d5e68a9&libraries=services"></script>
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=__KAKAO_JS_KEY__&libraries=services"></script>
 <style>
-  html, body { margin: 0; height: 100%; font-family: -apple-system, "Malgun Gothic", sans-serif; }
-  #layout { display: flex; height: 100%; }
-  #sidebar { width: 380px; flex: none; border-right: 1px solid #ddd; padding: 12px; box-sizing: border-box; overflow-y: auto; }
+  :root {
+    --accent: #ff6b35;
+    --accent-dark: #e85a2a;
+    --ink: #22252a;
+    --muted: #8a8f98;
+    --line: #eceef1;
+    --bg-soft: #f7f8fa;
+    --radius: 14px;
+    --shadow: 0 2px 10px rgba(20, 20, 30, 0.06), 0 1px 2px rgba(20, 20, 30, 0.05);
+    --shadow-lg: 0 10px 30px rgba(20, 20, 30, 0.12);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%; color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Malgun Gothic", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  #layout { display: flex; height: 100%; background: var(--bg-soft); }
+
+  #sidebar {
+    width: 400px; flex: none; padding: 18px; box-sizing: border-box;
+    overflow-y: auto; background: var(--bg-soft);
+  }
+  #sidebar h1 { font-size: 19px; margin: 4px 4px 2px; letter-spacing: -0.01em; }
+  #sidebar .subtitle { margin: 0 4px 16px; font-size: 12.5px; color: var(--muted); }
+  #empty {
+    color: var(--muted); font-size: 13px; padding: 20px 16px; text-align: center;
+    background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+
   #map-wrap { flex: 1; position: relative; }
   #map { width: 100%; height: 100%; }
-  #sidebar h1 { font-size: 16px; margin: 0 0 12px; }
-  #empty { color: #999; font-size: 13px; padding: 8px; }
 
-  #map-controls { position: absolute; top: 10px; right: 10px; z-index: 10; }
+  #map-controls { position: absolute; top: 16px; right: 16px; z-index: 10; display: flex; gap: 6px; }
   #map-controls button {
-    padding: 8px 12px; font-size: 13px; cursor: pointer; border: 1px solid #ccc;
-    border-radius: 6px; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    padding: 8px 14px; font-size: 13px; font-weight: 500; cursor: pointer; border: none;
+    border-radius: 999px; background: #fff; color: var(--ink); box-shadow: var(--shadow);
+    transition: background 0.15s, color 0.15s;
   }
-  #map-controls button.active { background: #333; color: #fff; border-color: #333; }
+  #map-controls button.active { background: var(--ink); color: #fff; }
 
-  .card { border: 1px solid #e5e5e5; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; font-size: 13px; cursor: pointer; }
-  .card:hover { border-color: #999; }
-  .card .name { font-weight: bold; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+  #legend {
+    position: absolute; top: 16px; left: 16px; z-index: 10;
+    background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-lg);
+    padding: 10px 14px; font-size: 12.5px; display: flex; gap: 14px; flex-wrap: wrap; max-width: 320px;
+  }
+  #legend .item { display: flex; align-items: center; gap: 6px; color: #444; white-space: nowrap; }
+  #legend .dot {
+    width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 10px; color: #fff; flex: none;
+  }
+
+  .card {
+    background: #fff; border-radius: var(--radius); padding: 14px 16px; margin-bottom: 12px;
+    font-size: 13px; cursor: pointer; box-shadow: var(--shadow); border: 1px solid transparent;
+    transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+  }
+  .card:hover { box-shadow: var(--shadow-lg); border-color: #ffe0d1; transform: translateY(-1px); }
+  .card .name { font-weight: 700; font-size: 16.5px; display: flex; align-items: center; gap: 6px; letter-spacing: -0.01em; }
   .card .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex: none; }
-  .card .address { color: #888; font-size: 12px; margin: 2px 0 4px; }
-  .card .kakao-link { display: inline-block; font-size: 12px; color: #391b1b; text-decoration: none; margin-bottom: 8px; }
-  .card .kakao-link:hover { text-decoration: underline; }
-  .card .section-title { font-size: 11px; color: #999; margin: 8px 0 3px; text-transform: uppercase; letter-spacing: 0.03em; }
-  .card .badges { display: flex; flex-wrap: wrap; gap: 4px; }
-  .badge { display: inline-block; padding: 2px 7px; border-radius: 10px; background: #f0f0f0; color: #555; font-size: 11px; white-space: nowrap; }
+  .card .address { color: var(--muted); font-size: 12px; margin: 3px 0 10px; }
+
+  .btn-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .pill-link {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600;
+    text-decoration: none; padding: 6px 12px; border-radius: 999px; white-space: nowrap;
+    transition: filter 0.15s;
+  }
+  .pill-link:hover { filter: brightness(0.95); }
+  .pill-link.kakao { background: #fee500; color: #391b1b; }
+  .pill-link.nav { background: var(--accent); color: #fff; }
+  .pill-link.nav:hover { filter: none; background: var(--accent-dark); }
+
+  .section-title {
+    font-size: 11px; color: var(--accent-dark); font-weight: 700; margin: 12px 0 5px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .badges { display: flex; flex-wrap: wrap; gap: 5px; }
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 999px; background: #f1f2f4; color: #555; font-size: 11px; white-space: nowrap; }
   .badge.warn { background: #fdecea; color: #c0392b; }
   .badge.ok { background: #eafaf1; color: #1e8449; }
-  .kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 12px; color: #444; }
-  .kv dt { color: #999; }
+
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; font-size: 12.5px; color: #444; }
+  .kv dt { color: var(--muted); }
   .kv dd { margin: 0; }
-  .caution-list { margin: 2px 0 0; padding-left: 16px; font-size: 12px; color: #c0392b; }
-  .trail-row { font-size: 12px; color: #444; padding: 3px 0; border-top: 1px dashed #eee; }
+
+  .caution-list { margin: 3px 0 0; padding-left: 16px; font-size: 12px; color: #c0392b; }
+
+  .poi-row {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+    font-size: 12px; color: #444; padding: 7px 0; border-top: 1px dashed var(--line);
+  }
+  .poi-row:first-child { border-top: none; }
+  .poi-row .poi-text { flex: 1; min-width: 0; }
+  .poi-row .poi-text .addr { display: block; }
+  .poi-row .poi-text .note { display: block; color: var(--muted); margin-top: 1px; }
+  .mini-nav {
+    flex: none; display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700;
+    text-decoration: none; padding: 5px 10px; border-radius: 999px; background: var(--accent); color: #fff;
+    white-space: nowrap; transition: background 0.15s;
+  }
+  .mini-nav:hover { background: var(--accent-dark); }
+
+  .trail-row { font-size: 12px; color: #444; padding: 5px 0; border-top: 1px dashed var(--line); display: flex; align-items: center; gap: 6px; }
   .trail-row:first-child { border-top: none; }
-  .muted { color: #aaa; font-size: 12px; }
+  .muted { color: var(--muted); font-size: 12px; }
+
+  /* 카카오 인포윈도우 내부 컨텐츠 */
+  .iw { padding: 8px 10px; font-size: 12.5px; font-family: inherit; }
+  .iw strong { font-size: 13px; }
+  .iw .iw-addr { color: #888; font-size: 11.5px; display: block; margin: 2px 0 6px; }
+  .iw .mini-nav { margin-top: 4px; }
 </style>
 </head>
 <body>
 <div id="layout">
   <div id="sidebar">
-    <h1>추천 오름</h1>
+    <h1>⛰️ 추천 오름</h1>
+    <p class="subtitle">카카오맵 기반 · 읽기 전용</p>
     <div id="list"></div>
-    <div id="empty" style="display:none;">표시할 오름이 없습니다. URL에 ?ids=1,2,3 형식으로 오름 id를 지정하세요.</div>
+    <div id="empty" style="display:none;">표시할 오름이 없습니다.<br/>URL에 <code>?ids=1,2,3</code> 형식으로 오름 id를 지정하세요.</div>
   </div>
   <div id="map-wrap">
     <div id="map"></div>
+    <div id="legend">
+      <div class="item"><span class="dot" style="background:#e74c3c;">⛰</span>정상</div>
+      <div class="item"><span class="dot" style="background:#16a085;">🚪</span>입구</div>
+      <div class="item"><span class="dot" style="background:#2980b9;">🅿</span>주차장</div>
+      <div class="item"><span class="dot" style="background:#e67e22;">🚻</span>화장실</div>
+    </div>
     <div id="map-controls">
       <button id="btn-roadmap" class="active">지도</button>
       <button id="btn-satellite">위성</button>
@@ -122,15 +215,24 @@ const TRAIL_CONDITION_LABELS = {
   none: "등산로 없음",
 };
 
+// 카카오맵 공개 길찾기 딥링크 — 앱이 설치돼 있으면 앱으로, 아니면 웹 카카오맵으로
+// 열려 목적지까지 바로 길안내를 시작한다. 별도 API 키/서버 호출 없이 정적으로 생성 가능.
+function kakaoNavUrl(name, lat, lng) {
+  return `https://map.kakao.com/link/to/${encodeURIComponent(name)},${lat},${lng}`;
+}
+function navButton(name, lat, lng, label = "🚗 바로 안내") {
+  return `<a class="mini-nav" href="${kakaoNavUrl(name, lat, lng)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${label}</a>`;
+}
+
 // CustomOverlay는 Marker/Polyline과 달리 kakao.maps.event.addListener로 클릭 이벤트가
 // 오지 않는다(순수 HTML 오버레이라 카카오맵 이벤트 시스템을 안 탄다) — content로 쓰는
 // DOM 엘리먼트에 네이티브 클릭 리스너를 직접 붙여야 한다.
 function poiOverlay(pos, emoji, bg, onClick) {
   const el = document.createElement("div");
   el.style.cssText = `
-    width: 26px; height: 26px; border-radius: 50%; background: ${bg};
+    width: 28px; height: 28px; border-radius: 50%; background: ${bg};
     display: flex; align-items: center; justify-content: center; font-size: 14px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4); border: 2px solid #fff; cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35); border: 2px solid #fff; cursor: pointer;
   `;
   el.textContent = emoji;
   if (onClick) el.addEventListener("click", onClick);
@@ -143,7 +245,7 @@ function fmtNum(v, unit = "") {
 
 function basicInfoKv(basic) {
   const rows = [
-    ["난이도", basic.difficulty],
+    ["난이도(원본)", basic.difficulty],
     ["편도거리", fmtNum(basic.distance_km, "km")],
     ["소요시간", fmtNum(basic.climb_time_min, "분")],
     ["비고도", fmtNum(basic.relative_height_m, "m")],
@@ -198,10 +300,31 @@ function notesBlock(notes) {
   return html;
 }
 
+// 주차장 좌표가 있는 항목만, 오름 이름 + 순번으로 안내 버튼 라벨을 구분한다
+// (한 오름에 주차장이 2곳 이상인 경우가 흔해서 "바로 안내"가 어디로 갈지 명확해야 함).
+function parkingBlock(oreumName, parkingList) {
+  const withCoords = (parkingList || []).filter((p) => p.lat != null && p.lng != null);
+  if (!withCoords.length) return "";
+  const rows = withCoords.map((p, i) => {
+    const label = withCoords.length > 1 ? `${oreumName} 주차장 ${i + 1}` : `${oreumName} 주차장`;
+    return `
+      <div class="poi-row">
+        <div class="poi-text">
+          ${p.address ? `<span class="addr">${p.address}</span>` : `<span class="addr muted">주소 미확인</span>`}
+          ${p.note ? `<span class="note">${p.note}</span>` : ""}
+        </div>
+        ${navButton(label, p.lat, p.lng)}
+      </div>`;
+  });
+  return `<div class="section-title">주차장 (${withCoords.length})</div>${rows.join("")}`;
+}
+
 function trailsBlock(trails, colorForTrail) {
   if (!trails || !trails.length) return "";
   const rows = trails.map((t) => {
     const parts = [];
+    const difficulty = (t.difficulty_metrics || {}).difficulty;
+    if (difficulty) parts.push(`난이도 ${difficulty}`);
     if (t.length_m != null) parts.push(`${(t.length_m / 1000).toFixed(2)}km`);
     if (t.surface_type != null) parts.push(SURFACE_TYPE_LABELS[t.surface_type] || `노면타입 ${t.surface_type}`);
     if (t.note) parts.push(t.note);
@@ -235,6 +358,7 @@ async function load() {
     const coords = o.coordinates || {};
     const peak = coords.peak;
     const trails = o.trails || [];
+    const parkingList = coords.parking || [];
 
     let peakMarker = null;
     if (peak && peak.lat != null && peak.lng != null) {
@@ -244,9 +368,9 @@ async function load() {
 
       const showInfo = () => {
         infowindow.setContent(
-          `<div style="padding:6px 10px;font-size:13px;">
-            <strong>${o.name}</strong> (정상)<br/>
-            ${o.address ? `<span style="color:#888;font-size:12px;">${o.address}</span>` : ""}
+          `<div class="iw">
+            <strong>${o.name}</strong> (정상)
+            ${o.address ? `<span class="iw-addr">${o.address}</span>` : ""}
           </div>`
         );
         infowindow.open(map, peakMarker);
@@ -259,18 +383,25 @@ async function load() {
       const pos = new kakao.maps.LatLng(e.lat, e.lng);
       bounds.extend(pos);
       const ov = poiOverlay(pos, "🚪", "#16a085", () => {
-        infowindow.setContent(`<div style="padding:6px 10px;font-size:12px;"><strong>입구</strong><br/>${e.address || ""}${e.note ? `<br/>${e.note}` : ""}</div>`);
+        infowindow.setContent(`<div class="iw"><strong>입구</strong><span class="iw-addr">${e.address || ""}${e.note ? ` · ${e.note}` : ""}</span></div>`);
         infowindow.open(map, ov);
       });
       ov.setMap(map);
     });
 
-    (coords.parking || []).forEach((p) => {
+    parkingList.forEach((p, i) => {
       if (p.lat == null || p.lng == null) return;
       const pos = new kakao.maps.LatLng(p.lat, p.lng);
       bounds.extend(pos);
+      const label = parkingList.length > 1 ? `${o.name} 주차장 ${i + 1}` : `${o.name} 주차장`;
       const ov = poiOverlay(pos, "🅿", "#2980b9", () => {
-        infowindow.setContent(`<div style="padding:6px 10px;font-size:12px;"><strong>주차장</strong><br/>${p.address || ""}${p.note ? `<br/>${p.note}` : ""}</div>`);
+        infowindow.setContent(
+          `<div class="iw">
+            <strong>주차장</strong>
+            <span class="iw-addr">${p.address || ""}${p.note ? ` · ${p.note}` : ""}</span>
+            ${navButton(label, p.lat, p.lng)}
+          </div>`
+        );
         infowindow.open(map, ov);
       });
       ov.setMap(map);
@@ -281,7 +412,7 @@ async function load() {
       const pos = new kakao.maps.LatLng(restroom.lat, restroom.lng);
       bounds.extend(pos);
       const ov = poiOverlay(pos, "🚻", "#e67e22", () => {
-        infowindow.setContent(`<div style="padding:6px 10px;font-size:12px;"><strong>화장실</strong>${restroom.note ? `<br/>${restroom.note}` : ""}</div>`);
+        infowindow.setContent(`<div class="iw"><strong>화장실</strong>${restroom.note ? `<span class="iw-addr">${restroom.note}</span>` : ""}</div>`);
         infowindow.open(map, ov);
       });
       ov.setMap(map);
@@ -310,14 +441,17 @@ async function load() {
     card.innerHTML = `
       <div class="name">${o.name}</div>
       <div class="address">${o.address || ""}</div>
-      ${o.kakao_map_url ? `<a class="kakao-link" href="${o.kakao_map_url}" target="_blank" rel="noopener">카카오맵에서 보기 ↗</a>` : ""}
+      <div class="btn-row">
+        ${o.kakao_map_url ? `<a class="pill-link kakao" href="${o.kakao_map_url}" target="_blank" rel="noopener">카카오맵에서 보기 ↗</a>` : ""}
+        ${peak && peak.lat != null ? `<a class="pill-link nav" href="${kakaoNavUrl(o.name, peak.lat, peak.lng)}" target="_blank" rel="noopener">🚗 정상까지 안내</a>` : ""}
+      </div>
       ${basicInfoKv(basic)}
+      ${parkingBlock(o.name, parkingList)}
       ${facilitiesKv(facilities) ? `<div class="section-title">시설(원문)</div>${facilitiesKv(facilities)}` : ""}
       ${trailsBlock(trails, colorForTrail)}
       ${notesBlock(o.notes)}
     `;
-    const kakaoLink = card.querySelector(".kakao-link");
-    if (kakaoLink) kakaoLink.addEventListener("click", (ev) => ev.stopPropagation());
+    card.querySelectorAll("a").forEach((a) => a.addEventListener("click", (ev) => ev.stopPropagation()));
     card.addEventListener("click", () => {
       if (peakMarker) map.panTo(peakMarker.getPosition());
     });
